@@ -16,10 +16,7 @@ namespace MyDataSample.Data.Migrations
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
+                constraints: table => { table.PrimaryKey("PK_AspNetRoles", x => x.Id); });
 
             migrationBuilder.CreateTable(
                 name: "AspNetUsers",
@@ -41,10 +38,7 @@ namespace MyDataSample.Data.Migrations
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
+                constraints: table => { table.PrimaryKey("PK_AspNetUsers", x => x.Id); });
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
@@ -99,7 +93,7 @@ namespace MyDataSample.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.PrimaryKey("PK_AspNetUserLogins", x => new {x.LoginProvider, x.ProviderKey});
                     table.ForeignKey(
                         name: "FK_AspNetUserLogins_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -117,7 +111,7 @@ namespace MyDataSample.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new {x.UserId, x.RoleId});
                     table.ForeignKey(
                         name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
                         column: x => x.RoleId,
@@ -143,7 +137,7 @@ namespace MyDataSample.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.PrimaryKey("PK_AspNetUserTokens", x => new {x.UserId, x.LoginProvider, x.Name});
                     table.ForeignKey(
                         name: "FK_AspNetUserTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
