@@ -17,9 +17,9 @@ namespace MyDataSample.Controllers
         }
 
         // Web hook for mydata to push data
-        [HttpPost("callback")]
+        [HttpPost("data")]
         [AllowAnonymous]
-        public IActionResult Callback()
+        public IActionResult DataCallback()
         {
             // Store whatever comes here
             return Ok("Thanks for data.");
@@ -33,6 +33,12 @@ namespace MyDataSample.Controllers
             return Redirect(myDataUrl.ToString());
         }
 
+        [HttpGet("callback")]
+        public IActionResult LoginCallback()
+        {
+            return RedirectToAction("Accounts", "MyData");
+        }
+
         [HttpGet("accounts")]
         public async Task<IActionResult> Accounts()
         {
@@ -40,11 +46,17 @@ namespace MyDataSample.Controllers
             return View(accounts);
         }
         
-        [HttpGet("accounts/{accountId}/transactions")]
-        public async Task<IActionResult> Transactions(string accountId)
+        [HttpGet("transactions")]
+        public async Task<IActionResult> Transactions([FromQuery] string accountId)
         {
             var transactions = await _myDataService.GetAccountTransactions(accountId);
             return View(transactions);
+        }
+
+        [HttpGet("mock")]
+        public IActionResult MyDataAppMock()
+        {
+            return View();
         }
     }
 }

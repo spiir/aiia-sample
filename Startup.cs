@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using MyDataSample.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyDataSample.Services;
 
 namespace MyDataSample
 {
@@ -44,6 +45,7 @@ namespace MyDataSample
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddSingleton<IMyDataService, MockMyDataService>();            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

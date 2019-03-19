@@ -5,4 +5,36 @@
     Layout = "_Layout";
 }
 
-<h2>title</h2>
+<div class="container-fluid">
+    <div class="row" style="padding: 0 3rem;">
+        <div class="col">
+            @foreach (var account in Model)
+            {
+                <div class="card" onclick="window.location.href = '@Url.Action("Transactions", "MyData", new { accountId = account.Id})'">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            @account.Name
+                        </h5>
+                        <div class="row">
+                            <div class="col-6 text-left">
+                                <p>Account no</p>
+                            </div>
+                            <div class="col-6 text-right">
+                                <p>@account.Number.Bban</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 text-left">
+                                <p>Balance</p>
+                            </div>
+                            <div class="col-6 text-right">
+                                <p>@account.AvailableBalance @account.Currency</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

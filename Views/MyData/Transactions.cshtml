@@ -5,4 +5,23 @@
     Layout = "_Layout";
 }
 
-<h2>title</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Creation Date</th>
+            <th scope="col">Execution Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in Model.OrderByDescending(x => x.CreationDate.ToUnixTimeMilliseconds()))
+        {
+            <tr>
+                <td>@transaction.Text</td>
+                <td>@transaction.Amount @transaction.Currency</td>
+                <td>@transaction.CreationDate.ToString("f")</td>
+                <td>@transaction.Date.ToString("f")</td>
+            </tr>
+        }
+</table>

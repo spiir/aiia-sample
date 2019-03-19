@@ -12,6 +12,10 @@ namespace MyDataSample.Controllers
     {
         public IActionResult Index()
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "MyData");
+            }
             return View();
         }
 
