@@ -24,11 +24,11 @@ namespace MyDataSample.Controllers
             // Store whatever comes here
             return Ok("Thanks for data.");
         }
-
+        
         [HttpGet("login")]
         public async Task<IActionResult> Login()
         {
-            var myDataUrl = await _myDataService.GetAuthUri(User);
+            var myDataUrl = _myDataService.GetAuthUri(User);
 
             return Redirect(myDataUrl.ToString());
         }
