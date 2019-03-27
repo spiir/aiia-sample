@@ -26,8 +26,23 @@ namespace MyDataSample
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureDevelopmentServices(IServiceCollection services)
+        {
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlite(
+                    Configuration.GetConnectionString("DefaultConnection")));
+            ConfigureStandardServices(services);
+        }
+        
         public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection")));
+            ConfigureStandardServices(services);
+        }
+
+        private void ConfigureStandardServices(IServiceCollection services)
         {
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -37,10 +52,7 @@ namespace MyDataSample
             });
 
             services.Configure<SiteOptions>(Configuration);
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            
             services.AddDefaultIdentity<IdentityUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
