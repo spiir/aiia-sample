@@ -53,7 +53,7 @@ namespace MyDataSample
 
             services.Configure<SiteOptions>(Configuration);
             
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDefaultIdentity<ApplicationUser>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
