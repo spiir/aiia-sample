@@ -76,6 +76,7 @@ namespace MyDataSample
                 app.UseHttpsRedirection();
             }
 
+            UpdateDatabase(app);
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
@@ -87,6 +88,28 @@ namespace MyDataSample
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+        
+        private static void UpdateDatabase(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices
+                .GetRequiredService<IServiceScopeFactory>()
+                .CreateScope())
+            {
+                using (var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>())
+                {
+                    if (context.Database.IsSqlServer())
+                    {
+                        context.Database.Migrate();
+                    }
+                    else
+                    {
+                        // EnsureCreated() bypasses migrations and creates schema for model
+                        // Should be used only for prototyping/testing.
+                        context.Database.EnsureCreated();
+                    }
+                }
+            }
         }
     }
 }
