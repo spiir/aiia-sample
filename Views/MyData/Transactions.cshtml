@@ -15,13 +15,13 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var transaction in Model.OrderByDescending(x => x.CreationDate.ToUnixTimeMilliseconds()))
+        @foreach (var transaction in Model.OrderByDescending(x => x.CreationDate?.ToUnixTimeMilliseconds()))
         {
             <tr>
                 <td>@transaction.Text</td>
                 <td>@transaction.Amount @transaction.Currency</td>
-                <td>@transaction.CreationDate.ToString("f")</td>
-                <td>@transaction.Date.ToString("f")</td>
+                <td>@transaction.CreationDate?.ToString("f")</td>
+                <td>@transaction.Date?.ToString("f")</td>
             </tr>
         }
 </table>

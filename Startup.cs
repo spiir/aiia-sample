@@ -57,7 +57,7 @@ namespace MyDataSample
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddSingleton<IMyDataService, MyDataService>();            
+            services.AddScoped<IMyDataService, MyDataService>();            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

@@ -62,7 +62,7 @@ namespace MyDataSample.Services
                 var requestUrl = QueryHelpers.AddQueryString("oauth/token",
                     new Dictionary<string, string>()
                     {
-                        {"grant_type", "Authorization"},
+                        {"grant_type", "authorization_code"},
                         {"code", code},
                         {"scope", "read"},
                         {"redirect_uri", _options.CurrentValue.MyData.LoginCallbackUrl}
@@ -71,14 +71,15 @@ namespace MyDataSample.Services
                 var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
                 var response = await httpClient.SendAsync(request);
-
+                var content = await response.Content.ReadAsStringAsync();
+                
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new Exception("Failed to exchange code for tokens");
                 }
 
                 var tokenResponse =
-                    JsonConvert.DeserializeObject<CodeExchangeResponse>(await response.Content.ReadAsStringAsync());
+                    JsonConvert.DeserializeObject<CodeExchangeResponse>(content);
                 return tokenResponse;
             }
         }
@@ -207,11 +208,11 @@ namespace MyDataSample.Services
     public class Transaction
     {
         public string Id { get; set; }
-        public DateTimeOffset Date { get; set; }
-        public DateTimeOffset CreationDate { get; set; }
+        public DateTimeOffset? Date { get; set; }
+        public DateTimeOffset? CreationDate { get; set; }
         public string Text { get; set; }
         public string OriginalText { get; set; }
-        public int Amount { get; set; }
+        public double Amount { get; set; }
         public string Type { get; set; }
         public string Currency { get; set; }
         public string State { get; set; }
