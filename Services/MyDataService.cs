@@ -93,7 +93,7 @@ namespace MyDataSample.Services
                 return null;
             }
 
-            return await HttpGet<List<Account>>("/accounts", user.MyDataTokenType, user.MyDataAccessToken);
+            return await HttpGet<List<Account>>("/v1/accounts", user.MyDataTokenType, user.MyDataAccessToken);
         }
 
         public async Task<IEnumerable<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId)
@@ -105,7 +105,7 @@ namespace MyDataSample.Services
                 return null;
             }
 
-            return await HttpGet<List<Transaction>>($"/accounts/{accountId}/transactions", user.MyDataTokenType, user.MyDataAccessToken);
+            return await HttpGet<List<Transaction>>($"/v1/accounts/{accountId}/transactions", user.MyDataTokenType, user.MyDataAccessToken);
         }
 
         private HttpClient CreateApiHttpClient()
