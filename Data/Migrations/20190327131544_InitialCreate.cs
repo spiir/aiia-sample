@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace MyDataSample.Data.Migrations
+namespace ViiaSample.Data.Migrations
 {
     public partial class InitialCreate : Migration
     {

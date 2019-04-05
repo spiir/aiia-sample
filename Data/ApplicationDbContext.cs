@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace MyDataSample.Data
+namespace ViiaSample.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

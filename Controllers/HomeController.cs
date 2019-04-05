@@ -5,10 +5,10 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using MyDataSample.Data;
-using MyDataSample.Models;
+using ViiaSample.Data;
+using ViiaSample.Models;
 
-namespace MyDataSample.Controllers
+namespace ViiaSample.Controllers
 {
     public class HomeController : Controller
     {
@@ -33,12 +33,12 @@ namespace MyDataSample.Controllers
                 return View();
             }
 
-            if (user.MyDataAccessToken == null || user.MyDataAccessTokenExpires < DateTimeOffset.UtcNow)
+            if (user.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
             {
-                return RedirectToAction("Login", "MyData");
+                return RedirectToAction("Login", "Viia");
             }
 
-            return RedirectToAction("Accounts", "MyData");
+            return RedirectToAction("Accounts", "Viia");
         }
 
         public IActionResult Privacy()

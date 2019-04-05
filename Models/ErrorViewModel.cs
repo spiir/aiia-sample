@@ -1,6 +1,6 @@
 using System;
 
-namespace MyDataSample.Models
+namespace ViiaSample.Models
 {
     public class ErrorViewModel
     {

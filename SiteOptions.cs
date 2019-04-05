@@ -1,11 +1,11 @@
-namespace MyDataSample
+namespace ViiaSample
 {
     public class SiteOptions
     {
-        public MyDataOptions MyData { get; set; }
+        public ViiaOptions Viia { get; set; }
     }
 
-    public class MyDataOptions
+    public class ViiaOptions
     {
         public string BaseAppUrl { get; set; }
         public string BaseApiUrl { get; set; }

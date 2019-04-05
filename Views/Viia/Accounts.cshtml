@@ -1,4 +1,4 @@
-@model System.Collections.Generic.IEnumerable<MyDataSample.Services.Account>
+@model System.Collections.Generic.IEnumerable<ViiaSample.Services.Account>
 
 @{
     ViewBag.Title = "title";
@@ -10,7 +10,7 @@
         <div class="col">
             @foreach (var account in Model)
             {
-                <div class="card" onclick="window.location.href = '@Url.Action("Transactions", "MyData", new { accountId = account.Id})'">
+                <div class="card" onclick="window.location.href = '@Url.Action("Transactions", "Viia", new { accountId = account.Id})'">
                     <div class="card-body">
                         <h5 class="card-title">
                             @account.Name
