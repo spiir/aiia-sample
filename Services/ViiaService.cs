@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MyDataSample.Data;
+using ViiaSample.Data;
 using Newtonsoft.Json;
 
-namespace MyDataSample.Services
+namespace ViiaSample.Services
 {
-    public interface IMyDataService
+    public interface IViiaService
     {
         Uri GetAuthUri(ClaimsPrincipal principal);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
@@ -23,13 +23,13 @@ namespace MyDataSample.Services
         Task<IEnumerable<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
     }
     
-    public class MyDataService : IMyDataService
+    public class ViiaService : IViiaService
     {
         private readonly IOptionsMonitor<SiteOptions> _options;
-        private readonly ILogger<MyDataService> _logger;
+        private readonly ILogger<ViiaService> _logger;
         private readonly Lazy<HttpClient> _httpClient;
         private readonly ApplicationDbContext _dbContext;
-        public MyDataService(IOptionsMonitor<SiteOptions> options, ILogger<MyDataService> logger, ApplicationDbContext dbContext)
+        public ViiaService(IOptionsMonitor<SiteOptions> options, ILogger<ViiaService> logger, ApplicationDbContext dbContext)
         {
             _options = options;
             _logger = logger;
@@ -38,7 +38,7 @@ namespace MyDataSample.Services
             {
                 var client = new HttpClient
                 {
-                    BaseAddress = new Uri(options.CurrentValue.MyData.BaseApiUrl)
+                    BaseAddress = new Uri(options.CurrentValue.Viia.BaseApiUrl)
                 };
                 return client;
             });
@@ -47,10 +47,10 @@ namespace MyDataSample.Services
         public Uri GetAuthUri(ClaimsPrincipal principal)
         {
             var connectUrl =
-                $"{_options.CurrentValue.MyData.BaseApiUrl}/oauth/connect" +
-                $"?client_id={_options.CurrentValue.MyData.ClientId}" +
+                $"{_options.CurrentValue.Viia.BaseApiUrl}/oauth/connect" +
+                $"?client_id={_options.CurrentValue.Viia.ClientId}" +
                 $"&response_type=code" +
-                $"&redirect_uri={_options.CurrentValue.MyData.LoginCallbackUrl}" +
+                $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}" +
                 $"&scope=scope";
             return new Uri(connectUrl);
         }
@@ -65,7 +65,7 @@ namespace MyDataSample.Services
                         {"grant_type", "authorization_code"},
                         {"code", code},
                         {"scope", "read"},
-                        {"redirect_uri", _options.CurrentValue.MyData.LoginCallbackUrl}
+                        {"redirect_uri", _options.CurrentValue.Viia.LoginCallbackUrl}
                     });
                 
                 var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
@@ -93,7 +93,7 @@ namespace MyDataSample.Services
                 return null;
             }
 
-            return await HttpGet<List<Account>>("/v1/accounts", user.MyDataTokenType, user.MyDataAccessToken);
+            return await HttpGet<List<Account>>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken);
         }
 
         public async Task<IEnumerable<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId)
@@ -105,20 +105,20 @@ namespace MyDataSample.Services
                 return null;
             }
 
-            return await HttpGet<List<Transaction>>($"/v1/accounts/{accountId}/transactions", user.MyDataTokenType, user.MyDataAccessToken);
+            return await HttpGet<List<Transaction>>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
         }
 
         private HttpClient CreateApiHttpClient()
         {
             return new HttpClient
             {
-                BaseAddress = new Uri(_options.CurrentValue.MyData.BaseApiUrl)
+                BaseAddress = new Uri(_options.CurrentValue.Viia.BaseApiUrl)
             };
         }
 
         private string GenerateBasicAuthorizationHeaderValue()
         {
-            var credentials = $"{_options.CurrentValue.MyData.ClientId}:{_options.CurrentValue.MyData.ClientSecret}";
+            var credentials = $"{_options.CurrentValue.Viia.ClientId}:{_options.CurrentValue.Viia.ClientSecret}";
             var credentialsByteData = Encoding.GetEncoding("iso-8859-1").GetBytes(credentials);
             var base64Credentials = Convert.ToBase64String(credentialsByteData);
             return $"{base64Credentials}";
@@ -152,7 +152,7 @@ namespace MyDataSample.Services
                 var duration = sw.Elapsed;
 
                 _logger.LogDebug(
-                    "MyData request: {RequestUri} {StatusCode} {DurationMilliseconds}ms",
+                    "Viia request: {RequestUri} {StatusCode} {DurationMilliseconds}ms",
                     result.RequestMessage.RequestUri,
                     result.StatusCode,
                     Math.Round(duration.TotalMilliseconds)
@@ -160,19 +160,19 @@ namespace MyDataSample.Services
 
                 if (!result.IsSuccessStatusCode)
                 {
-                    throw new MyDataClientException(url, result.StatusCode);
+                    throw new ViiaClientException(url, result.StatusCode);
                 }
 
                 var responseContent = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<T>(responseContent);
             }
-            catch (MyDataClientException)
+            catch (ViiaClientException)
             {
                 throw;
             }
             catch (Exception e)
             {
-                throw new MyDataClientException(url, method, e);
+                throw new ViiaClientException(url, method, e);
             }
         }
     }

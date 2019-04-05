@@ -4,25 +4,25 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MyDataSample.Data;
-using MyDataSample.Services;
+using ViiaSample.Data;
+using ViiaSample.Services;
 
-namespace MyDataSample.Controllers
+namespace ViiaSample.Controllers
 {
-    [Route("mydata")]
+    [Route("viia")]
     [Authorize]
-    public class MyDataController : Controller
+    public class ViiaController : Controller
     {
-        private readonly IMyDataService _myDataService;
+        private readonly IViiaService _ViiaService;
         private readonly ApplicationDbContext _dbContext;
 
-        public MyDataController(IMyDataService myDataService, ApplicationDbContext dbContext)
+        public ViiaController(IViiaService ViiaService, ApplicationDbContext dbContext)
         {
-            _myDataService = myDataService;
+            _ViiaService = ViiaService;
             _dbContext = dbContext;
         }
 
-        // Web hook for mydata to push data
+        // Web hook for Viia to push data
         [HttpPost("data")]
         [AllowAnonymous]
         public IActionResult DataCallback()
@@ -34,9 +34,9 @@ namespace MyDataSample.Controllers
         [HttpGet("login")]
         public async Task<IActionResult> Login()
         {
-            var myDataUrl = _myDataService.GetAuthUri(User);
+            var ViiaUrl = _ViiaService.GetAuthUri(User);
             
-            return Redirect(myDataUrl.ToString());
+            return Redirect(ViiaUrl.ToString());
         }
 
         [HttpGet("callback")]
@@ -47,7 +47,7 @@ namespace MyDataSample.Controllers
                 return BadRequest();
             }
 
-            var tokenResponse = await _myDataService.ExchangeCodeForAccessToken(code);
+            var tokenResponse = await _ViiaService.ExchangeCodeForAccessToken(code);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
             if (user == null)
@@ -55,35 +55,29 @@ namespace MyDataSample.Controllers
                 return Unauthorized();
             }
 
-            user.MyDataAccessToken = tokenResponse.AccessToken;
-            user.MyDataTokenType = tokenResponse.TokenType;
-            user.MyDataRefreshToken = tokenResponse.RefreshToken;
-            user.MyDataAccessTokenExpires = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+            user.ViiaAccessToken = tokenResponse.AccessToken;
+            user.ViiaTokenType = tokenResponse.TokenType;
+            user.ViiaRefreshToken = tokenResponse.RefreshToken;
+            user.ViiaAccessTokenExpires = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
             
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
             
-            return RedirectToAction("Accounts", "MyData");
+            return RedirectToAction("Accounts", "Viia");
         }
 
         [HttpGet("accounts")]
         public async Task<IActionResult> Accounts()
         {
-            var accounts = await _myDataService.GetUserAccounts(User);
+            var accounts = await _ViiaService.GetUserAccounts(User);
             return View(accounts);
         }
         
         [HttpGet("transactions")]
         public async Task<IActionResult> Transactions([FromQuery] string accountId)
         {
-            var transactions = await _myDataService.GetAccountTransactions(User, accountId);
+            var transactions = await _ViiaService.GetAccountTransactions(User, accountId);
             return View(transactions);
-        }
-
-        [HttpGet("mock")]
-        public IActionResult MyDataAppMock()
-        {
-            return View();
         }
     }
 }

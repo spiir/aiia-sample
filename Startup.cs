@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyDataSample.Data;
+using ViiaSample.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyDataSample.Services;
+using ViiaSample.Services;
 
-namespace MyDataSample
+namespace ViiaSample
 {
     public class Startup
     {
@@ -65,7 +65,7 @@ namespace MyDataSample
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             
-            services.AddScoped<IMyDataService, MyDataService>();            
+            services.AddScoped<IViiaService, ViiaService>();            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

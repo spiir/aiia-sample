@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MyDataSample.Data;
+using ViiaSample.Data;
 
-[assembly: HostingStartup(typeof(MyDataSample.Areas.Identity.IdentityHostingStartup))]
-namespace MyDataSample.Areas.Identity
+[assembly: HostingStartup(typeof(ViiaSample.Areas.Identity.IdentityHostingStartup))]
+namespace ViiaSample.Areas.Identity
 {
     public class IdentityHostingStartup : IHostingStartup
     {

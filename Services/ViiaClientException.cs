@@ -2,19 +2,19 @@ using System;
 using System.Net;
 using System.Net.Http;
 
-namespace MyDataSample.Services
+namespace ViiaSample.Services
 {
-    public class MyDataClientException : Exception
+    public class ViiaClientException : Exception
     {
-        public MyDataClientException(string message) : base(message)
+        public ViiaClientException(string message) : base(message)
         {
         }
 
-        public MyDataClientException(string url, HttpStatusCode code) : base(FormatMessage(url, code))
+        public ViiaClientException(string url, HttpStatusCode code) : base(FormatMessage(url, code))
         {
         }
         
-        public MyDataClientException(string url, HttpMethod method, Exception innerException) : base(FormatMessage(url, method), innerException)
+        public ViiaClientException(string url, HttpMethod method, Exception innerException) : base(FormatMessage(url, method), innerException)
         {
         }
 
