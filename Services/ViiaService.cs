@@ -138,6 +138,7 @@ namespace ViiaSample.Services
         
         private async Task<T> CallApi<T>(string url, object body, HttpMethod method, string accessTokenType = null, string accessToken=null)
         {
+            HttpResponseMessage result = null;
             try
             {
                 var httpRequestMessage = new HttpRequestMessage(method, url)
@@ -150,7 +151,7 @@ namespace ViiaSample.Services
                     httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue(accessTokenType, accessToken);
                 }
                 var sw = Stopwatch.StartNew();
-                var result = await _httpClient.Value.SendAsync(httpRequestMessage);
+                result = await _httpClient.Value.SendAsync(httpRequestMessage);
                 var duration = sw.Elapsed;
 
                 _logger.LogDebug(
@@ -174,7 +175,7 @@ namespace ViiaSample.Services
             }
             catch (Exception e)
             {
-                throw new ViiaClientException(url, method, e);
+                throw new ViiaClientException(url, method, result, e);
             }
         }
     }
