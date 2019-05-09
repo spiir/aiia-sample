@@ -105,7 +105,9 @@ namespace ViiaSample.Services
                 return null;
             }
 
-            return await HttpGet<List<Transaction>>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
+            // TODO paging
+            var result = await HttpGet<TransactionResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
+            return result?.Transactions;
         }
 
         private HttpClient CreateApiHttpClient()
@@ -177,18 +179,17 @@ namespace ViiaSample.Services
         }
     }
     
-    
     public class Account
     {
         public string Id { get; set; }
+        public string NagApiAccountId { get; set; }
         public string ProviderId { get; set; }
         public string Name { get; set; }
-        public BankNumber Number { get; set; }
-        public string BookedBalance { get; set; }
-        public string AvailableBalance { get; set; }
+        public decimal? AvailableBalance { get; set; }
+        public decimal BookedBalance { get; set; }
         public string Currency { get; set; }
-        public string Type { get; set; }
         public bool IsPaymentAccount { get; set; }
+        public BankNumber Number { get; set; }
     }
 
     public class BankNumber
@@ -205,6 +206,12 @@ namespace ViiaSample.Services
         public string AccountNumber { get; set; }
     }
 
+    public class TransactionResponse
+    {
+        public List<Transaction> Transactions { get; set; }
+        public string ContinuationToken { get; set; }
+    }
+    
     public class Transaction
     {
         public string Id { get; set; }
