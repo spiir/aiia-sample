@@ -1,6 +1,8 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace ViiaSample.Services
 {
@@ -14,7 +16,7 @@ namespace ViiaSample.Services
         {
         }
         
-        public ViiaClientException(string url, HttpMethod method, Exception innerException) : base(FormatMessage(url, method), innerException)
+        public ViiaClientException(string url, HttpMethod method, HttpResponseMessage message, Exception innerException) : base(FormatMessage(url, method, message), innerException)
         {
         }
 
@@ -23,9 +25,25 @@ namespace ViiaSample.Services
             return $"Request to {url} Failed with code {code}.";
         }
         
-        private static string FormatMessage(string url, HttpMethod method)
+        private static string FormatMessage(string url, HttpMethod method, HttpResponseMessage response)
         {
-            return $"Request {method} - {url} Failed.";
+            if (response == null)
+            {
+                return $"Request {method} - {url} Failed.";
+            }
+
+            try
+            {
+                var contentTask = response.Content.ReadAsStringAsync();
+                contentTask.Wait();
+                var content = contentTask.Result;
+
+                return $"Request {method} - {url} Failed.\nResponse:\n{content}";
+            }
+            catch
+            {
+                return $"Request {method} - {url} Failed.";
+            }
         }
     }
 }
