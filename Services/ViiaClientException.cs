@@ -20,9 +20,19 @@ namespace ViiaSample.Services
         {
         }
 
+        public ViiaClientException(string url, HttpMethod method, string response, Exception innerException) : base(
+            FormatMessage(url, method, response))
+        {
+        }
+
         private static string FormatMessage(string url, HttpStatusCode code)
         {
             return $"Request to {url} Failed with code {code}.";
+        }
+        
+        private static string FormatMessage(string url, HttpMethod method, string response)
+        {
+            return $"Request {method} - {url} Failed. Response Body:\n{response}\n. End";
         }
         
         private static string FormatMessage(string url, HttpMethod method, HttpResponseMessage response)
