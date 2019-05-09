@@ -1,7 +1,7 @@
 @model System.Collections.Generic.IEnumerable<ViiaSample.Services.Account>
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Accounts";
     Layout = "_Layout";
 }
 
@@ -20,7 +20,7 @@
                                 <p>Account no</p>
                             </div>
                             <div class="col-6 text-right">
-                                <p>@account.Number.Bban</p>
+                                <p>@(account.Number?.Bban ?? account.Number?.Iban ?? "Unknown")</p>
                             </div>
                         </div>
                         <div class="row">
@@ -28,7 +28,7 @@
                                 <p>Balance</p>
                             </div>
                             <div class="col-6 text-right">
-                                <p>@account.AvailableBalance @account.Currency</p>
+                                <p>@(account.AvailableBalance ?? account.BookedBalance) @account.Currency</p>
                             </div>
                         </div>
                     </div>
