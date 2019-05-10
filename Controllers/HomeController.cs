@@ -21,24 +21,7 @@ namespace ViiaSample.Controllers
 
         public IActionResult Index()
         {
-            if (!User.Identity.IsAuthenticated)
-            {
-                return View();
-            }
-            
-            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                return View();
-            }
-
-            if (user.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
-            {
-                return RedirectToAction("Login", "Viia");
-            }
-
-            return RedirectToAction("Accounts", "Viia");
+            return View();
         }
 
         public IActionResult Privacy()

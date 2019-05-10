@@ -59,11 +59,11 @@ namespace ViiaSample.Controllers
             user.ViiaTokenType = tokenResponse.TokenType;
             user.ViiaRefreshToken = tokenResponse.RefreshToken;
             user.ViiaAccessTokenExpires = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-            
+
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
-            
-            return RedirectToAction("Accounts", "Viia");
+
+            return View("LoginResult");
         }
 
         [HttpGet("accounts")]
