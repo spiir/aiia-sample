@@ -7,7 +7,8 @@
 
 <div class="container-fluid">
     <div class="row" style="padding: 1rem 3rem;">
-        <button class="btn btn-outline-secondary" onclick="showModal()" style="right: 0;">Connect More Accounts</button>
+        <button class="btn btn-outline-secondary" onclick="showModal('@Model.ViiaConnectUrl')">Connect More Accounts</button>
+        <button class="btn btn-outline-secondary" onclick="requestDataUpdate()">Request Data Update</button>
     </div>
     <div class="row" style="padding: 0 3rem;">
        
@@ -69,9 +70,9 @@
 @section Scripts
 {
     <script>
-        function showModal() {
+        function showModal(url) {
             var iframe = $('#viia-iframe');
-            iframe.attr("src", iframe.data("src"));
+            iframe.attr("src", url);
             $('#myModal').modal('show');
         }
         
@@ -86,7 +87,26 @@
         $(document).ready(function() {
             bindEvent(window, 'message', function (e) {
                 $('#myModal').modal('hide');
+                console.log("Hiding modal");
             });
         });
+        
+        function requestDataUpdate() {
+            $.ajax({
+                url: '/viia/update',
+                type: 'POST',
+                dataType: "json",
+                success: function(data) {
+                    if (data.authUrl) {
+                        // Auth url not empty or null means we need a supervised login
+                        showModal(data.authUrl);
+
+                    } else {
+                        console.log("Supervised login not needed. Data sync started");
+                        // refresh page?
+                    }
+                }
+            });
+        }
     </script>
 }

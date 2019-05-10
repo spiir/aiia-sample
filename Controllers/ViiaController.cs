@@ -25,12 +25,20 @@ namespace ViiaSample.Controllers
         }
 
         // Web hook for Viia to push data
-        [HttpPost("data")]
+        [HttpGet("data/{userId}")]
         [AllowAnonymous]
-        public IActionResult DataCallback()
+        public IActionResult DataCallback(string userId)
         {
-            // Store whatever comes here
-            return Ok("Thanks for data.");
+            // Notify the user?
+            return View("GenericViewWithPostMessageOnLoad");
+        }
+
+        [HttpPost("update")]
+        public async Task<IActionResult> RequestDataUpdate()
+        {
+            var dataUpdateResponse = await _ViiaService.InitiateDataUpdate(User);
+            return Ok(new
+                {authUrl = dataUpdateResponse.Status == UpdateStatus.AllQueued ? string.Empty : dataUpdateResponse.AuthUrl});
         }
 
         [HttpGet("login")]
@@ -65,7 +73,7 @@ namespace ViiaSample.Controllers
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return View("LoginResult");
+            return View("GenericViewWithPostMessageOnLoad");
         }
 
         [HttpGet("accounts")]

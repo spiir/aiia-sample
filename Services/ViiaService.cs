@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,6 +19,7 @@ namespace ViiaSample.Services
     public interface IViiaService
     {
         Uri GetAuthUri(ClaimsPrincipal principal);
+        Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
         Task<IEnumerable<Account>> GetUserAccounts(ClaimsPrincipal principal);
         Task<IEnumerable<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
@@ -29,11 +31,14 @@ namespace ViiaSample.Services
         private readonly ILogger<ViiaService> _logger;
         private readonly Lazy<HttpClient> _httpClient;
         private readonly ApplicationDbContext _dbContext;
-        public ViiaService(IOptionsMonitor<SiteOptions> options, ILogger<ViiaService> logger, ApplicationDbContext dbContext)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public ViiaService(IOptionsMonitor<SiteOptions> options, ILogger<ViiaService> logger, ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
         {
             _options = options;
             _logger = logger;
             _dbContext = dbContext;
+            _httpContextAccessor = httpContextAccessor;
             _httpClient = new Lazy<HttpClient>(() =>
             {
                 var client = new HttpClient
@@ -53,6 +58,20 @@ namespace ViiaSample.Services
                 $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}" +
                 $"&scope=scope";
             return new Uri(connectUrl);
+        }
+
+        public Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                return null;
+            }
+            var redirectUrl = $"{GetBaseUrl()}/viia/data/{currentUserId}/";
+            var requestBody = new InitiateDataUpdateRequest {RedirectUrl = redirectUrl};
+
+            return HttpPost<InitiateDataUpdateResponse>("v1/update", requestBody, user.ViiaTokenType, user.ViiaAccessToken);
         }
 
         public async Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code)
@@ -112,7 +131,7 @@ namespace ViiaSample.Services
             var result = await HttpGet<TransactionResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
             return result?.Transactions;
         }
-
+        
         private HttpClient CreateApiHttpClient()
         {
             return new HttpClient
@@ -136,7 +155,7 @@ namespace ViiaSample.Services
 
         public Task<T> HttpPost<T>(string url, object body, string accessTokenType = null, string accessToken=null)
         {
-            return CallApi<T>( url, body, HttpMethod.Post, accessToken);
+            return CallApi<T>( url, body, HttpMethod.Post, accessTokenType, accessToken);
         }
         
         private async Task<T> CallApi<T>(string url, object body, HttpMethod method, string accessTokenType = null, string accessToken=null)
@@ -187,6 +206,17 @@ namespace ViiaSample.Services
             {
                 throw new ViiaClientException(url, method, result, e);
             }
+        }
+
+        private string GetBaseUrl()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+
+            var host = request.Host.ToUriComponent();
+
+            var pathBase = request.PathBase.ToUriComponent();
+
+            return $"{request.Scheme}://{host}{pathBase}";
         }
     }
     
@@ -246,5 +276,28 @@ namespace ViiaSample.Services
         public int ExpiresIn { get; set; }
         [JsonProperty("refresh_token")]
         public string RefreshToken { get; set; }
+    }
+
+    public class InitiateDataUpdateResponse
+    {
+        public UpdateStatus Status { get; set; }
+        public string AuthUrl { get; set; }
+    }
+    public enum UpdateStatus
+    {
+        /// <summary>
+        /// Updates have successfully been scheduled for the user
+        /// </summary>
+        AllQueued,
+
+        /// <summary>
+        /// One or more supervised logins are required for the updates to be successfully scheduled
+        /// </summary>
+        SupervisedLoginRequired
+    }
+
+    public class InitiateDataUpdateRequest
+    {
+        public string RedirectUrl { get; set; }
     }
 }
