@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using ViiaSample.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using ViiaSample.Services;
 
 namespace ViiaSample
@@ -65,7 +66,8 @@ namespace ViiaSample
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             
-            services.AddScoped<IViiaService, ViiaService>();            
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IViiaService, ViiaService>();    
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
