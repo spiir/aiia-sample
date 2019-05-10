@@ -68,9 +68,12 @@ namespace ViiaSample.Services
                         {"redirect_uri", _options.CurrentValue.Viia.LoginCallbackUrl}
                     });
                 
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
+                
                 var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
-                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
-                var response = await httpClient.SendAsync(request);
+                request.Method = HttpMethod.Post;
+
+                var response = await httpClient.PostAsJsonAsync<string>(requestUrl, string.Empty);
                 var content = await response.Content.ReadAsStringAsync();
                 
                 if (!response.IsSuccessStatusCode)
