@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ViiaSample.Data;
+using ViiaSample.Models;
 using ViiaSample.Services;
 
 namespace ViiaSample.Controllers
@@ -30,12 +32,12 @@ namespace ViiaSample.Controllers
             // Store whatever comes here
             return Ok("Thanks for data.");
         }
-        
+
         [HttpGet("login")]
         public async Task<IActionResult> Login()
         {
             var ViiaUrl = _ViiaService.GetAuthUri(User);
-            
+
             return Redirect(ViiaUrl.ToString());
         }
 
@@ -59,20 +61,35 @@ namespace ViiaSample.Controllers
             user.ViiaTokenType = tokenResponse.TokenType;
             user.ViiaRefreshToken = tokenResponse.RefreshToken;
             user.ViiaAccessTokenExpires = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-            
+
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
-            
-            return RedirectToAction("Accounts", "Viia");
+
+            return View("LoginResult");
         }
 
         [HttpGet("accounts")]
         public async Task<IActionResult> Accounts()
         {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user?.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
+            {
+                return View(new AccountViewModel
+                {
+                    Accounts = new List<Account>(),
+                    ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString()
+                });
+            }
+
             var accounts = await _ViiaService.GetUserAccounts(User);
-            return View(accounts);
+            return View(new AccountViewModel
+            {
+                Accounts = accounts.ToList(),
+                ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString()
+            });
         }
-        
+
         [HttpGet("transactions")]
         public async Task<IActionResult> Transactions([FromQuery] string accountId)
         {
