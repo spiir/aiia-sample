@@ -1,0 +1,16 @@
+@model string
+
+@{
+    ViewBag.Title = "Login Complete";
+}
+
+<span style="position: absolute; left: 50%; top: 50%;">✓</span>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function() {
+            window.parent.postMessage("Done", '*');
+        });
+    </script>
+}
