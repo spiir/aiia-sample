@@ -52,7 +52,7 @@ namespace ViiaSample.Services
         public Uri GetAuthUri(ClaimsPrincipal principal)
         {
             var connectUrl =
-                $"{_options.CurrentValue.Viia.BaseApiUrl}/oauth/connect" +
+                $"{_options.CurrentValue.Viia.BaseApiUrl}/v1/oauth/connect" +
                 $"?client_id={_options.CurrentValue.Viia.ClientId}" +
                 $"&response_type=code" +
                 $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}" +
@@ -78,7 +78,7 @@ namespace ViiaSample.Services
         {
             using (var httpClient = CreateApiHttpClient())
             {
-                var requestUrl = QueryHelpers.AddQueryString("oauth/token",
+                var requestUrl = QueryHelpers.AddQueryString("v1/oauth/token",
                     new Dictionary<string, string>()
                     {
                         {"grant_type", "authorization_code"},
