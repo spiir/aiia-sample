@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -21,8 +22,8 @@ namespace ViiaSample.Services
         Uri GetAuthUri(ClaimsPrincipal principal);
         Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
-        Task<IEnumerable<Account>> GetUserAccounts(ClaimsPrincipal principal);
-        Task<IEnumerable<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
+        Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
+        Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
     }
     
     public class ViiaService : IViiaService
@@ -106,7 +107,7 @@ namespace ViiaSample.Services
             }
         }
 
-        public async Task<IEnumerable<Account>> GetUserAccounts(ClaimsPrincipal principal)
+        public async Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -115,10 +116,10 @@ namespace ViiaSample.Services
                 return null;
             }
             var result = await HttpGet<AccountResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken);
-            return result?.Accounts;
+            return result?.Accounts.ToImmutableList();
         }
 
-        public async Task<IEnumerable<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId)
+        public async Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -129,7 +130,7 @@ namespace ViiaSample.Services
 
             // TODO paging
             var result = await HttpGet<TransactionResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
-            return result?.Transactions;
+            return result?.Transactions.ToImmutableList();
         }
         
         private HttpClient CreateApiHttpClient()
@@ -224,32 +225,37 @@ namespace ViiaSample.Services
     {
         public List<Account> Accounts { get; set; }
     }
-    
+
     public class Account
     {
         public string Id { get; set; }
-        public string NagApiAccountId { get; set; }
-        public string ProviderId { get; set; }
+        public AccountProvider Provider { get; set; }
         public string Name { get; set; }
         public decimal? AvailableBalance { get; set; }
         public decimal BookedBalance { get; set; }
         public string Currency { get; set; }
-        public bool IsPaymentAccount { get; set; }
-        public BankNumber Number { get; set; }
+        public AccountNumberViewModel Number { get; set; }
+        public string Type { get; set; }
+        public DateTime? LastSynchronized { get; set; }
     }
-
-    public class BankNumber
+    
+    public class AccountNumberViewModel
     {
         public string BbanType { get; set; }
         public string Bban { get; set; }
         public string Iban { get; set; }
-        public BbanParsed BbanParsed { get; set; }
+        public BbanParsedViewModel BbanParsed { get; set; }
     }
 
-    public class BbanParsed
+    public class BbanParsedViewModel
     {
         public string BankCode { get; set; }
         public string AccountNumber { get; set; }
+    }
+    
+    public class AccountProvider
+    {
+        public string Id { get; set; }
     }
 
     public class TransactionResponse
@@ -290,14 +296,7 @@ namespace ViiaSample.Services
     }
     public enum UpdateStatus
     {
-        /// <summary>
-        /// Updates have successfully been scheduled for the user
-        /// </summary>
         AllQueued,
-
-        /// <summary>
-        /// One or more supervised logins are required for the updates to be successfully scheduled
-        /// </summary>
         SupervisedLoginRequired
     }
 

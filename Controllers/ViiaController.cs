@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace ViiaSample.Controllers
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return View("GenericViewWithPostMessageOnLoad");
+            return View("GenericViewWithPostMessageOnLoad", Request.QueryString.Value);
         }
 
         [HttpGet("accounts")]
@@ -85,17 +86,22 @@ namespace ViiaSample.Controllers
             {
                 return View(new AccountViewModel
                 {
-                    Accounts = new List<Account>(),
+                    AccountsGroupedByProvider = null,
                     ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString()
                 });
             }
 
             var accounts = await _ViiaService.GetUserAccounts(User);
-            return View(new AccountViewModel
+            var groupedAccounts = accounts.ToLookup(x => x.Provider?.Id, x => x);
+
+            var model = new AccountViewModel
             {
-                Accounts = accounts.ToList(),
-                ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString()
-            });
+                AccountsGroupedByProvider = groupedAccounts,
+                ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString(),
+                JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
+                RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken)
+            };
+            return View(model);
         }
 
         [HttpGet("transactions")]
