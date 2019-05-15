@@ -9,11 +9,15 @@
 
 <div class="container-fluid">
     <div class="row" style="padding: 1rem 3rem;">
-        <button class="btn btn-outline-secondary" onclick="showViiaModal('@Model.ViiaConnectUrl')">Connect More Accounts</button>
-        <button class="btn btn-outline-secondary" onclick="requestDataUpdate()">Request Data Update</button>
+        <button class="btn btn-outline-secondary" onclick="showViiaModal('@Model.ViiaConnectUrl')">Connect More Accounts via iframe</button>
+        <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="window.location.href='@Model.ViiaConnectUrl'">Connect More Accounts via redirect</button>
+        @if (Model?.AccountsGroupedByProvider != null && Model.AccountsGroupedByProvider.Any())
+        {
+            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdate()">Request Data Update</button>
+        }
         @if (Model != null && Model.JwtToken != null)
         {
-            <button class="btn btn-outline-secondary" onclick="toggleTokenPayloadModal()">Toggle JWT Token payload</button>
+            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="toggleTokenPayloadModal()">Toggle JWT Token payload</button>
         }
     </div>
     <div class="row" style="padding: 0 3rem;">

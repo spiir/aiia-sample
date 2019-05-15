@@ -74,7 +74,7 @@ namespace ViiaSample.Controllers
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return View("GenericViewWithPostMessageOnLoad");
+            return View("GenericViewWithPostMessageOnLoad", Request.QueryString.Value);
         }
 
         [HttpGet("accounts")]
