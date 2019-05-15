@@ -15,13 +15,12 @@
         {
             <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdate()">Request Data Update</button>
         }
-        @if (Model != null && Model.JwtToken != null)
+        @if (Model?.JwtToken != null)
         {
-            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="toggleTokenPayloadModal()">Toggle JWT Token payload</button>
+            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="toggleModal('dataModal')">Toggle JWT Token payload</button>
         }
     </div>
     <div class="row" style="padding: 0 3rem;">
-
         <div class="col">
             @if (Model?.AccountsGroupedByProvider == null || !Model.AccountsGroupedByProvider.Any())
             {
@@ -93,7 +92,7 @@
                 <pre>@PrettifyJwtPayloadJson(Model?.RefreshToken?.ToString())</pre>
                 <pre></pre>
             </div>
-            <button class="btn btn-outline-danger" onclick="toggleTokenPayloadModal()">Close</button>
+            <button class="btn btn-outline-danger" onclick="toggleModal('dataModal')">Close</button>
         </div>
         <!-- /.modal-content -->
     </div>
@@ -124,8 +123,8 @@
 @section Scripts
 {
     <script>
-        function toggleTokenPayloadModal() {
-            $('#dataModal').modal('toggle');
+        function toggleModal(id) {
+            $('#' + id).modal('toggle');
         }
         
         function showViiaModal(url) {
@@ -164,7 +163,7 @@
                         // Auth url not empty or null means we need a supervised login
                         showViiaModal(data.authUrl);
                     } else {
-                        console.log("Supervised login not needed. Data sync started");
+                        alert("All accounts didn't require user-assisted authentication and were queued up for sync");
                         // refresh page?
                     }
                 }
