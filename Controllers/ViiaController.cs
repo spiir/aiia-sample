@@ -85,17 +85,20 @@ namespace ViiaSample.Controllers
             {
                 return View(new AccountViewModel
                 {
-                    Accounts = new List<Account>(),
+                    AccountsGroupedByProvider = default,
                     ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString()
                 });
             }
 
             var accounts = await _ViiaService.GetUserAccounts(User);
-            return View(new AccountViewModel
+
+            var groupedAccounts = accounts.ToLookup(x => x.Provider?.Id, x => x);
+            var model = new AccountViewModel
             {
-                Accounts = accounts.ToList(),
+                AccountsGroupedByProvider = groupedAccounts,
                 ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString()
-            });
+            };
+            return View(model);
         }
 
         [HttpGet("transactions")]
