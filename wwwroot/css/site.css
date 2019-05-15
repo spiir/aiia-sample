@@ -67,6 +67,10 @@ body {
   padding: 1rem;
 }
 
+.account-container:hover {
+  background-color: rgb(220,220,220);
+}
+
 .account-container label {
   margin: 0;
 }
