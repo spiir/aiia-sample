@@ -114,8 +114,8 @@ namespace ViiaSample.Services
             {
                 return null;
             }
-
-            return await HttpGet<List<Account>>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken);
+            var result = await HttpGet<AccountResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken);
+            return result?.Accounts;
         }
 
         public async Task<IEnumerable<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId)
@@ -218,6 +218,11 @@ namespace ViiaSample.Services
 
             return $"{request.Scheme}://{host}{pathBase}";
         }
+    }
+
+    public class AccountResponse
+    {
+        public List<Account> Accounts { get; set; }
     }
     
     public class Account
