@@ -11,9 +11,9 @@
         <button class="btn btn-outline-secondary" onclick="requestDataUpdate()">Request Data Update</button>
     </div>
     <div class="row" style="padding: 0 3rem;">
-       
+
         <div class="col">
-            @if (Model?.Accounts == null || !Model.Accounts.Any())
+            @if (Model?.AccountsGroupedByProvider == null || !Model.AccountsGroupedByProvider.Any())
             {
                 <p class="text-center">
                     You don't seem to have any accounts connected, try adding some.
@@ -21,32 +21,39 @@
             }
             else
             {
-                foreach (var account in Model.Accounts)
-                 {
-                     <div class="card" onclick="window.location.href = '@Url.Action("Transactions", "Viia", new {accountId = account.Id})'">
-                         <div class="card-body">
-                             <h5 class="card-title">
-                                 @account.Name
-                             </h5>
-                             <div class="row">
-                                 <div class="col-6 text-left">
-                                     <p>Account no</p>
-                                 </div>
-                                 <div class="col-6 text-right">
-                                     <p>@(account.Number?.Bban ?? account.Number?.Iban ?? "Unknown")</p>
-                                 </div>
-                             </div>
-                             <div class="row">
-                                 <div class="col-6 text-left">
-                                     <p>Balance</p>
-                                 </div>
-                                 <div class="col-6 text-right">
-                                     <p>@(account.AvailableBalance ?? account.BookedBalance) @account.Currency</p>
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 }
+                foreach (var group in Model.AccountsGroupedByProvider)
+                {
+                    <div class="mb-4">
+                        <div class="d-flex flex-column justify-content-between align-items-start">
+                            <label class="form-check-label grey-text pb-1  provider-label" for="account-@group.Key">
+                                @group.Key
+                            </label>
+                            @foreach (var account in Model.AccountsGroupedByProvider[group.Key])
+                            {
+                                <div class="d-flex w-100 open-sans-light text-description">
+                                    <div
+                                        class="d-flex flex-column account-container background justify-content-between w-100 align-items-start"
+                                        onclick="window.location.href = '@Url.Action("Transactions", "Viia", new {accountId = account.Id})'">
+                                        <label class="form-check-label text-description open-sans-bold" for="account-@account.Id">
+                                            @account.Name
+                                        </label>
+                                        <div class="d-flex grey-text">
+                                            <label class="mb-0" translate>Account Number</label>
+                                            @if (account.Number?.Bban != null || account.Number?.Iban != null)
+                                            {
+                                                <label
+                                                    class="pl-1 mb-0"
+                                                    for="account-@account.Id">
+                                                    @(account.Number.Bban ?? account.Number.Iban)
+                                                </label>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
             }
         </div>
     </div>
@@ -57,7 +64,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div style="position: relative">
-                <iframe id="viia-iframe" data-src="@Model.ViiaConnectUrl" style="position:absolute;top:0px;width:100%;height:50vh;" frameborder="0" allowtransparency="true"></iframe>
+                <iframe id="viia-iframe" data-src="@Model.ViiaConnectUrl" style="position: absolute; top: 0px; width: 100%; height: 50vh;" frameborder="0" allowtransparency="true"></iframe>
 
             </div>
         </div>
@@ -75,7 +82,7 @@
             iframe.attr("src", url);
             $('#myModal').modal('show');
         }
-        
+
         function bindEvent(element, eventName, eventHandler) {
             if (element.addEventListener) {
                 element.addEventListener(eventName, eventHandler, false);
@@ -85,12 +92,14 @@
         }
 
         $(document).ready(function() {
-            bindEvent(window, 'message', function (e) {
-                $('#myModal').modal('hide');
-                console.log("Hiding modal");
-            });
+            bindEvent(window,
+                'message',
+                function(e) {
+                    $('#myModal').modal('hide');
+                    console.log("Hiding modal");
+                });
         });
-        
+
         function requestDataUpdate() {
             $.ajax({
                 url: '/viia/update',
