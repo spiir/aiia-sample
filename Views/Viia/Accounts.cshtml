@@ -1,3 +1,4 @@
+@using Newtonsoft.Json
 @model AccountViewModel
 
 @{
@@ -7,8 +8,12 @@
 
 <div class="container-fluid">
     <div class="row" style="padding: 1rem 3rem;">
-        <button class="btn btn-outline-secondary" onclick="showModal('@Model.ViiaConnectUrl')">Connect More Accounts</button>
+        <button class="btn btn-outline-secondary" onclick="showViiaModal('@Model.ViiaConnectUrl')">Connect More Accounts</button>
         <button class="btn btn-outline-secondary" onclick="requestDataUpdate()">Request Data Update</button>
+        @if (Model != null && Model.JwtToken != null)
+        {
+            <button class="btn btn-outline-secondary" onclick="toggleTokenPayloadModal()">Toggle JWT Token payload</button>
+        }
     </div>
     <div class="row" style="padding: 0 3rem;">
 
@@ -59,8 +64,8 @@
     </div>
 </div>
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<!-- Viia Modal -->
+<div class="modal fade" id="viiaModal" tabindex="-1" role="dialog" aria-labelledby="viiaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div style="position: relative">
@@ -74,13 +79,52 @@
 </div>
 <!-- /.modal -->
 
+<div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="padding: 2rem;">
+            <div style="position: relative">
+                <h5>Jwt access token payload</h5>
+                <pre>@PrettifyJwtPayloadJson(Model?.JwtToken?.ToString())</pre>
+                <h5>Refresh token payload</h5>
+                <pre>@PrettifyJwtPayloadJson(Model?.RefreshToken?.ToString())</pre>
+                <pre></pre>
+            </div>
+            <button class="btn btn-outline-danger" onclick="toggleTokenPayloadModal()">Close</button>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+@functions
+{
+
+    string PrettifyJwtPayloadJson(string payload)
+    {
+        // JwtSecurityToken.ToString() returns "{algorithm json}.{payload Json}"
+        var algorithmJson = payload.Split(".")[0];
+        var payloadJson = payload.Split(".")[1];
+        
+        dynamic parsedAlgJson = JsonConvert.DeserializeObject(algorithmJson);
+        dynamic parsedPayloadJson = JsonConvert.DeserializeObject(payloadJson);
+
+        dynamic niceJsonObj = new {algorithm = parsedAlgJson, payload = parsedPayloadJson};
+        
+        return JsonConvert.SerializeObject(niceJsonObj, Formatting.Indented);
+    }
+}
+
 @section Scripts
 {
     <script>
-        function showModal(url) {
+        function toggleTokenPayloadModal() {
+            $('#dataModal').modal('toggle');
+        }
+        
+        function showViiaModal(url) {
             var iframe = $('#viia-iframe');
             iframe.attr("src", url);
-            $('#myModal').modal('show');
+            $('#viiaModal').modal('show');
         }
 
         function bindEvent(element, eventName, eventHandler) {
@@ -95,7 +139,7 @@
             bindEvent(window,
                 'message',
                 function(e) {
-                    $('#myModal').modal('hide');
+                    $('#viiaModal').modal('hide');
                     console.log("Hiding modal");
                 });
         });
@@ -108,7 +152,7 @@
                 success: function(data) {
                     if (data.authUrl) {
                         // Auth url not empty or null means we need a supervised login
-                        showModal(data.authUrl);
+                        showViiaModal(data.authUrl);
 
                     } else {
                         console.log("Supervised login not needed. Data sync started");

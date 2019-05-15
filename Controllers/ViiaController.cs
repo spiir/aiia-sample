@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -91,12 +92,14 @@ namespace ViiaSample.Controllers
             }
 
             var accounts = await _ViiaService.GetUserAccounts(User);
-
             var groupedAccounts = accounts.ToLookup(x => x.Provider?.Id, x => x);
+
             var model = new AccountViewModel
             {
                 AccountsGroupedByProvider = groupedAccounts,
-                ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString()
+                ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString(),
+                JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
+                RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken)
             };
             return View(model);
         }
