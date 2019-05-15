@@ -86,7 +86,7 @@ namespace ViiaSample.Controllers
             {
                 return View(new AccountViewModel
                 {
-                    AccountsGroupedByProvider = default,
+                    AccountsGroupedByProvider = null,
                     ViiaConnectUrl = _ViiaService.GetAuthUri(User).ToString()
                 });
             }
