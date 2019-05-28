@@ -19,7 +19,7 @@ namespace ViiaSample.Services
 {
     public interface IViiaService
     {
-        Uri GetAuthUri(ClaimsPrincipal principal);
+        Uri GetAuthUri(ClaimsPrincipal principal, string userEmail);
         Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
@@ -50,14 +50,18 @@ namespace ViiaSample.Services
             });
         }
 
-        public Uri GetAuthUri(ClaimsPrincipal principal)
+        public Uri GetAuthUri(ClaimsPrincipal principal, string email)
         {
             var connectUrl =
                 $"{_options.CurrentValue.Viia.BaseApiUrl}/v1/oauth/connect" +
                 $"?client_id={_options.CurrentValue.Viia.ClientId}" +
-                $"&response_type=code" +
+                "&response_type=code" +
                 $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}" +
-                $"&scope=scope";
+                "&scope=scope";
+
+            if(email != null)
+               connectUrl += $"&email={email}";
+
             return new Uri(connectUrl);
         }
 
