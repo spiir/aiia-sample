@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -60,7 +61,7 @@ namespace ViiaSample.Services
                 "&scope=scope";
 
             if(email != null)
-               connectUrl += $"&email={email}";
+               connectUrl += $"&email={HttpUtility.UrlEncode(email)}";
 
             return new Uri(connectUrl);
         }
