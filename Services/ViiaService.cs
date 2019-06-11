@@ -84,14 +84,7 @@ namespace ViiaSample.Services
         {
             using (var httpClient = CreateApiHttpClient())
             {
-                var requestUrl = QueryHelpers.AddQueryString("v1/oauth/token",
-                    new Dictionary<string, string>()
-                    {
-                        {"grant_type", "authorization_code"},
-                        {"code", code},
-                        {"scope", "read"},
-                        {"redirect_uri", _options.CurrentValue.Viia.LoginCallbackUrl}
-                    });
+                var requestUrl = "v1/oauth/token";
                 
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
                 
@@ -107,7 +100,7 @@ namespace ViiaSample.Services
 
                 };
 
-                var response = await httpClient.PostAsJsonAsync<string>(requestUrl, JsonConvert.SerializeObject(tokenBody));
+                var response = await httpClient.PostAsJsonAsync(requestUrl, tokenBody);
                 var content = await response.Content.ReadAsStringAsync();
                 
                 if (!response.IsSuccessStatusCode)
