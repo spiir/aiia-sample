@@ -98,7 +98,16 @@ namespace ViiaSample.Services
                 var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
                 request.Method = HttpMethod.Post;
 
-                var response = await httpClient.PostAsJsonAsync<string>(requestUrl, string.Empty);
+                var tokenBody = new
+                {
+                    grant_type = "authorization_code",
+                    code = code,
+                    scope = "read",
+                    redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
+
+                };
+
+                var response = await httpClient.PostAsJsonAsync<string>(requestUrl, JsonConvert.SerializeObject(tokenBody));
                 var content = await response.Content.ReadAsStringAsync();
                 
                 if (!response.IsSuccessStatusCode)
