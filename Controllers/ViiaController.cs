@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using ViiaSample.Data;
 using ViiaSample.Models;
 using ViiaSample.Services;
@@ -16,28 +17,28 @@ namespace ViiaSample.Controllers
     [Authorize]
     public class ViiaController : Controller
     {
-        private readonly IViiaService _ViiaService;
+        private readonly IViiaService _viiaService;
         private readonly ApplicationDbContext _dbContext;
 
-        public ViiaController(IViiaService ViiaService, ApplicationDbContext dbContext)
+        public ViiaController(IViiaService viiaService, ApplicationDbContext dbContext)
         {
-            _ViiaService = ViiaService;
+            _viiaService = viiaService;
             _dbContext = dbContext;
         }
 
         // Web hook for Viia to push data
-        [HttpGet("data/{userId}")]
+        [HttpPost("webhook")]
         [AllowAnonymous]
-        public IActionResult DataCallback(string userId)
+        public async Task<IActionResult> DataCallback([FromBody] JObject payload)
         {
-            // Notify the user?
-            return View("GenericViewWithPostMessageOnLoad");
+            await _viiaService.ProcessWebHookPayload(payload);
+            return Ok();
         }
 
         [HttpPost("update")]
         public async Task<IActionResult> RequestDataUpdate()
         {
-            var dataUpdateResponse = await _ViiaService.InitiateDataUpdate(User);
+            var dataUpdateResponse = await _viiaService.InitiateDataUpdate(User);
             return Ok(new
                 {authUrl = dataUpdateResponse.Status == UpdateStatus.AllQueued ? string.Empty : dataUpdateResponse.AuthUrl});
         }
@@ -47,7 +48,7 @@ namespace ViiaSample.Controllers
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            var ViiaUrl = _ViiaService.GetAuthUri(User, user?.Email);
+            var ViiaUrl = _viiaService.GetAuthUri(User, user?.Email);
 
             return Redirect(ViiaUrl.ToString());
         }
@@ -60,7 +61,7 @@ namespace ViiaSample.Controllers
                 return BadRequest();
             }
 
-            var tokenResponse = await _ViiaService.ExchangeCodeForAccessToken(code);
+            var tokenResponse = await _viiaService.ExchangeCodeForAccessToken(code);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
             if (user == null)
@@ -89,17 +90,17 @@ namespace ViiaSample.Controllers
                 return View(new AccountViewModel
                 {
                     AccountsGroupedByProvider = null,
-                    ViiaConnectUrl = _ViiaService.GetAuthUri(User, user?.Email).ToString()
+                    ViiaConnectUrl = _viiaService.GetAuthUri(User, user?.Email).ToString()
                 });
             }
 
-            var accounts = await _ViiaService.GetUserAccounts(User);
+            var accounts = await _viiaService.GetUserAccounts(User);
             var groupedAccounts = accounts.ToLookup(x => x.Provider?.Id, x => x);
 
             var model = new AccountViewModel
             {
                 AccountsGroupedByProvider = groupedAccounts,
-                ViiaConnectUrl = _ViiaService.GetAuthUri(User, user.Email).ToString(),
+                ViiaConnectUrl = _viiaService.GetAuthUri(User, user.Email).ToString(),
                 JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
                 RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken)
             };
@@ -109,7 +110,7 @@ namespace ViiaSample.Controllers
         [HttpGet("transactions")]
         public async Task<IActionResult> Transactions([FromQuery] string accountId)
         {
-            var transactions = await _ViiaService.GetAccountTransactions(User, accountId);
+            var transactions = await _viiaService.GetAccountTransactions(User, accountId);
             return View(transactions);
         }
     }
