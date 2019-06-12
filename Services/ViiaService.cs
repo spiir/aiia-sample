@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ViiaSample.Data;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ViiaSample.Services
 {
@@ -25,6 +26,7 @@ namespace ViiaSample.Services
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
         Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
+        Task ProcessWebHookPayload(JObject payload);
     }
     
     public class ViiaService : IViiaService
@@ -139,7 +141,21 @@ namespace ViiaSample.Services
             var result = await HttpGet<TransactionResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
             return result?.Transactions.ToImmutableList();
         }
-        
+
+        public async Task ProcessWebHookPayload(JObject payload)
+        {
+            _logger.LogInformation($"Received webhook payload:\n{payload}");
+            var type = payload.ToObject<WebhookType>();
+            switch (type.Event)
+            {
+                case "AccountsUpdated":
+                    break;
+                default:
+                    _logger.LogWarning($"Unknown webhook payload type: {type.Event}");
+                    break;
+            }
+        }
+
         private HttpClient CreateApiHttpClient()
         {
             return new HttpClient
@@ -310,5 +326,11 @@ namespace ViiaSample.Services
     public class InitiateDataUpdateRequest
     {
         public string RedirectUrl { get; set; }
+    }
+
+    public class WebhookType
+    {
+        [JsonProperty("Event")]
+        public string Event { get; set; }
     }
 }
