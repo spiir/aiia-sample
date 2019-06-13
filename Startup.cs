@@ -67,7 +67,8 @@ namespace ViiaSample
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<IViiaService, ViiaService>();    
+            services.AddSingleton<IEmailService, EmailService>();
+            services.AddScoped<IViiaService, ViiaService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

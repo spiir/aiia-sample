@@ -54,9 +54,9 @@ namespace ViiaSample.Controllers
         }
 
         [HttpGet("callback")]
-        public async Task<IActionResult> LoginCallback([FromQuery] string code)
+        public async Task<IActionResult> LoginCallback([FromQuery] string code, [FromQuery] string consentId)
         {
-            if (string.IsNullOrEmpty(code))
+            if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(consentId))
             {
                 return BadRequest();
             }
@@ -73,7 +73,8 @@ namespace ViiaSample.Controllers
             user.ViiaTokenType = tokenResponse.TokenType;
             user.ViiaRefreshToken = tokenResponse.RefreshToken;
             user.ViiaAccessTokenExpires = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-
+            user.ViiaConsentId = consentId;
+            
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
