@@ -9,5 +9,6 @@ namespace ViiaSample.Data
         public string ViiaRefreshToken { get; set; }
         public DateTimeOffset ViiaAccessTokenExpires { get; set; }
         public string ViiaTokenType { get; set; }
+        public string ViiaConsentId { get; set; }
     }
 }
