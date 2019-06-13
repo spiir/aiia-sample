@@ -36,13 +36,15 @@ namespace ViiaSample.Services
         private readonly Lazy<HttpClient> _httpClient;
         private readonly ApplicationDbContext _dbContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IEmailService _emailService;
 
-        public ViiaService(IOptionsMonitor<SiteOptions> options, ILogger<ViiaService> logger, ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+        public ViiaService(IOptionsMonitor<SiteOptions> options, ILogger<ViiaService> logger, ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor, IEmailService emailService)
         {
             _options = options;
             _logger = logger;
             _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
+            _emailService = emailService;
             _httpClient = new Lazy<HttpClient>(() =>
             {
                 var client = new HttpClient
@@ -145,13 +147,27 @@ namespace ViiaSample.Services
         public async Task ProcessWebHookPayload(JObject payload)
         {
             _logger.LogInformation($"Received webhook payload:\n{payload}");
-            var type = payload.ToObject<WebhookType>();
-            switch (type.Event)
+            var data = payload[payload.Properties().First().Name];
+            var consentId = data["ConsentId"].ToString();
+            var eventType = data["Event"].ToString();
+            
+            var user = _dbContext.Users.First(x => x.ViiaConsentId == consentId);
+            switch (eventType)
             {
                 case "AccountsUpdated":
+                    await _emailService.SendDataUpdateEmail(user.Email, payload.ToString());
+                    break;
+                case "ConnectionUpdateRequired":
+                    await _emailService.SendDataUpdateEmail(user.Email, payload.ToString());
+                    break;
+                case "ConsentNeedsUpdate":
+                    await _emailService.SendDataUpdateEmail(user.Email, payload.ToString());
+                    break;
+                case "ConsentRevoked":
+                    await _emailService.SendDataUpdateEmail(user.Email, payload.ToString());
                     break;
                 default:
-                    _logger.LogWarning($"Unknown webhook payload type: {type.Event}");
+                    await _emailService.SendUnknownWebHookEmail(user.Email, payload.ToString());
                     break;
             }
         }
@@ -326,11 +342,5 @@ namespace ViiaSample.Services
     public class InitiateDataUpdateRequest
     {
         public string RedirectUrl { get; set; }
-    }
-
-    public class WebhookType
-    {
-        [JsonProperty("Event")]
-        public string Event { get; set; }
     }
 }
