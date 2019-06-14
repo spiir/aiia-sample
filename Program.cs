@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using ViiaSample.Extensions;
 
 namespace ViiaSample
 {
@@ -24,6 +25,7 @@ namespace ViiaSample
                 {
                     var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
                     config.Environment = environmentName;
-                });
+                })
+                .UseSerilogHumio();
     }
 }
