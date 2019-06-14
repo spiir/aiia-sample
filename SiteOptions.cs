@@ -4,6 +4,7 @@ namespace ViiaSample
     {
         public ViiaOptions Viia { get; set; }
         public SendGridOptions SendGrid { get; set; }
+        public HumioOptions Humio { get; set; }
     }
 
     public class ViiaOptions
@@ -20,5 +21,11 @@ namespace ViiaSample
         public string ApiKey { get; set; }
         public string EmailFrom { get; set; }
         public string NameFrom { get; set; }
+    }
+
+    public class HumioOptions
+    {
+        public string IngestToken { get; set; }
+        public string IngestUrl { get; set; }
     }
 }
