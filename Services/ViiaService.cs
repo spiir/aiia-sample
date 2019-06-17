@@ -151,7 +151,13 @@ namespace ViiaSample.Services
             var consentId = data["ConsentId"].ToString();
             var eventType = data["Event"].ToString();
             
-            var user = _dbContext.Users.First(x => x.ViiaConsentId == consentId);
+            var user = _dbContext.Users.FirstOrDefault(x => x.ViiaConsentId == consentId);
+            if (user == null)
+            {
+                _logger.LogInformation($"No user found with consent {consentId}");
+                // User probably revoked consent
+                return;
+            }
             switch (eventType)
             {
                 case "AccountsUpdated":
