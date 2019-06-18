@@ -10,5 +10,6 @@ namespace ViiaSample.Data
         public DateTimeOffset ViiaAccessTokenExpires { get; set; }
         public string ViiaTokenType { get; set; }
         public string ViiaConsentId { get; set; }
+        public bool EmailEnabled { get; set; }
     }
 }
