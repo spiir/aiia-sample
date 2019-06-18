@@ -158,6 +158,12 @@ namespace ViiaSample.Services
                 // User probably revoked consent
                 return;
             }
+
+            if (!user.EmailEnabled)
+            {
+                _logger.LogInformation("User has disabled email notifications.");
+                return;
+            }
             switch (eventType)
             {
                 case "AccountsUpdated":

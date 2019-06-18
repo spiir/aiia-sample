@@ -7,10 +7,12 @@
     Layout = "_Layout";
 }
 
+@Html.Hidden("EmailEnabled", Model.EmailEnabled)
+
 <div class="container-fluid">
     <div class="row" style="padding: 1rem 3rem;">
         <button class="btn btn-outline-secondary" onclick="showViiaModal('@Model.ViiaConnectUrl')">Connect More Accounts via iframe</button>
-        <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="window.location.href='@Model.ViiaConnectUrl'">Connect More Accounts via redirect</button>
+        <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="window.location.href = '@Model.ViiaConnectUrl'">Connect More Accounts via redirect</button>
         @if (Model?.AccountsGroupedByProvider != null && Model.AccountsGroupedByProvider.Any())
         {
             <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdate()">Request Data Update</button>
@@ -19,6 +21,7 @@
         {
             <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="toggleModal('dataModal')">Toggle JWT Token payload</button>
         }
+        <button id="email-button" style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="toggleEmail()">@(Model.EmailEnabled ? "Disable Email Notifications" : "Enable Email Notifications")</button>
     </div>
     <div class="row" style="padding: 0 3rem;">
         <div class="col">
@@ -123,6 +126,12 @@
 @section Scripts
 {
     <script>
+        function updateEmailTexts() {
+            var emailEnabled = $("#EmailEnabled").val() === 'true';
+            var buttonText = emailEnabled ? "Disable Email Notifications" : "Enable Email Notifications";
+            $("#email-button").text(buttonText);
+        }
+        
         function toggleModal(id) {
             $('#' + id).modal('toggle');
         }
@@ -148,7 +157,6 @@
                     if (e.data === 'viia-login-done') {
                         $('#viiaModal').modal('hide');
                         window.location.href = '/viia/accounts/';
-                        console.log("Hiding modal");
                     }
                 });
         });
@@ -166,6 +174,18 @@
                         alert("All accounts didn't require user-assisted authentication and were queued up for sync");
                         // refresh page?
                     }
+                }
+            });
+        }
+        
+        function toggleEmail() {
+            $.ajax({
+                url: '/viia/toggle-email',
+                type: 'POST',
+                dataType: "json",
+                success: function(data) {
+                    $("#EmailEnabled").val(data.updatedStatus);
+                    updateEmailTexts();
                 }
             });
         }
