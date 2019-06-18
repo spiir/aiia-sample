@@ -11,6 +11,6 @@ namespace ViiaSample.Models
         public string ViiaConnectUrl { get; set; }
         public JwtSecurityToken JwtToken { get; set; }
         public JwtSecurityToken RefreshToken { get; set; }
-        
+        public bool EmailEnabled { get; set; }
     }
 }
