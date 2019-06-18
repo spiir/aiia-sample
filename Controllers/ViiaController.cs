@@ -40,8 +40,13 @@ namespace ViiaSample.Controllers
         {
             var dataUpdateResponse = await _viiaService.InitiateDataUpdate(User);
             return Ok(new
-                {authUrl = dataUpdateResponse.Status == UpdateStatus.AllQueued ? string.Empty : dataUpdateResponse.AuthUrl});
+            {
+                authUrl = dataUpdateResponse.Status == UpdateStatus.AllQueued
+                    ? string.Empty
+                    : dataUpdateResponse.AuthUrl
+            });
         }
+
 
         [HttpGet("login")]
         public IActionResult Login()
@@ -74,7 +79,7 @@ namespace ViiaSample.Controllers
             user.ViiaRefreshToken = tokenResponse.RefreshToken;
             user.ViiaAccessTokenExpires = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
             user.ViiaConsentId = consentId;
-            
+
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
@@ -91,7 +96,8 @@ namespace ViiaSample.Controllers
                 return View(new AccountViewModel
                 {
                     AccountsGroupedByProvider = null,
-                    ViiaConnectUrl = _viiaService.GetAuthUri(User, user?.Email).ToString()
+                    ViiaConnectUrl = _viiaService.GetAuthUri(User, user?.Email).ToString(),
+                    EmailEnabled = user?.EmailEnabled ?? false
                 });
             }
 
@@ -103,7 +109,8 @@ namespace ViiaSample.Controllers
                 AccountsGroupedByProvider = groupedAccounts,
                 ViiaConnectUrl = _viiaService.GetAuthUri(User, user.Email).ToString(),
                 JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
-                RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken)
+                RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
+                EmailEnabled = user.EmailEnabled
             };
             return View(model);
         }
@@ -113,6 +120,22 @@ namespace ViiaSample.Controllers
         {
             var transactions = await _viiaService.GetAccountTransactions(User, accountId);
             return View(transactions);
+        }
+
+        [HttpPost("toggle-email")]
+        public async Task<IActionResult> DisconnectFromViia()
+        {
+            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                return Ok(new {});
+            }
+
+            user.EmailEnabled = !user.EmailEnabled;
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+            return Ok(new {updatedStatus = user.EmailEnabled});
         }
     }
 }
