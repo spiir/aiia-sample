@@ -279,15 +279,15 @@ namespace ViiaSample.Services
 
     public class Account
     {
+        public AmountModel Available { get; set; }
+        public AmountModel Booked { get; set; }
         public string Id { get; set; }
         public AccountProvider Provider { get; set; }
         public string Name { get; set; }
-        public decimal? AvailableBalance { get; set; }
-        public decimal BookedBalance { get; set; }
-        public string Currency { get; set; }
         public AccountNumberViewModel Number { get; set; }
         public string Type { get; set; }
         public DateTime? LastSynchronized { get; set; }
+        public string Owner { get; set; }
     }
     
     public class AccountNumberViewModel
@@ -309,6 +309,12 @@ namespace ViiaSample.Services
         public string Id { get; set; }
     }
 
+    public class AmountModel
+    {
+        public string Currency { get; set; }
+        public decimal Value { get; set; }
+    }
+
     public class TransactionResponse
     {
         public List<Transaction> Transactions { get; set; }
@@ -319,12 +325,11 @@ namespace ViiaSample.Services
     {
         public string Id { get; set; }
         public DateTimeOffset? Date { get; set; }
-        public DateTimeOffset? CreationDate { get; set; }
+        public AmountModel Balance { get; set; }
+        public AmountModel TransactionAmount { get; set; }
         public string Text { get; set; }
         public string OriginalText { get; set; }
-        public double Amount { get; set; }
         public string Type { get; set; }
-        public string Currency { get; set; }
         public string State { get; set; }
     }
 
