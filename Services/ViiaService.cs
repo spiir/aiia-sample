@@ -319,7 +319,6 @@ namespace ViiaSample.Services
     {
         public string Id { get; set; }
         public DateTimeOffset? Date { get; set; }
-        public DateTimeOffset? CreationDate { get; set; }
         public AmountModel Balance { get; set; }
         public AmountModel TransactionAmount { get; set; }
         public string Text { get; set; }
