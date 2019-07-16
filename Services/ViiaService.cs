@@ -150,7 +150,7 @@ namespace ViiaSample.Services
         {
             var payloadString = ReadRequestBody(request.Body);
             var viiaSignature = request.Headers["X-Viia-Signature"];
-            if (!VerifySignatures(viiaSignature, payloadString))
+            if (!VerifySignature(viiaSignature, payloadString))
             {
                 return;
             }
@@ -208,8 +208,11 @@ namespace ViiaSample.Services
             return documentContents;
         }
 
-        private bool VerifySignatures(string viiaSignature, string payload)
+        private bool VerifySignature(string viiaSignature, string payload)
         {
+            if (string.IsNullOrWhiteSpace(viiaSignature))
+                return true;
+            
             var generatedSignature = GenerateHmacSignature(payload, _options.CurrentValue.Viia.WebHookSecret);
 
             if (generatedSignature != viiaSignature)
