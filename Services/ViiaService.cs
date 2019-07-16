@@ -212,6 +212,9 @@ namespace ViiaSample.Services
         {
             if (string.IsNullOrWhiteSpace(viiaSignature))
                 return true;
+
+            if (string.IsNullOrWhiteSpace(_options.CurrentValue.Viia.WebHookSecret))
+                return true;
             
             var generatedSignature = GenerateHmacSignature(payload, _options.CurrentValue.Viia.WebHookSecret);
 
