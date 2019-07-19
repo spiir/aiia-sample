@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -26,7 +28,7 @@ namespace ViiaSample.Services
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
         Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
-        Task ProcessWebHookPayload(JObject payload);
+        Task ProcessWebHookPayload(HttpRequest request);
     }
     
     public class ViiaService : IViiaService
@@ -144,9 +146,18 @@ namespace ViiaSample.Services
             return result?.Transactions.ToImmutableList();
         }
 
-        public async Task ProcessWebHookPayload(JObject payload)
+        public async Task ProcessWebHookPayload(HttpRequest request)
         {
-            _logger.LogInformation($"Received webhook payload:\n{payload}");
+            var payloadString = ReadRequestBody(request.Body);
+            var viiaSignature = request.Headers["X-Viia-Signature"];
+            if (!VerifySignature(viiaSignature, payloadString))
+            {
+                return;
+            }
+
+            var payload = JObject.Parse(payloadString);
+            
+            _logger.LogInformation($"Received webhook payload:\n{payloadString}");
             var data = payload[payload.Properties().First().Name];
             var consentId = data["ConsentId"].ToString();
             var eventType = data["Event"].ToString();
@@ -167,21 +178,70 @@ namespace ViiaSample.Services
             switch (eventType)
             {
                 case "AccountsUpdated":
-                    await _emailService.SendDataUpdateEmail(user.Email, payload.ToString());
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
                     break;
                 case "ConnectionUpdateRequired":
-                    await _emailService.SendDataUpdateEmail(user.Email, payload.ToString());
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
                     break;
                 case "ConsentNeedsUpdate":
-                    await _emailService.SendDataUpdateEmail(user.Email, payload.ToString());
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
                     break;
                 case "ConsentRevoked":
-                    await _emailService.SendDataUpdateEmail(user.Email, payload.ToString());
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
                     break;
                 default:
-                    await _emailService.SendUnknownWebHookEmail(user.Email, payload.ToString());
+                    await _emailService.SendUnknownWebHookEmail(user.Email, payloadString.ToString());
                     break;
             }
+        }
+
+        private string ReadRequestBody(Stream bodyStream)
+        {
+            string documentContents;
+            using (bodyStream)
+            {
+                using (StreamReader readStream = new StreamReader(bodyStream, Encoding.UTF8))
+                {
+                    documentContents = readStream.ReadToEnd();
+                }
+            }
+            return documentContents;
+        }
+
+        private bool VerifySignature(string viiaSignature, string payload)
+        {
+            if (string.IsNullOrWhiteSpace(viiaSignature))
+                return true;
+
+            if (string.IsNullOrWhiteSpace(_options.CurrentValue.Viia.WebHookSecret))
+                return true;
+            
+            var generatedSignature = GenerateHmacSignature(payload, _options.CurrentValue.Viia.WebHookSecret);
+
+            if (generatedSignature != viiaSignature)
+            {
+                _logger.LogWarning($"Webhook signatures didn't match. Received:\n{viiaSignature}\nGenerated: {generatedSignature}");
+                return false;
+            }
+
+            return true;
+        }
+
+        private string GenerateHmacSignature(string payload, string secret)
+        {
+            var encoding = new UTF8Encoding();
+
+            var textBytes = encoding.GetBytes(payload);
+            var keyBytes = encoding.GetBytes(secret);
+
+            byte[] hashBytes;
+
+            using (var hash = new HMACSHA256(keyBytes))
+            {
+                hashBytes = hash.ComputeHash(textBytes);
+            }
+
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
 
         private HttpClient CreateApiHttpClient()

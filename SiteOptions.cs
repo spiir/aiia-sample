@@ -14,6 +14,7 @@ namespace ViiaSample
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public string LoginCallbackUrl { get; set; }
+        public string WebHookSecret { get; set; }
     }
 
     public class SendGridOptions

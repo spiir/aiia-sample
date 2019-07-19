@@ -29,9 +29,9 @@ namespace ViiaSample.Controllers
         // Web hook for Viia to push data
         [HttpPost("webhook")]
         [AllowAnonymous]
-        public async Task<IActionResult> DataCallback([FromBody] JObject payload)
+        public async Task<IActionResult> DataCallback()
         {
-            await _viiaService.ProcessWebHookPayload(payload);
+            await _viiaService.ProcessWebHookPayload(Request);
             return Ok();
         }
 
