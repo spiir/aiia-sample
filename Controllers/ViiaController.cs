@@ -47,6 +47,13 @@ namespace ViiaSample.Controllers
             });
         }
 
+        [HttpGet("data/{consentId}")]
+        [AllowAnonymous]
+        public IActionResult DataUpdateCallback()
+        {
+            return View("GenericViewWithPostMessageOnLoad", new CallbackViewModel {AutomaticallyFinish = true});
+        }
+
 
         [HttpGet("login")]
         public IActionResult Login()
@@ -83,7 +90,7 @@ namespace ViiaSample.Controllers
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return View("GenericViewWithPostMessageOnLoad", Request.QueryString.Value);
+            return View("GenericViewWithPostMessageOnLoad",new CallbackViewModel { Query = Request.QueryString.Value, AutomaticallyFinish = false});
         }
 
         [HttpGet("accounts")]
