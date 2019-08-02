@@ -1,0 +1,37 @@
+@using Microsoft.EntityFrameworkCore.Internal
+@model System.Collections.Generic.List<ViiaSample.Services.CategorizedTransaction>
+
+
+@{
+    ViewBag.Title = "Categorized";
+    Layout = "_Layout";
+}
+
+<div>
+    <h3>Summary</h3>
+    <span><b>Categorized: </b> @Model.Count(x => x.Categories != null && x.Categories.Count > 0 && !x.Categories.Any(y => y.Contains("Unknown")))</span> <br/>
+    <span><b>Unknown:</b> @Model.Count(x => x.Categories == null || x.Categories.Count == 0 || x.Categories.Any(y => y.Contains("Unknown")))</span><br/>
+    <span><b>Categorization Ratio: @Model.Count(x => x.Categories != null && x.Categories.Count > 0 && !x.Categories.Any(y => y.Contains("Unknown")))</b> % </span><br/>
+    
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Transaction Amount</th>
+            <th scope="col">Categories</th>
+            <th scope="col">Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var transaction in Model.OrderByDescending(x => x.Transaction.Date?.ToUnixTimeMilliseconds()))
+        {
+            <tr>
+                <td>@transaction.Transaction.OriginalText</td>
+                <td>@transaction.Transaction.TransactionAmount.Value</td>
+                <td>@string.Join(", ", transaction.Categories)</td>
+                <td>@transaction.Transaction.Date?.ToString()</td>
+            </tr>
+        }
+</table>

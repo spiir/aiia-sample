@@ -29,6 +29,9 @@ namespace ViiaSample.Services
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
         Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
         Task ProcessWebHookPayload(HttpRequest request);
+
+        Task<List<CategorizedTransaction>> GetAccountCategorizedTransactions(ClaimsPrincipal principal,
+            string accountId);
     }
     
     public class ViiaService : IViiaService
@@ -144,6 +147,20 @@ namespace ViiaSample.Services
             // TODO paging
             var result = await HttpGet<TransactionResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
             return result?.Transactions.ToImmutableList();
+        }
+        
+        public async Task<List<CategorizedTransaction>> GetAccountCategorizedTransactions(ClaimsPrincipal principal, string accountId)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            // TODO paging
+            var result = await HttpGet<List<CategorizedTransaction>>($"/v1/accounts/{accountId}/transactions/categorized", user.ViiaTokenType, user.ViiaAccessToken);
+            return result;
         }
 
         public async Task ProcessWebHookPayload(HttpRequest request)
@@ -391,6 +408,12 @@ namespace ViiaSample.Services
         public string OriginalText { get; set; }
         public string Type { get; set; }
         public string State { get; set; }
+    }
+
+    public class CategorizedTransaction
+    {
+        public Transaction Transaction { get; set; }
+        public List<string> Categories { get; set; }
     }
 
     public class CodeExchangeResponse

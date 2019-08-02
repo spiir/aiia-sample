@@ -128,6 +128,13 @@ namespace ViiaSample.Controllers
             var transactions = await _viiaService.GetAccountTransactions(User, accountId);
             return View(transactions);
         }
+        
+        [HttpGet("transactions/categorized")]
+        public async Task<IActionResult> Nordigen([FromQuery] string accountId)
+        {
+            var categorized = await _viiaService.GetAccountCategorizedTransactions(User, accountId);
+            return View(categorized);
+        }
 
         [HttpPost("toggle-email")]
         public async Task<IActionResult> DisconnectFromViia()
