@@ -19,7 +19,7 @@ namespace ViiaSample.Extensions
             return builder.ConfigureAppConfiguration((context, config) =>
             {
                 var builtConfig = config.Build();
-                if (builtConfig["KeyVaultName"]
+                if (builtConfig["KEY_VAULT_NAME"]
                     .IsSet())
                 {
                     var azureServiceTokenProvider = new AzureServiceTokenProvider();
@@ -29,7 +29,7 @@ namespace ViiaSample.Extensions
                                 .KeyVaultTokenCallback));
 
                     config.AddAzureKeyVault(
-                        $"https://{builtConfig["KeyVaultName"]}.vault.azure.net/",
+                        $"https://{builtConfig["KEY_VAULT_NAME"]}.vault.azure.net/",
                         keyVaultClient,
                         new DefaultKeyVaultSecretManager());
                 }
