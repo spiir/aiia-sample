@@ -1,7 +1,6 @@
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using ViiaSample.Services;
+using ViiaSample.Models.Viia;
 
 namespace ViiaSample.Models
 {

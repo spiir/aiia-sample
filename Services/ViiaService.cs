@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
@@ -12,12 +11,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ViiaSample.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ViiaSample.Models.Viia;
 
 namespace ViiaSample.Services
 {
@@ -128,7 +127,7 @@ namespace ViiaSample.Services
             {
                 return null;
             }
-            var result = await HttpGet<AccountResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken);
+            var result = await HttpGet<AccountsResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken);
             return result?.Accounts.ToImmutableList();
         }
 
@@ -142,7 +141,7 @@ namespace ViiaSample.Services
             }
 
             // TODO paging
-            var result = await HttpGet<TransactionResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
+            var result = await HttpGet<TransactionsResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
             return result?.Transactions.ToImmutableList();
         }
 
@@ -330,94 +329,5 @@ namespace ViiaSample.Services
 
             return $"{request.Scheme}://{host}{pathBase}";
         }
-    }
-
-    public class AccountResponse
-    {
-        public List<Account> Accounts { get; set; }
-    }
-
-    public class Account
-    {
-        public AmountModel Available { get; set; }
-        public AmountModel Booked { get; set; }
-        public string Id { get; set; }
-        public AccountProvider Provider { get; set; }
-        public string Name { get; set; }
-        public AccountNumberViewModel Number { get; set; }
-        public string Type { get; set; }
-        public DateTime? LastSynchronized { get; set; }
-        public string Owner { get; set; }
-    }
-    
-    public class AccountNumberViewModel
-    {
-        public string BbanType { get; set; }
-        public string Bban { get; set; }
-        public string Iban { get; set; }
-        public BbanParsedViewModel BbanParsed { get; set; }
-    }
-
-    public class BbanParsedViewModel
-    {
-        public string BankCode { get; set; }
-        public string AccountNumber { get; set; }
-    }
-    
-    public class AccountProvider
-    {
-        public string Id { get; set; }
-    }
-
-    public class AmountModel
-    {
-        public string Currency { get; set; }
-        public decimal Value { get; set; }
-    }
-
-    public class TransactionResponse
-    {
-        public List<Transaction> Transactions { get; set; }
-        public string ContinuationToken { get; set; }
-    }
-    
-    public class Transaction
-    {
-        public string Id { get; set; }
-        public DateTimeOffset? Date { get; set; }
-        public AmountModel Balance { get; set; }
-        public AmountModel TransactionAmount { get; set; }
-        public string Text { get; set; }
-        public string OriginalText { get; set; }
-        public string Type { get; set; }
-        public string State { get; set; }
-    }
-
-    public class CodeExchangeResponse
-    {
-        [JsonProperty("access_token")]
-        public string AccessToken { get; set; }
-        [JsonProperty("token_type")]
-        public string TokenType { get; set; }
-        [JsonProperty("expires_in")]
-        public int ExpiresIn { get; set; }
-        [JsonProperty("refresh_token")]
-        public string RefreshToken { get; set; }
-    }
-
-    public class InitiateDataUpdateResponse
-    {
-        public UpdateStatus Status { get; set; }
-        public string AuthUrl { get; set; }
-    }
-    public enum UpdateStatus
-    {
-        AllQueued,
-        SupervisedLoginRequired
-    }
-
-    public class InitiateDataUpdateRequest
-    {
-        public string RedirectUrl { get; set; }
     }
 }
