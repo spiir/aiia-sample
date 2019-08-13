@@ -62,9 +62,9 @@ namespace ViiaSample.Services
                 $"{_options.CurrentValue.Viia.BaseApiUrl}/v1/oauth/connect" +
                 $"?client_id={_options.CurrentValue.Viia.ClientId}" +
                 "&response_type=code" +
-                $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}" +
-                "&scope=scope";
+                $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}";
 
+            // Adding `email` query parameter will prefill email input in the Viia app
             if(email != null)
                connectUrl += $"&email={HttpUtility.UrlEncode(email)}";
 
@@ -87,14 +87,11 @@ namespace ViiaSample.Services
 
         public async Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code)
         {
-            using (var httpClient = CreateApiHttpClient())
+            using (var httpClient = _httpClient.Value)
             {
                 var requestUrl = "v1/oauth/token";
                 
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
-                
-                var request = new HttpRequestMessage(HttpMethod.Post, requestUrl);
-                request.Method = HttpMethod.Post;
 
                 var tokenBody = new
                 {
@@ -102,7 +99,6 @@ namespace ViiaSample.Services
                     code = code,
                     scope = "read",
                     redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
-
                 };
 
                 var response = await httpClient.PostAsJsonAsync(requestUrl, tokenBody);
@@ -148,11 +144,10 @@ namespace ViiaSample.Services
         public async Task ProcessWebHookPayload(HttpRequest request)
         {
             var payloadString = ReadRequestBody(request.Body);
+            // `X-Viia-Signature` is provided optionally if client has configured `WebhookSecret` and is used to verify that webhook was sent by Viia
             var viiaSignature = request.Headers["X-Viia-Signature"];
             if (!VerifySignature(viiaSignature, payloadString))
-            {
                 return;
-            }
 
             var payload = JObject.Parse(payloadString);
             
@@ -174,6 +169,7 @@ namespace ViiaSample.Services
                 _logger.LogInformation("User has disabled email notifications.");
                 return;
             }
+            
             switch (eventType)
             {
                 case "AccountsUpdated":
@@ -207,6 +203,8 @@ namespace ViiaSample.Services
             return documentContents;
         }
 
+        // Viia calculates same HMAC hash using the secret only known by the client and Viia
+        // If HMAC hashes doesn't mach, it means that the webhook was not sent by Viia
         private bool VerifySignature(string viiaSignature, string payload)
         {
             if (string.IsNullOrWhiteSpace(viiaSignature))
@@ -226,6 +224,7 @@ namespace ViiaSample.Services
             return true;
         }
 
+        // Generate HMAC hash of webhook payload using secret shared with Viia
         private string GenerateHmacSignature(string payload, string secret)
         {
             var encoding = new UTF8Encoding();
@@ -242,15 +241,12 @@ namespace ViiaSample.Services
 
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
-
-        private HttpClient CreateApiHttpClient()
-        {
-            return new HttpClient
-            {
-                BaseAddress = new Uri(_options.CurrentValue.Viia.BaseApiUrl)
-            };
-        }
-
+        
+        // https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
+        // TL;DR:
+        // 1. Create string - `{your viia client id}:{your viia client secret}` 
+        // 2. Convert that string to byte array using `iso-8859-1` encoding
+        // 3. Convert that byte array to base 64
         private string GenerateBasicAuthorizationHeaderValue()
         {
             var credentials = $"{_options.CurrentValue.Viia.ClientId}:{_options.CurrentValue.Viia.ClientSecret}";
@@ -280,6 +276,7 @@ namespace ViiaSample.Services
                     Content = new StringContent(JsonConvert.SerializeObject(body),
                         Encoding.UTF8, "application/json"),
                 };
+                
                 if (accessTokenType != null && accessToken != null)
                 {
                     httpRequestMessage.Headers.Authorization =
@@ -319,6 +316,7 @@ namespace ViiaSample.Services
             }
         }
 
+        // Gets the base url of current environment that sample app is running
         private string GetBaseUrl()
         {
             var request = _httpContextAccessor.HttpContext.Request;
