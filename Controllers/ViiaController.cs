@@ -27,7 +27,7 @@ namespace ViiaSample.Controllers
             _dbContext = dbContext;
         }
 
-        // Web hook for Viia to push data
+        // Web hook for Viia to push data to
         [HttpPost("webhook")]
         [AllowAnonymous]
         public async Task<IActionResult> DataCallback()
@@ -40,6 +40,9 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> RequestDataUpdate()
         {
             var dataUpdateResponse = await _viiaService.InitiateDataUpdate(User);
+            
+            // If status is `AllQueued`, it means that all connections didn't need a supervised login and were queued successfully
+            // Otherwise, a supervised login is needed by the user using the `AuthUrl` received in the response
             return Ok(new
             {
                 authUrl = dataUpdateResponse.Status == InitiateDataUpdateResponse.UpdateStatus.AllQueued
@@ -74,6 +77,7 @@ namespace ViiaSample.Controllers
                 return BadRequest();
             }
 
+            // Immediately exchange received code for an access token, since code has a short lifespan
             var tokenResponse = await _viiaService.ExchangeCodeForAccessToken(code);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -99,6 +103,8 @@ namespace ViiaSample.Controllers
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            
+            // If user hasn't connected to Viia or his access token is expired, show empty accounts page
             if (user?.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
             {
                 return View(new AccountViewModel
@@ -130,6 +136,7 @@ namespace ViiaSample.Controllers
             return View(transactions);
         }
 
+        // Toggles email notifications for webhook, might be interesting to check how/when/what Viia sends in webhooks, but gets a bit annoying in the long run
         [HttpPost("toggle-email")]
         public async Task<IActionResult> DisconnectFromViia()
         {
