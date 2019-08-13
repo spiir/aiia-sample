@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using ViiaSample.Data;
 using ViiaSample.Models;
+using ViiaSample.Models.Viia;
 using ViiaSample.Services;
 
 namespace ViiaSample.Controllers
@@ -41,7 +42,7 @@ namespace ViiaSample.Controllers
             var dataUpdateResponse = await _viiaService.InitiateDataUpdate(User);
             return Ok(new
             {
-                authUrl = dataUpdateResponse.Status == UpdateStatus.AllQueued
+                authUrl = dataUpdateResponse.Status == InitiateDataUpdateResponse.UpdateStatus.AllQueued
                     ? string.Empty
                     : dataUpdateResponse.AuthUrl
             });
