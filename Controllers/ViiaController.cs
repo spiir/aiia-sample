@@ -61,9 +61,9 @@ namespace ViiaSample.Controllers
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            var ViiaUrl = _viiaService.GetAuthUri(User, user?.Email);
+            var viiaUrl = _viiaService.GetAuthUri(user?.Email);
 
-            return Redirect(ViiaUrl.ToString());
+            return Redirect(viiaUrl.ToString());
         }
 
         [HttpGet("callback")]
@@ -104,7 +104,7 @@ namespace ViiaSample.Controllers
                 return View(new AccountViewModel
                 {
                     AccountsGroupedByProvider = null,
-                    ViiaConnectUrl = _viiaService.GetAuthUri(User, user?.Email).ToString(),
+                    ViiaConnectUrl = _viiaService.GetAuthUri(user?.Email).ToString(),
                     EmailEnabled = user?.EmailEnabled ?? false
                 });
             }
@@ -115,7 +115,7 @@ namespace ViiaSample.Controllers
             var model = new AccountViewModel
             {
                 AccountsGroupedByProvider = groupedAccounts,
-                ViiaConnectUrl = _viiaService.GetAuthUri(User, user.Email).ToString(),
+                ViiaConnectUrl = _viiaService.GetAuthUri(user.Email).ToString(),
                 JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
                 RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
                 EmailEnabled = user.EmailEnabled
