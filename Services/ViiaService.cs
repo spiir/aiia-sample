@@ -22,7 +22,7 @@ namespace ViiaSample.Services
 {
     public interface IViiaService
     {
-        Uri GetAuthUri(ClaimsPrincipal principal, string userEmail);
+        Uri GetAuthUri(string userEmail);
         Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
@@ -56,7 +56,7 @@ namespace ViiaSample.Services
             });
         }
 
-        public Uri GetAuthUri(ClaimsPrincipal principal, string email)
+        public Uri GetAuthUri(string email)
         {
             var connectUrl =
                 $"{_options.CurrentValue.Viia.BaseApiUrl}/v1/oauth/connect" +
