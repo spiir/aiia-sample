@@ -2,6 +2,8 @@
 
 Sample ASP.NET web app showcasing a basic usage and feature of Viia.
 
+Note: More interested in using Viia in a mobile app? Check out our Flutter sample project - https://github.com/spiir/viia-sample-mobile
+
 ## Introduction
 
 This sample (or demo if you prefer) app implement some very basic features of Viia to get you familiar to how it works.
