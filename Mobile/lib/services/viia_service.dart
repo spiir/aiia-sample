@@ -11,7 +11,7 @@ import 'package:viia_sample/models/transaction.dart';
 class ViiaService {
   // Our local mobile api for calls that involve using client secret
   // which shouldn't be exposed to public
-  static String _localServerBaseUrl = "http://localhost:5030/api";
+  static String _localServerBaseUrl = "http://localhost:5022/api";
   static String _viiaApiBaseUrl = "https://api.getviia.com";
 
   // Keys used for storing data in shared preferences
