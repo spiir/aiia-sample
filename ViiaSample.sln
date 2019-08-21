@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViiaSample", "ViiaSample.csproj", "{8CCB62DB-F0A1-44D9-9520-BF51D27D1DAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ViiaSample", "Web\ViiaSample.csproj", "{8CCB62DB-F0A1-44D9-9520-BF51D27D1DAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
