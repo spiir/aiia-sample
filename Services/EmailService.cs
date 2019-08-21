@@ -62,7 +62,14 @@ namespace ViiaSample.Services
             return SendEmail(destinationEmail, "Unknown webhook", emailHtml); 
         }
 
-        private async Task<bool> SendEmail(string destination, string subject, string emailHtml)
+        private Task<bool> SendEmail(string destination, string subject, string emailHtml)
+        {
+            return _optionsMonitor.CurrentValue.SendGrid?.ApiKey != null
+                ? SendSendgridEmail(destination, subject, emailHtml)
+                : SendConsoleEmail(destination, subject, emailHtml);
+        }
+
+        private async Task<bool> SendSendgridEmail(string destination, string subject, string emailHtml)
         {
             var sendGrid = _optionsMonitor.CurrentValue.SendGrid;
             var client = new SendGridClient(sendGrid.ApiKey);
@@ -80,6 +87,12 @@ namespace ViiaSample.Services
                     res.DeserializeResponseBodyAsync(res.Body));
 
             return success;
+        }
+
+        private Task<bool> SendConsoleEmail(string destination, string subject, string emailHtml)
+        {
+            _logger.LogInformation($"\n\n========= EMAIL =========\n\nTO:<{destination}\nSUBJECT: {subject}\n\n{emailHtml}");
+            return Task.FromResult(true);
         }
 
         private static string FormatJson(string json)
