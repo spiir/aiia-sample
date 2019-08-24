@@ -15,11 +15,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ViiaSample.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NodaTime;
 using NodaTime.Serialization.JsonNet;
+using ViiaSample.Data;
 using ViiaSample.Models.Viia;
 
 namespace ViiaSample.Services
@@ -152,7 +152,7 @@ namespace ViiaSample.Services
             } while (!string.IsNullOrWhiteSpace(token));
 
             return transactions.ToImmutableList();
-        }   
+        }       
 
         public async Task ProcessWebHookPayload(HttpRequest request)
         {
@@ -168,8 +168,15 @@ namespace ViiaSample.Services
             
             _logger.LogInformation($"Received webhook payload:\n{payloadString}");
             var data = payload[payload.Properties().First().Name];
-            var consentId = data["ConsentId"].ToString();
-            var eventType = data["Event"].ToString();
+
+            if (data == null)
+            {
+                _logger.LogInformation("Webhook data not parsed");
+                return;
+            }
+
+            var consentId = data["consentId"].HasValues ? data["consentId"].Value<string>() : string.Empty;
+            var eventType = data["event"].HasValues ? data["event"].Value<string>() : string.Empty;
             
             var user = _dbContext.Users.FirstOrDefault(x => x.ViiaConsentId == consentId);
             if (user == null)
@@ -185,22 +192,28 @@ namespace ViiaSample.Services
                 return;
             }
             
-            switch (eventType)
+            switch (eventType.ToLower())
             {
-                case "AccountsUpdated":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
+                case "accountsupdated":
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString);
                     break;
-                case "ConnectionUpdateRequired":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
+                case "connectionupdaterequired":
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString);
                     break;
-                case "ConsentNeedsUpdate":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
+                case "connectionremoved":
+                    await _emailService.SendConnectionRemovedEmail(user.Email, payloadString);
                     break;
-                case "ConsentRevoked":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
+                case "consentneedsupdate":
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString);
+                    break;
+                case "consentrevoked":
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString);
+                    break;
+                case "syncprogressupdate":
+                    await _emailService.SendSyncProgressUpdateEmail(user.Email, payloadString);
                     break;
                 default:
-                    await _emailService.SendUnknownWebHookEmail(user.Email, payloadString.ToString());
+                    await _emailService.SendUnknownWebHookEmail(user.Email, payloadString);
                     break;
             }
         }
@@ -289,7 +302,7 @@ namespace ViiaSample.Services
                 var httpRequestMessage = new HttpRequestMessage(method, url)
                 {
                     Content = new StringContent(JsonConvert.SerializeObject(body, new JsonSerializerSettings().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb).WithIsoIntervalConverter()),
-                        Encoding.UTF8, "application/json"),
+                        Encoding.UTF8, "application/json")
                 };
                 
                 if (accessTokenType != null && accessToken != null)
