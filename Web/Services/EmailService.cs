@@ -15,6 +15,8 @@ namespace ViiaSample.Services
         Task<bool> SendConsentUpdateRequiredEmail(string destinationEmail, string fullJson);
         Task<bool> SendConsentRevokedEmail(string destinationEmail, string fullJson);
         Task<bool> SendUnknownWebHookEmail(string destinationEmail, string fullJson);
+        Task SendConnectionRemovedEmail(string userEmail, string toString);
+        Task SendSyncProgressUpdateEmail(string userEmail, string toString);
     }
 
     public class EmailService : IEmailService
@@ -60,6 +62,16 @@ namespace ViiaSample.Services
             var emailHtml =
                 $"<p>We received unknown webhook for you.</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
             return SendEmail(destinationEmail, "Unknown webhook", emailHtml); 
+        }
+
+        public Task SendConnectionRemovedEmail(string userEmail, string toString)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task SendSyncProgressUpdateEmail(string userEmail, string toString)
+        {
+            throw new System.NotImplementedException();
         }
 
         private Task<bool> SendEmail(string destination, string subject, string emailHtml)
