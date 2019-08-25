@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
@@ -11,11 +12,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ViiaSample.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NodaTime;
+using NodaTime.Serialization.JsonNet;
+using ViiaSample.Data;
 using ViiaSample.Models.Viia;
 
 namespace ViiaSample.Services
@@ -96,7 +100,7 @@ namespace ViiaSample.Services
                 var tokenBody = new
                 {
                     grant_type = "authorization_code",
-                    code = code,
+                    code,
                     scope = "read",
                     redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
                 };
@@ -132,18 +136,29 @@ namespace ViiaSample.Services
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
             if (user == null)
-            {
                 return null;
-            }
 
-            // TODO paging
-            var result = await HttpGet<TransactionsResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
-            return result?.Transactions.ToImmutableList();
-        }
+            var transactions = new List<Transaction>();
+            string token = null;
+            do
+            {
+                var result = await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query", new
+                {
+                    Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)), SystemClock.Instance.GetCurrentInstant()),
+                    PagingToken = token
+                }, user.ViiaTokenType, user.ViiaAccessToken);
+                token = result.PagingToken;
+                transactions.AddRange(result.Transactions);
+            } while (!string.IsNullOrWhiteSpace(token));
+
+            return transactions.ToImmutableList();
+        }       
 
         public async Task ProcessWebHookPayload(HttpRequest request)
         {
-            var payloadString = ReadRequestBody(request.Body);
+            request.EnableRewind();
+            var payloadString = await ReadRequestBody(request.Body);
+
             // `X-Viia-Signature` is provided optionally if client has configured `WebhookSecret` and is used to verify that webhook was sent by Viia
             var viiaSignature = request.Headers["X-Viia-Signature"];
             if (!VerifySignature(viiaSignature, payloadString))
@@ -153,8 +168,15 @@ namespace ViiaSample.Services
             
             _logger.LogInformation($"Received webhook payload:\n{payloadString}");
             var data = payload[payload.Properties().First().Name];
-            var consentId = data["ConsentId"].ToString();
-            var eventType = data["Event"].ToString();
+
+            if (data == null)
+            {
+                _logger.LogInformation("Webhook data not parsed");
+                return;
+            }
+
+            var consentId = data["consentId"].HasValues ? data["consentId"].Value<string>() : string.Empty;
+            var eventType = data["event"].HasValues ? data["event"].Value<string>() : string.Empty;
             
             var user = _dbContext.Users.FirstOrDefault(x => x.ViiaConsentId == consentId);
             if (user == null)
@@ -170,34 +192,40 @@ namespace ViiaSample.Services
                 return;
             }
             
-            switch (eventType)
+            switch (eventType.ToLower())
             {
-                case "AccountsUpdated":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
+                case "accountsupdated":
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString);
                     break;
-                case "ConnectionUpdateRequired":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
+                case "connectionupdaterequired":
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString);
                     break;
-                case "ConsentNeedsUpdate":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
+                case "connectionremoved":
+                    await _emailService.SendConnectionRemovedEmail(user.Email, payloadString);
                     break;
-                case "ConsentRevoked":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
+                case "consentneedsupdate":
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString);
+                    break;
+                case "consentrevoked":
+                    await _emailService.SendDataUpdateEmail(user.Email, payloadString);
+                    break;
+                case "syncprogressupdate":
+                    await _emailService.SendSyncProgressUpdateEmail(user.Email, payloadString);
                     break;
                 default:
-                    await _emailService.SendUnknownWebHookEmail(user.Email, payloadString.ToString());
+                    await _emailService.SendUnknownWebHookEmail(user.Email, payloadString);
                     break;
             }
         }
 
-        private string ReadRequestBody(Stream bodyStream)
+        private async Task<string> ReadRequestBody(Stream bodyStream)
         {
             string documentContents;
             using (bodyStream)
             {
-                using (StreamReader readStream = new StreamReader(bodyStream, Encoding.UTF8))
+                using (var readStream = new StreamReader(bodyStream, Encoding.UTF8))
                 {
-                    documentContents = readStream.ReadToEnd();
+                    documentContents = await readStream.ReadToEndAsync();
                 }
             }
             return documentContents;
@@ -273,8 +301,8 @@ namespace ViiaSample.Services
             {
                 var httpRequestMessage = new HttpRequestMessage(method, url)
                 {
-                    Content = new StringContent(JsonConvert.SerializeObject(body),
-                        Encoding.UTF8, "application/json"),
+                    Content = new StringContent(JsonConvert.SerializeObject(body, new JsonSerializerSettings().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb).WithIsoIntervalConverter()),
+                        Encoding.UTF8, "application/json")
                 };
                 
                 if (accessTokenType != null && accessToken != null)
@@ -296,11 +324,12 @@ namespace ViiaSample.Services
 
                 if (!result.IsSuccessStatusCode)
                 {
+                    responseContent = await result.Content.ReadAsStringAsync();
                     throw new ViiaClientException(url, result.StatusCode);
                 }
 
                 responseContent = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(responseContent);
+                return JsonConvert.DeserializeObject<T>(responseContent, new JsonSerializerSettings().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb).WithIsoIntervalConverter());
             }
             catch (ViiaClientException)
             {

@@ -15,6 +15,8 @@ namespace ViiaSample.Services
         Task<bool> SendConsentUpdateRequiredEmail(string destinationEmail, string fullJson);
         Task<bool> SendConsentRevokedEmail(string destinationEmail, string fullJson);
         Task<bool> SendUnknownWebHookEmail(string destinationEmail, string fullJson);
+        Task SendConnectionRemovedEmail(string userEmail, string toString);
+        Task SendSyncProgressUpdateEmail(string userEmail, string toString);
     }
 
     public class EmailService : IEmailService
@@ -60,6 +62,20 @@ namespace ViiaSample.Services
             var emailHtml =
                 $"<p>We received unknown webhook for you.</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
             return SendEmail(destinationEmail, "Unknown webhook", emailHtml); 
+        }
+
+        public Task SendConnectionRemovedEmail(string destinationEmail, string fullJson)
+        {
+            var emailHtml =
+                $"<p>It seems that you revoked consent for us to access your bank account data, this means that we won't be able to show it anymore.</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
+            return SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
+        }
+
+        public Task SendSyncProgressUpdateEmail(string destinationEmail, string fullJson)
+        {
+            var emailHtml =
+                $"<p>We have updated your bank data</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
+            return SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
         }
 
         private Task<bool> SendEmail(string destination, string subject, string emailHtml)
