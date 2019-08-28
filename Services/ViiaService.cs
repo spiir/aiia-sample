@@ -186,8 +186,9 @@ namespace ViiaSample.Services
                 return;
             }
 
-            var consentId = data["consentId"].HasValues ? data["consentId"].Value<string>() : string.Empty;
 
+            var consentId = string.IsNullOrEmpty(data["consentId"].Value<string>()) ? string.Empty : data["consentId"].Value<string>();
+            
             var user = _dbContext.Users.FirstOrDefault(x => x.ViiaConsentId == consentId);
             if (user == null)
             {
