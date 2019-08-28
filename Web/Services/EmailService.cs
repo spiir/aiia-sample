@@ -10,72 +10,27 @@ namespace ViiaSample.Services
 {
     public interface IEmailService
     {
-        Task<bool> SendDataUpdateEmail(string destinationEmail, string fullJson);
-        Task<bool> SendConnectionUpdateRequiredEmail(string destinationEmail, string fullJson);
-        Task<bool> SendConsentUpdateRequiredEmail(string destinationEmail, string fullJson);
-        Task<bool> SendConsentRevokedEmail(string destinationEmail, string fullJson);
-        Task<bool> SendUnknownWebHookEmail(string destinationEmail, string fullJson);
-        Task SendConnectionRemovedEmail(string userEmail, string toString);
-        Task SendSyncProgressUpdateEmail(string userEmail, string toString);
+        Task<bool> SendWebhookEmail(string destinationEmail, string fullJson);
     }
 
     public class EmailService : IEmailService
     {
         private readonly IOptionsMonitor<SiteOptions> _optionsMonitor;
         private readonly ILogger<EmailService> _logger;
-        
+
         public EmailService(IOptionsMonitor<SiteOptions> optionsMonitor, ILogger<EmailService> logger)
         {
             _optionsMonitor = optionsMonitor;
             _logger = logger;
         }
 
-        public Task<bool> SendDataUpdateEmail(string destinationEmail, string fullJson)
+        public async Task<bool> SendWebhookEmail(string destinationEmail, string fullJson)
         {
             var emailHtml =
-                $"<p>We have updated your bank data</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
-            return SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
-        }
-
-        public Task<bool> SendConnectionUpdateRequiredEmail(string destinationEmail, string fullJson)
-        {
-            var emailHtml =
-                $"<p>It seems that you need to login again for us to fetch updated data from your bank account.</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
-            return SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
-        }
-        
-        public Task<bool> SendConsentUpdateRequiredEmail(string destinationEmail, string fullJson)
-        {
-            var emailHtml =
-                $"<p>Viia has updated terms and conditions that you need to accept for us to fetch updated data from your bank account.</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
-            return SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
-        }
-        public Task<bool> SendConsentRevokedEmail(string destinationEmail, string fullJson)
-        {
-            var emailHtml =
-                $"<p>It seems that you revoked consent for us to access your bank account data, this means that we won't be able to show it anymore.</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
-            return SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
-        }
-
-        public Task<bool> SendUnknownWebHookEmail(string destinationEmail, string fullJson)
-        {
-            var emailHtml =
-                $"<p>We received unknown webhook for you.</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
-            return SendEmail(destinationEmail, "Unknown webhook", emailHtml); 
-        }
-
-        public Task SendConnectionRemovedEmail(string destinationEmail, string fullJson)
-        {
-            var emailHtml =
-                $"<p>It seems that you revoked consent for us to access your bank account data, this means that we won't be able to show it anymore.</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
-            return SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
-        }
-
-        public Task SendSyncProgressUpdateEmail(string destinationEmail, string fullJson)
-        {
-            var emailHtml =
-                $"<p>We have updated your bank data</p><br /><p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
-            return SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
+                $"<p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
+            var result = await SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
+            _logger.LogInformation($"Send webhook email. Success: {result}");
+            return result;
         }
 
         private Task<bool> SendEmail(string destination, string subject, string emailHtml)
@@ -95,7 +50,7 @@ namespace ViiaSample.Services
             var msg = MailHelper.CreateSingleEmail(from, to, subject, null, emailHtml);
 
             var res = await client.SendEmailAsync(msg);
-            var success = ( int ) res.StatusCode >= 200 && ( int ) res.StatusCode <= 299;
+            var success = (int) res.StatusCode >= 200 && (int) res.StatusCode <= 299;
 
             if (!success)
                 _logger.LogError($"failed to send email via send grid, status code is: {res.StatusCode}",
@@ -107,7 +62,8 @@ namespace ViiaSample.Services
 
         private Task<bool> SendConsoleEmail(string destination, string subject, string emailHtml)
         {
-            _logger.LogInformation($"\n\n========= EMAIL =========\n\nTO:<{destination}\nSUBJECT: {subject}\n\n{emailHtml}");
+            _logger.LogInformation(
+                $"\n\n========= EMAIL =========\n\nTO:<{destination}\nSUBJECT: {subject}\n\n{emailHtml}");
             return Task.FromResult(true);
         }
 
