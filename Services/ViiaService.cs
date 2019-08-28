@@ -166,6 +166,7 @@ namespace ViiaSample.Services
             request.EnableRewind();
             var payloadString = await ReadRequestBody(request.Body);
 
+            _logger.LogInformation($"Received webhook: {payloadString}");
             // `X-Viia-Signature` is provided optionally if client has configured `WebhookSecret` and is used to verify that webhook was sent by Viia
             var viiaSignature = request.Headers["X-Viia-Signature"];
             if (!VerifySignature(viiaSignature, payloadString))
