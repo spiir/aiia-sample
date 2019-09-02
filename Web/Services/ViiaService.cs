@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
@@ -11,11 +12,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ViiaSample.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NodaTime;
+using NodaTime.Serialization.JsonNet;
+using ViiaSample.Data;
 using ViiaSample.Models.Viia;
 
 namespace ViiaSample.Services
@@ -29,7 +33,7 @@ namespace ViiaSample.Services
         Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
         Task ProcessWebHookPayload(HttpRequest request);
     }
-    
+
     public class ViiaService : IViiaService
     {
         private readonly IOptionsMonitor<SiteOptions> _options;
@@ -39,7 +43,8 @@ namespace ViiaSample.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IEmailService _emailService;
 
-        public ViiaService(IOptionsMonitor<SiteOptions> options, ILogger<ViiaService> logger, ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor, IEmailService emailService)
+        public ViiaService(IOptionsMonitor<SiteOptions> options, ILogger<ViiaService> logger,
+            ApplicationDbContext dbContext, IHttpContextAccessor httpContextAccessor, IEmailService emailService)
         {
             _options = options;
             _logger = logger;
@@ -65,8 +70,8 @@ namespace ViiaSample.Services
                 $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}";
 
             // Adding `email` query parameter will prefill email input in the Viia app
-            if(email != null)
-               connectUrl += $"&email={HttpUtility.UrlEncode(email)}";
+            if (email != null)
+                connectUrl += $"&email={HttpUtility.UrlEncode(email)}";
 
             return new Uri(connectUrl);
         }
@@ -79,10 +84,12 @@ namespace ViiaSample.Services
             {
                 return null;
             }
+
             var redirectUrl = $"{GetBaseUrl()}/viia/data/{currentUserId}/";
             var requestBody = new InitiateDataUpdateRequest {RedirectUrl = redirectUrl};
 
-            return HttpPost<InitiateDataUpdateResponse>("v1/update", requestBody, user.ViiaTokenType, user.ViiaAccessToken);
+            return HttpPost<InitiateDataUpdateResponse>("v1/update", requestBody, user.ViiaTokenType,
+                user.ViiaAccessToken);
         }
 
         public async Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code)
@@ -90,20 +97,21 @@ namespace ViiaSample.Services
             using (var httpClient = _httpClient.Value)
             {
                 var requestUrl = "v1/oauth/token";
-                
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
+
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
 
                 var tokenBody = new
                 {
                     grant_type = "authorization_code",
-                    code = code,
+                    code,
                     scope = "read",
                     redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
                 };
 
                 var response = await httpClient.PostAsJsonAsync(requestUrl, tokenBody);
                 var content = await response.Content.ReadAsStringAsync();
-                
+
                 if (!response.IsSuccessStatusCode)
                 {
                     throw new Exception("Failed to exchange code for tokens");
@@ -123,38 +131,63 @@ namespace ViiaSample.Services
             {
                 return null;
             }
+
             var result = await HttpGet<AccountsResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken);
             return result?.Accounts.ToImmutableList();
         }
 
-        public async Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId)
+        public async Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal,
+            string accountId)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
             if (user == null)
-            {
                 return null;
-            }
 
-            // TODO paging
-            var result = await HttpGet<TransactionsResponse>($"/v1/accounts/{accountId}/transactions", user.ViiaTokenType, user.ViiaAccessToken);
-            return result?.Transactions.ToImmutableList();
+            var transactions = new List<Transaction>();
+            string token = null;
+            do
+            {
+                var result = await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query", new
+                {
+                    Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
+                        SystemClock.Instance.GetCurrentInstant()),
+                    PagingToken = token
+                }, user.ViiaTokenType, user.ViiaAccessToken);
+                token = result.PagingToken;
+                transactions.AddRange(result.Transactions);
+            } while (!string.IsNullOrWhiteSpace(token));
+
+            return transactions.ToImmutableList();
         }
 
         public async Task ProcessWebHookPayload(HttpRequest request)
         {
-            var payloadString = ReadRequestBody(request.Body);
+            request.EnableRewind();
+            var payloadString = await ReadRequestBody(request.Body);
+
+            _logger.LogInformation($"Received webhook: {payloadString}");
             // `X-Viia-Signature` is provided optionally if client has configured `WebhookSecret` and is used to verify that webhook was sent by Viia
             var viiaSignature = request.Headers["X-Viia-Signature"];
             if (!VerifySignature(viiaSignature, payloadString))
+            {
+                _logger.LogWarning("Failed to verify webhook signature");
                 return;
+            }
 
             var payload = JObject.Parse(payloadString);
-            
+
             _logger.LogInformation($"Received webhook payload:\n{payloadString}");
             var data = payload[payload.Properties().First().Name];
-            var consentId = data["ConsentId"].ToString();
-            var eventType = data["Event"].ToString();
+
+            if (data == null)
+            {
+                _logger.LogInformation("Webhook data not parsed");
+                return;
+            }
+
+
+            var consentId = string.IsNullOrEmpty(data["consentId"].Value<string>()) ? string.Empty : data["consentId"].Value<string>();
             
             var user = _dbContext.Users.FirstOrDefault(x => x.ViiaConsentId == consentId);
             if (user == null)
@@ -169,37 +202,21 @@ namespace ViiaSample.Services
                 _logger.LogInformation("User has disabled email notifications.");
                 return;
             }
-            
-            switch (eventType)
-            {
-                case "AccountsUpdated":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
-                    break;
-                case "ConnectionUpdateRequired":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
-                    break;
-                case "ConsentNeedsUpdate":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
-                    break;
-                case "ConsentRevoked":
-                    await _emailService.SendDataUpdateEmail(user.Email, payloadString.ToString());
-                    break;
-                default:
-                    await _emailService.SendUnknownWebHookEmail(user.Email, payloadString.ToString());
-                    break;
-            }
+
+            await _emailService.SendWebhookEmail(user.Email, payloadString);
         }
 
-        private string ReadRequestBody(Stream bodyStream)
+        private async Task<string> ReadRequestBody(Stream bodyStream)
         {
             string documentContents;
             using (bodyStream)
             {
-                using (StreamReader readStream = new StreamReader(bodyStream, Encoding.UTF8))
+                using (var readStream = new StreamReader(bodyStream, Encoding.UTF8))
                 {
-                    documentContents = readStream.ReadToEnd();
+                    documentContents = await readStream.ReadToEndAsync();
                 }
             }
+
             return documentContents;
         }
 
@@ -212,12 +229,13 @@ namespace ViiaSample.Services
 
             if (string.IsNullOrWhiteSpace(_options.CurrentValue.Viia.WebHookSecret))
                 return true;
-            
+
             var generatedSignature = GenerateHmacSignature(payload, _options.CurrentValue.Viia.WebHookSecret);
 
             if (generatedSignature != viiaSignature)
             {
-                _logger.LogWarning($"Webhook signatures didn't match. Received:\n{viiaSignature}\nGenerated: {generatedSignature}");
+                _logger.LogWarning(
+                    $"Webhook signatures didn't match. Received:\n{viiaSignature}\nGenerated: {generatedSignature}");
                 return false;
             }
 
@@ -241,7 +259,7 @@ namespace ViiaSample.Services
 
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
-        
+
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
         // TL;DR:
         // 1. Create string - `{your viia client id}:{your viia client secret}` 
@@ -254,18 +272,19 @@ namespace ViiaSample.Services
             var base64Credentials = Convert.ToBase64String(credentialsByteData);
             return $"{base64Credentials}";
         }
-        
-        public Task<T> HttpGet<T>(string url, string accessTokenType = null, string accessToken=null)
+
+        public Task<T> HttpGet<T>(string url, string accessTokenType = null, string accessToken = null)
         {
             return CallApi<T>(url, null, HttpMethod.Get, accessTokenType, accessToken);
         }
 
-        public Task<T> HttpPost<T>(string url, object body, string accessTokenType = null, string accessToken=null)
+        public Task<T> HttpPost<T>(string url, object body, string accessTokenType = null, string accessToken = null)
         {
-            return CallApi<T>( url, body, HttpMethod.Post, accessTokenType, accessToken);
+            return CallApi<T>(url, body, HttpMethod.Post, accessTokenType, accessToken);
         }
-        
-        private async Task<T> CallApi<T>(string url, object body, HttpMethod method, string accessTokenType = null, string accessToken=null)
+
+        private async Task<T> CallApi<T>(string url, object body, HttpMethod method, string accessTokenType = null,
+            string accessToken = null)
         {
             HttpResponseMessage result = null;
             string responseContent = null;
@@ -273,10 +292,13 @@ namespace ViiaSample.Services
             {
                 var httpRequestMessage = new HttpRequestMessage(method, url)
                 {
-                    Content = new StringContent(JsonConvert.SerializeObject(body),
-                        Encoding.UTF8, "application/json"),
+                    Content = new StringContent(
+                        JsonConvert.SerializeObject(body,
+                            new JsonSerializerSettings().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
+                                .WithIsoIntervalConverter()),
+                        Encoding.UTF8, "application/json")
                 };
-                
+
                 if (accessTokenType != null && accessToken != null)
                 {
                     httpRequestMessage.Headers.Authorization =
@@ -296,11 +318,14 @@ namespace ViiaSample.Services
 
                 if (!result.IsSuccessStatusCode)
                 {
+                    responseContent = await result.Content.ReadAsStringAsync();
                     throw new ViiaClientException(url, result.StatusCode);
                 }
 
                 responseContent = await result.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<T>(responseContent);
+                return JsonConvert.DeserializeObject<T>(responseContent,
+                    new JsonSerializerSettings().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
+                        .WithIsoIntervalConverter());
             }
             catch (ViiaClientException)
             {
