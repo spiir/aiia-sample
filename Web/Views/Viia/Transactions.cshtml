@@ -5,23 +5,21 @@
     Layout = "_Layout";
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Transaction Amount</th>
-            <th scope="col">Account Balance</th>
-            <th scope="col">Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var transaction in Model.OrderByDescending(x => x.Date?.ToUnixTimeMilliseconds()))
-        {
-            <tr>
-                <td>@transaction.Text</td>
-                <td>@transaction.TransactionAmount.Value @transaction.TransactionAmount.Currency</td>
-                <td>@transaction.Balance?.Value @transaction.Balance?.Currency </td>
-                <td>@transaction.Date?.ToString("f")</td>
-            </tr>
-        }
-</table>
+<div class="col">
+    @foreach (var transaction in Model)
+    {
+        <!-- Transaction Cell -->
+        <div class="d-flex account-container"
+             onclick="window.location.href = '@Url.Action("TransactionDetails", "Viia", new {accountId = transaction.AccountId, transactionId = transaction.Id})'">
+            <!-- Transaction name / date column -->
+            <div class="flex-column flex-fill">
+                <div class="p-2">@(transaction.Text ?? transaction.OriginalText)</div>
+                <div class="p-2">@transaction.Date?.ToString()</div>
+            </div>
+            <div class="flex-column flex-fill">
+                <div class="p-2 text-danger">@transaction.TransactionAmount?.Value @transaction.TransactionAmount?.Currency</div>
+                <div class="p-2">@transaction.Balance?.Value @transaction.Balance?.Currency</div>
+            </div>
+        </div>
+    }
+</div>

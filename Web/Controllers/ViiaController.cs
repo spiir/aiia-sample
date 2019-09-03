@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -129,11 +130,17 @@ namespace ViiaSample.Controllers
             return View(model);
         }
 
-        [HttpGet("transactions")]
-        public async Task<IActionResult> Transactions([FromQuery] string accountId)
+        [HttpGet("accounts/{accountId}/transactions")]
+        public async Task<IActionResult> Transactions(string accountId)
         {
             var transactions = await _viiaService.GetAccountTransactions(User, accountId);
-            return View(transactions);
+            return View(transactions.ToList().OrderByDescending(x => x.Date?.UtcTicks).ToImmutableList());
+        }
+
+        [HttpGet("transactions/{accountId}/transactions/{transactionId}")]
+        public async Task<IActionResult> TransactionDetails(string accountId, string transactionId)
+        {
+            return View(await _viiaService.GetTransaction(User, accountId, transactionId));
         }
 
         // Toggles email notifications for webhook, might be interesting to check how/when/what Viia sends in webhooks, but gets a bit annoying in the long run
