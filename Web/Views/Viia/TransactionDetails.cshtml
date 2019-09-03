@@ -65,7 +65,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Transaction Destination</h5>
                     <div>
-                        <b>Name:</b> @Model.Detail.Source.Name
+                        <b>Name:</b> @Model.Detail.Source.Name <br/>
                         <b>Address:</b> @Model.Detail.Source.Address
                     </div>
                 </div>
@@ -78,7 +78,7 @@
             <div class="card-body">
                 <h5 class="card-title">Transaction Destination</h5>
                 <div>
-                    <b>Name:</b> @Model.Detail.Destination.Name
+                    <b>Name:</b> @Model.Detail.Destination.Name <br/>
                     <b>Address:</b> @Model.Detail.Destination.Address
                 </div>
             </div>
@@ -101,12 +101,12 @@
             <div class="card-body">
                 <h5 class="card-title">Transaction Identifiers</h5>
                 <div>
-                    <b>Creditor Reference:</b> Model.Detail.Identifiers.CreditorReferene
-                    <b>Document:</b> Model.Detail.Identifiers.Document
-                    <b>End To End Id:</b> Model.Detail.Identifiers.EndToEndId
-                    <b>Reference:</b> Model.Detail.Identifiers.Reference
-                    <b>Sequence Number:</b> Model.Detail.Identifiers.SequenceNumber
-                    <b>Terminal:</b> Model.Detail.Identifiers.Terminal
+                    <b>Creditor Reference:</b> @Model.Detail.Identifiers.CreditorReference <br/>
+                    <b>Document:</b> @Model.Detail.Identifiers.Document <br/>
+                    <b>End To End Id:</b> @Model.Detail.Identifiers.EndToEndId <br/>
+                    <b>Reference:</b> @Model.Detail.Identifiers.Reference <br/>
+                    <b>Sequence Number:</b> @Model.Detail.Identifiers.SequenceNumber <br/>
+                    <b>Terminal:</b> @Model.Detail.Identifiers.Terminal 
                 </div>
             </div>
         </div>
@@ -128,10 +128,10 @@
             <div class="card-body">
                 <h5 class="card-title">Transaction Reward</h5>
                 <div>
-                    <b>Type:</b> @Model.Detail.Reward.Type
+                    <b>Type:</b> @Model.Detail.Reward.Type <br/>
                     @if (Model.Detail.Reward.Amount != null)
                     {
-                        <b>Amount:</b> @Model.Detail.Reward.Amount.Value @Model.Detail.Reward.Amount.Currency
+                        <b>Amount:</b> @Model.Detail.Reward.Amount.Value @Model.Detail.Reward.Amount.Currency <br/>
                     }
                     @if (Model.Detail.Reward.Points != null)
                     {
