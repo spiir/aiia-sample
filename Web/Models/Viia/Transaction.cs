@@ -12,5 +12,6 @@ namespace ViiaSample.Models.Viia
         public string OriginalText { get; set; }
         public string Type { get; set; }
         public string State { get; set; }
+        public TransactionDetails Detail { get; set; }
     }
 }
