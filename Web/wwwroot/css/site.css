@@ -85,3 +85,7 @@ body {
 .grey-text {
   color: rgb(160, 160, 160);
 }
+
+.detail-card {
+  margin: 1rem;
+}
