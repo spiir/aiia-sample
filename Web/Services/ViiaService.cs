@@ -31,6 +31,7 @@ namespace ViiaSample.Services
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
         Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
+        Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId);
         Task ProcessWebHookPayload(HttpRequest request);
     }
 
@@ -159,6 +160,16 @@ namespace ViiaSample.Services
             } while (!string.IsNullOrWhiteSpace(token));
 
             return transactions.ToImmutableList();
+        }
+
+        public async Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+                return null;
+
+            return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}", user.ViiaTokenType, user.ViiaAccessToken);
         }
 
         public async Task ProcessWebHookPayload(HttpRequest request)

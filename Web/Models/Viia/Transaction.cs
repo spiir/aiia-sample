@@ -13,5 +13,6 @@ namespace ViiaSample.Models.Viia
         public string Type { get; set; }
         public string State { get; set; }
         public TransactionDetails Detail { get; set; }
+        public string AccountId { get; set; }
     }
 }
