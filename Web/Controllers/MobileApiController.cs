@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using ViiaSample.Extensions;
 using ViiaSample.Services;
 
 namespace ViiaSample.Controllers
@@ -24,7 +25,15 @@ namespace ViiaSample.Controllers
         [HttpPost("token")]
         public async Task<IActionResult> GetAccessToken([FromBody] TokenInput input)
         {
-            var result = await _viiaService.ExchangeCodeForAccessToken(input.Code);
+            if(!string.IsNullOrWhiteSpace(input.Code) && !string.IsNullOrWhiteSpace(input.RefreshToken)) {
+                return BadRequest($"Only {nameof(input.Code)} or {nameof(input.RefreshToken)} can be specified");
+            }
+
+            if(string.IsNullOrWhiteSpace(input.Code) && string.IsNullOrWhiteSpace(input.RefreshToken)) {
+                return BadRequest($"Either {nameof(input.Code)} or {nameof(input.RefreshToken)} has be specified");
+            }
+            
+            var result = input.Code.IsSet() ? await _viiaService.ExchangeCodeForAccessToken(input.Code) : await _viiaService.RefreshAccessToken(input.RefreshToken);
             return Ok(new {accessToken = result.AccessToken, refreshToken = result.RefreshToken});
         }
 
