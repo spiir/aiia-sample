@@ -1,3 +1,4 @@
+@using ViiaSample.Extensions
 @model ViiaSample.Models.Viia.Transaction
 
 @{
@@ -9,14 +10,14 @@
 
 <div class="d-flex flex-wrap">
     @if (Model.Date != null)
-        {
-            <div class="card detail-card">
-                <div class="card-body">
-                    <h5 class="card-title">Transaction Date</h5>
-                    <span class="card-text">@Model.Date.ToString()</span>
-                </div>
+    {
+        <div class="card detail-card">
+            <div class="card-body">
+                <h5 class="card-title">Transaction Date</h5>
+                <span class="card-text">@Model.Date?.ToString("dd-MM-yyyy")</span>
             </div>
-        }
+        </div>
+    }
     @if (Model.TransactionAmount != null)
     {
         <div class="card detail-card">
@@ -41,7 +42,9 @@
             <h5 class="card-title">Transaction text</h5>
             <div>
                 <b>Original transaction text: </b>@Model.OriginalText <br/>
-                <span><b>Cleaned transaction text</b></span> @Model.Text
+                <span>
+                    <b>Cleaned transaction text</b>
+                </span> @Model.Text
             </div>
         </div>
     </div>
@@ -60,17 +63,34 @@
     </div>
 
     @if (Model.Detail?.Source != null)
-        {
-            <div class="card detail-card">
-                <div class="card-body">
-                    <h5 class="card-title">Transaction Destination</h5>
-                    <div>
-                        <b>Name:</b> @Model.Detail.Source.Name <br/>
+    {
+        <div class="card detail-card">
+            <div class="card-body">
+                <h5 class="card-title">Transaction Source</h5>
+                <div>
+                    @if (@Model.Detail.Source.Name.IsSet())
+                    {
+                        <b>Name:</b> @Model.Detail.Source.Name
+                        <br/>
+                    }
+                    @if (@Model.Detail.Source.Address.IsSet())
+                    {
                         <b>Address:</b> @Model.Detail.Source.Address
-                    </div>
+                        <br/>
+
+                    }
+                    @if (@Model.Detail.Source.Account?.Bban.IsSet() ?? false)
+                    {
+                        <b>Source BBAN: </b> @Model.Detail.Source.Account.Bban <br/>
+                    }
+                    @if (@Model.Detail.Source.Account?.Iban.IsSet() ?? false)
+                    {
+                        <b>Source IBAN: </b> @Model.Detail.Source.Account.Iban
+                    }
                 </div>
             </div>
-        }
+        </div>
+    }
 
     @if (Model.Detail?.Destination != null)
     {
@@ -78,13 +98,27 @@
             <div class="card-body">
                 <h5 class="card-title">Transaction Destination</h5>
                 <div>
-                    <b>Name:</b> @Model.Detail.Destination.Name <br/>
-                    <b>Address:</b> @Model.Detail.Destination.Address
+                    @if (@Model.Detail.Destination.Name.IsSet())
+                    {
+                        <b>Name:</b> @Model.Detail.Destination.Name <br/>
+                    }
+                    @if (@Model.Detail.Destination.Address.IsSet())
+                    {
+                        <b>Address:</b> @Model.Detail.Destination.Address <br/>
+                    }
+                    @if (@Model.Detail.Destination.Account?.Bban.IsSet() ?? false)
+                    {
+                        <b>Destination BBAN: </b> @Model.Detail.Destination.Account.Bban <br />
+                    }
+                    @if (@Model.Detail.Destination.Account?.Iban.IsSet() ?? false)
+                    {
+                        <b>Destination IBAN: </b> @Model.Detail.Destination.Account.Iban
+                    }
                 </div>
             </div>
         </div>
     }
-    
+
     @if (Model.Detail?.ExecutionDate != null)
     {
         <div class="card detail-card">
@@ -101,17 +135,35 @@
             <div class="card-body">
                 <h5 class="card-title">Transaction Identifiers</h5>
                 <div>
-                    <b>Creditor Reference:</b> @Model.Detail.Identifiers.CreditorReference <br/>
-                    <b>Document:</b> @Model.Detail.Identifiers.Document <br/>
-                    <b>End To End Id:</b> @Model.Detail.Identifiers.EndToEndId <br/>
-                    <b>Reference:</b> @Model.Detail.Identifiers.Reference <br/>
-                    <b>Sequence Number:</b> @Model.Detail.Identifiers.SequenceNumber <br/>
-                    <b>Terminal:</b> @Model.Detail.Identifiers.Terminal 
+                    @if (Model.Detail.Identifiers.CreditorReference.IsSet())
+                    {
+                        <b>Creditor Reference:</b> @Model.Detail.Identifiers.CreditorReference <br/>
+                    }
+                    @if (Model.Detail.Identifiers.Document.IsSet())
+                    {
+                        <b>Document:</b> @Model.Detail.Identifiers.Document <br/>
+                    }
+                    @if (Model.Detail.Identifiers.EndToEndId.IsSet())
+                    {
+                        <b>End To End Id:</b> @Model.Detail.Identifiers.EndToEndId <br/>
+                    }
+                    @if (Model.Detail.Identifiers.Reference.IsSet())
+                    {
+                        <b>Reference:</b> @Model.Detail.Identifiers.Reference <br/>
+                    }
+                    @if (Model.Detail.Identifiers.SequenceNumber.IsSet())
+                    {
+                        <b>Sequence Number:</b> @Model.Detail.Identifiers.SequenceNumber <br/>
+                    }
+                    @if (Model.Detail.Identifiers.Terminal.IsSet())
+                    {
+                        <b>Terminal:</b> @Model.Detail.Identifiers.Terminal
+                    }
                 </div>
             </div>
         </div>
     }
-    
+
     @if (Model.Detail?.Message != null)
     {
         <div class="card detail-card">
@@ -121,7 +173,7 @@
             </div>
         </div>
     }
-    
+
     @if (Model.Detail?.Reward != null)
     {
         <div class="card detail-card">
@@ -131,15 +183,19 @@
                     <b>Type:</b> @Model.Detail.Reward.Type <br/>
                     @if (Model.Detail.Reward.Amount != null)
                     {
-                        <b>Amount:</b> @Model.Detail.Reward.Amount.Value @Model.Detail.Reward.Amount.Currency <br/>
+                        <b>Amount:</b>
+                        @Model.Detail.Reward.Amount.Value
+                        @Model.Detail.Reward.Amount.Currency
+                        <br/>
                     }
                     @if (Model.Detail.Reward.Points != null)
                     {
-                        <b>Points:</b> @Model.Detail.Reward.Points
+                        <b>Points:</b>
+                        @Model.Detail.Reward.Points
                     }
                 </div>
             </div>
         </div>
     }
-    
+
 </div>

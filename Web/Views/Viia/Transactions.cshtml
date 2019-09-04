@@ -9,15 +9,17 @@
     @foreach (var transaction in Model)
     {
         <!-- Transaction Cell -->
-        <div class="d-flex account-container"
+        <div class="d-flex account-container justify-content-between"
              onclick="window.location.href = '@Url.Action("TransactionDetails", "Viia", new {accountId = transaction.AccountId, transactionId = transaction.Id})'">
             <!-- Transaction name / date column -->
             <div class="flex-column flex-fill">
                 <div class="p-2">@(transaction.Text ?? transaction.OriginalText)</div>
-                <div class="p-2">@transaction.Date?.ToString()</div>
+                <div class="p-2">@transaction.Date?.ToString("dd-MM-yyyy")</div>
             </div>
-            <div class="flex-column flex-fill">
-                <div class="p-2 text-danger">@transaction.TransactionAmount?.Value @transaction.TransactionAmount?.Currency</div>
+            <div class="flex-column" style="margin-right: 1rem;">
+                <div class="p-2">
+                    <span class="@(transaction.TransactionAmount?.Value >= 0 ? "text-success" : "text-danger")" >@transaction.TransactionAmount?.Value </span>  @transaction.TransactionAmount?.Currency
+                </div>
                 <div class="p-2">@transaction.Balance?.Value @transaction.Balance?.Currency</div>
             </div>
         </div>
