@@ -6,21 +6,23 @@ namespace ViiaSample.Services
 {
     public class ViiaClientException : Exception
     {
-        public ViiaClientException(string message) : base(message)
-        {
-        }
+        public HttpStatusCode StatusCode { get; }
+        public HttpMethod Method { get; }
 
-        public ViiaClientException(string url, HttpStatusCode code) : base(FormatMessage(url, code))
+        public ViiaClientException(string url, HttpStatusCode statusCode) : base(FormatMessage(url, statusCode))
         {
+            StatusCode = statusCode;
         }
         
         public ViiaClientException(string url, HttpMethod method, HttpResponseMessage message, Exception innerException) : base(FormatMessage(url, method, message), innerException)
         {
+            Method = method;
         }
 
         public ViiaClientException(string url, HttpMethod method, string response, Exception innerException) : base(
             FormatMessage(url, method, response))
         {
+            Method = method;
         }
 
         private static string FormatMessage(string url, HttpStatusCode code)
