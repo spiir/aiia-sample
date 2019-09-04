@@ -29,6 +29,7 @@ namespace ViiaSample.Services
         Uri GetAuthUri(string userEmail);
         Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
+        Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken);
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
         Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
         Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId);
@@ -106,6 +107,37 @@ namespace ViiaSample.Services
                 {
                     grant_type = "authorization_code",
                     code,
+                    scope = "read",
+                    redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
+                };
+
+                var response = await httpClient.PostAsJsonAsync(requestUrl, tokenBody);
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Failed to exchange code for tokens");
+                }
+
+                var tokenResponse =
+                    JsonConvert.DeserializeObject<CodeExchangeResponse>(content);
+                return tokenResponse;
+            }
+        }
+
+        public async Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken)
+        {
+            using (var httpClient = _httpClient.Value)
+            {
+                var requestUrl = "v1/oauth/token";
+
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
+
+                var tokenBody = new
+                {
+                    grant_type = "refresh_token",
+                    refresh_token = refreshToken,
                     scope = "read",
                     redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
                 };
