@@ -4,5 +4,6 @@ namespace ViiaSample.Models
     {
         public string Query { get; set; }
         public bool AutomaticallyFinish { get; set; }
+        public bool IsError { get; set; }
     }
 }
