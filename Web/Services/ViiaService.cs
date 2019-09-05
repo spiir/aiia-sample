@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -20,6 +21,7 @@ using Newtonsoft.Json.Linq;
 using NodaTime;
 using NodaTime.Serialization.JsonNet;
 using ViiaSample.Data;
+using ViiaSample.Extensions;
 using ViiaSample.Models.Viia;
 
 namespace ViiaSample.Services
@@ -29,6 +31,7 @@ namespace ViiaSample.Services
         Uri GetAuthUri(string userEmail);
         Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
+        Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken);
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
         Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
         Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId);
@@ -124,6 +127,37 @@ namespace ViiaSample.Services
             }
         }
 
+        public async Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken)
+        {
+            using (var httpClient = _httpClient.Value)
+            {
+                var requestUrl = "v1/oauth/token";
+
+                httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
+
+                var tokenBody = new
+                {
+                    grant_type = "refresh_token",
+                    refresh_token = refreshToken,
+                    scope = "read",
+                    redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
+                };
+
+                var response = await httpClient.PostAsJsonAsync(requestUrl, tokenBody);
+                var content = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Failed to exchange code for tokens");
+                }
+
+                var tokenResponse =
+                    JsonConvert.DeserializeObject<CodeExchangeResponse>(content);
+                return tokenResponse;
+            }
+        }
+
         public async Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -133,7 +167,7 @@ namespace ViiaSample.Services
                 return null;
             }
 
-            var result = await HttpGet<AccountsResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken);
+            var result = await HttpGet<AccountsResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken, principal);
             return result?.Accounts.ToImmutableList();
         }
 
@@ -154,7 +188,7 @@ namespace ViiaSample.Services
                     Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
                         SystemClock.Instance.GetCurrentInstant()),
                     PagingToken = token
-                }, user.ViiaTokenType, user.ViiaAccessToken);
+                }, user.ViiaTokenType, user.ViiaAccessToken, principal);
                 token = result.PagingToken;
                 transactions.AddRange(result.Transactions);
             } while (!string.IsNullOrWhiteSpace(token));
@@ -169,7 +203,7 @@ namespace ViiaSample.Services
             if (user == null)
                 return null;
 
-            return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}", user.ViiaTokenType, user.ViiaAccessToken);
+            return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}", user.ViiaTokenType, user.ViiaAccessToken, principal);
         }
 
         public async Task ProcessWebHookPayload(HttpRequest request)
@@ -284,14 +318,29 @@ namespace ViiaSample.Services
             return $"{base64Credentials}";
         }
 
-        public Task<T> HttpGet<T>(string url, string accessTokenType = null, string accessToken = null)
+        public async Task<T> HttpGet<T>(string url, string accessTokenType = null, string accessToken = null, ClaimsPrincipal principal = null, bool isRetry = false)
         {
-            return CallApi<T>(url, null, HttpMethod.Get, accessTokenType, accessToken);
+            try
+            {
+                return await CallApi<T>(url, null, HttpMethod.Get, accessTokenType, accessToken);
+            }
+            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() && !isRetry)
+            {
+                var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
+                return await HttpGet<T>(url, updatedTokens.TokenType, updatedTokens.AccessToken, principal, true);
+            }
         }
 
-        public Task<T> HttpPost<T>(string url, object body, string accessTokenType = null, string accessToken = null)
+        public async Task<T> HttpPost<T>(string url, object body, string accessTokenType = null, string accessToken = null,  ClaimsPrincipal principal = null, bool isRetry = false)
         {
-            return CallApi<T>(url, body, HttpMethod.Post, accessTokenType, accessToken);
+            try {
+                return await CallApi<T>(url, body, HttpMethod.Post, accessTokenType, accessToken);
+            }
+            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() && !isRetry)
+            {
+                var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
+                return await HttpPost<T>(url, body, updatedTokens.TokenType, updatedTokens.AccessToken, principal, true);
+            }
         }
 
         private async Task<T> CallApi<T>(string url, object body, HttpMethod method, string accessTokenType = null,
@@ -350,6 +399,25 @@ namespace ViiaSample.Services
             {
                 throw new ViiaClientException(url, method, result, e);
             }
+        }
+
+        private async Task<CodeExchangeResponse> RefreshAccessTokenAndSaveToUser(ClaimsPrincipal principal)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                return null;
+            }
+
+            var result = await RefreshAccessToken(user.ViiaRefreshToken);
+            user.ViiaAccessToken = result.AccessToken;
+            user.ViiaRefreshToken = result.RefreshToken;
+            user.ViiaTokenType = result.TokenType;
+            
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+            return result;
         }
 
         // Gets the base url of current environment that sample app is running
