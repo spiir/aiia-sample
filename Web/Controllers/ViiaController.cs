@@ -74,9 +74,7 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> LoginCallback([FromQuery] string code, [FromQuery] string consentId)
         {
             if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(consentId))
-            {
-                return BadRequest();
-            }
+                return View("GenericViewWithPostMessageOnLoad",new CallbackViewModel { IsError = true});
 
             // Immediately exchange received code for an access token, since code has a short lifespan
             var tokenResponse = await _viiaService.ExchangeCodeForAccessToken(code);
@@ -96,7 +94,7 @@ namespace ViiaSample.Controllers
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return View("GenericViewWithPostMessageOnLoad",new CallbackViewModel { Query = Request.QueryString.Value, AutomaticallyFinish = false});
+            return View("GenericViewWithPostMessageOnLoad",new CallbackViewModel { Query = Request.QueryString.Value, AutomaticallyFinish = false, IsError = false});
         }
 
         [HttpGet("accounts")]
