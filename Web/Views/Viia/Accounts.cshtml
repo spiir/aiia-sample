@@ -15,7 +15,8 @@
         <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="window.location.href = '@Model.ViiaConnectUrl'">Connect More Accounts via redirect</button>
         @if (Model?.AccountsGroupedByProvider != null && Model.AccountsGroupedByProvider.Any())
         {
-            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdate()">Request Data Update</button>
+            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdateIframe()">Request Data Update IFrame</button>
+            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdateIframe()">Request Data Update Redirect</button>
         }
         @if (Model?.JwtToken != null)
         {
@@ -161,7 +162,7 @@
                 });
         });
 
-        function requestDataUpdate() {
+        function requestDataUpdateIframe() {
             $.ajax({
                 url: '/viia/update',
                 type: 'POST',
@@ -169,7 +170,7 @@
                 success: function(data) {
                     if (data.authUrl) {
                         // Auth url not empty or null means we need a supervised login
-                        window.location.href = data.authUrl;
+                        showViiaModal(data.authUrl);
                     } else {
                         alert("All accounts didn't require user-assisted authentication and were queued up for sync");
                         // refresh page?
@@ -177,6 +178,23 @@
                 }
             });
         }
+        
+        function requestDataUpdateRedirect() {
+                    $.ajax({
+                        url: '/viia/update',
+                        type: 'POST',
+                        dataType: "json",
+                        success: function(data) {
+                            if (data.authUrl) {
+                                // Auth url not empty or null means we need a supervised login
+                                window.location.href = data.authUrl;
+                            } else {
+                                alert("All accounts didn't require user-assisted authentication and were queued up for sync");
+                                // refresh page?
+                            }
+                        }
+                    });
+                }
         
         function toggleEmail() {
             $.ajax({
