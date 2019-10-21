@@ -169,7 +169,7 @@
                 success: function(data) {
                     if (data.authUrl) {
                         // Auth url not empty or null means we need a supervised login
-                        showViiaModal(data.authUrl);
+                        window.location.href = data.authUrl;
                     } else {
                         alert("All accounts didn't require user-assisted authentication and were queued up for sync");
                         // refresh page?
