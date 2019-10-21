@@ -16,7 +16,7 @@
         @if (Model?.AccountsGroupedByProvider != null && Model.AccountsGroupedByProvider.Any())
         {
             <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdateIframe()">Request Data Update IFrame</button>
-            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdateIframe()">Request Data Update Redirect</button>
+            <button style="margin-left: 1rem;" class="btn btn-outline-secondary" onclick="requestDataUpdateRedirect()">Request Data Update Redirect</button>
         }
         @if (Model?.JwtToken != null)
         {
