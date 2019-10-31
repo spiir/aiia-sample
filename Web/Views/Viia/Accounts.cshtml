@@ -134,12 +134,24 @@
 {
     <script>
         function getConnectUrl() {
-            var connectUrl = decodeURI('@Model.ViiaConnectUrl').replace(/amp;/g, '');
-            var locale = $("#custom-locale").val();
-            if(locale.trim().length > 0){
-                connectUrl += "&culture=" + locale;
+            return addCultureToUrl(decodeURI('@Model.ViiaConnectUrl'));
+        }
+        
+        function addCultureToUrl(url) {
+            if(typeof(url) !== 'string' || !url instanceof String) {
+                return url;
             }
-            return connectUrl;
+            
+            if(url.includes('amp;')) {
+                url = url.replace(/amp;/g, '');
+            }
+            
+            var locale = $("#custom-locale").val();
+            
+            if(locale.trim().length > 0){
+                url += "&culture=" + locale;
+            }
+            return url;
         }
     
         function updateEmailTexts() {
@@ -185,7 +197,7 @@
                 success: function(data) {
                     if (data.authUrl) {
                         // Auth url not empty or null means we need a supervised login
-                        showViiaModal(data.authUrl);
+                        showViiaModal(addCultureToUrl(data.authUrl));
                     } else {
                         alert("All accounts didn't require user-assisted authentication and were queued up for sync");
                         // refresh page?
@@ -202,7 +214,7 @@
                         success: function(data) {
                             if (data.authUrl) {
                                 // Auth url not empty or null means we need a supervised login
-                                window.location.href = data.authUrl;
+                                window.location.href = addCultureToUrl(data.authUrl);
                             } else {
                                 alert("All accounts didn't require user-assisted authentication and were queued up for sync");
                                 // refresh page?
