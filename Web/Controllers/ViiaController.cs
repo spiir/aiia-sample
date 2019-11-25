@@ -132,7 +132,7 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> Transactions(string accountId)
         {
             var transactions = await _viiaService.GetAccountTransactions(User, accountId);
-            return View(transactions.ToList().OrderByDescending(x => x.Date?.UtcTicks).ToImmutableList());
+            return View(transactions);
         }
 
         [HttpGet("transactions/{accountId}/transactions/{transactionId}")]
