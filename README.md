@@ -4,11 +4,10 @@ Sample ASP.NET web app and mobile Flutter apps showcasing a basic usage and feat
 
 ## Introduction
 
-These sample (or demo if you prefer) apps implement some very basic features of Viia to get you familiar to how it works.
+The sample app implements some very basic features of Viia to get you familiar to how it works.
 
-It's focused more on developers, so you'll notice some things that are not very good UX or design choices that are made hoping to explain what's happening in some of the steps.
+It's focused more on developers, and it's is still work in progress. Our goal is to showcase all of the Viia features in this project.
 
-It is still work in progress, our goal is to showcase all of the Viia features in this project.
 
 You can find Viia documentation at https://api.getviia.com/docs/index.html
 
