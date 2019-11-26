@@ -115,7 +115,7 @@ namespace ViiaSample.Controllers
             }
 
             var accounts = await _viiaService.GetUserAccounts(User);
-            var groupedAccounts = accounts.ToLookup(x => x.Provider?.Id, x => x);
+            var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
 
             var model = new AccountViewModel
             {
@@ -132,7 +132,7 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> Transactions(string accountId)
         {
             var transactions = await _viiaService.GetAccountTransactions(User, accountId);
-            return View(transactions.ToList().OrderByDescending(x => x.Date?.UtcTicks).ToImmutableList());
+            return View(transactions);
         }
 
         [HttpGet("transactions/{accountId}/transactions/{transactionId}")]
