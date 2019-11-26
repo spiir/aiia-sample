@@ -115,7 +115,7 @@ namespace ViiaSample.Controllers
             }
 
             var accounts = await _viiaService.GetUserAccounts(User);
-            var groupedAccounts = accounts.ToLookup(x => x.Provider?.Id, x => x);
+            var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
 
             var model = new AccountViewModel
             {
