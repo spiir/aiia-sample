@@ -21,7 +21,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-dark bg-dark navbar-expand-sm navbar-toggleable-sm  mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm mb-3 navbar-dark" style="background:#00008B">
             <div class="container">
             
                 <button class="navbar-toggler" 
@@ -36,6 +36,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
+                        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Demo App</a>
                         <li class="nav-item">
                             <a class="nav-link" 
                                 asp-area="" 
