@@ -26,7 +26,8 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" 
                             data-toggle="dropdown" 
-                            href="#" role="button" 
+                            href="#" 
+                            role="button" 
                             aria-haspopup="true" 
                             aria-expanded="false">Connect Accounts
                         </a>
@@ -65,6 +66,8 @@
                         }
                     <li class="nav-item">
                         <a class="nav-link" 
+                            role="button" 
+                            href="#"
                             id="email-button"
                             style="cursor:pointer;" 
                             onclick="toggleEmail()">@(Model.EmailEnabled ? "Disable email notifications" : "Enable email notifications")
@@ -73,7 +76,8 @@
                     @if (Model?.JwtToken != null)
                         {
                                 <li class="nav-item">
-                                <a class="nav-link" 
+                                <a class="nav-link"
+                                    href="#"
                                     style="cursor:pointer;" 
                                     onclick="toggleModal('dataModal')">Toggle JWT token payload
                                 </a>
