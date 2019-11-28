@@ -1,6 +1,6 @@
 @using Newtonsoft.Json
-@using ViiaSample.Services
 @model AccountViewModel
+@using System
 
 @{
     ViewBag.Title = "Accounts";
@@ -131,7 +131,11 @@
                                     {
                                         
                                         <p> @(account.Number.Bban ?? account.Number.Iban) </p>
-                                        <p><small class="text-muted">Last updated @(account.LastSynchronized)</small></p>
+                                        <p><small class="text-muted">Last updated @(account.LastSynchronized)
+                                            @if (hasNeverBeenSynced(account.LastSynchronized)) {
+                                                <small class="text-muted">(Never updated)</small>
+                                            }
+                                        </small></p>
                                     }
                                 
                                 </div>
@@ -212,6 +216,16 @@
         dynamic niceJsonObj = new {algorithm = parsedAlgJson, payload = parsedPayloadJson};
         
         return JsonConvert.SerializeObject(niceJsonObj, Formatting.Indented);
+    }
+
+    Boolean hasNeverBeenSynced(DateTime? syncTime)
+    {
+        if(syncTime.Value.Year == 1970)
+        {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
