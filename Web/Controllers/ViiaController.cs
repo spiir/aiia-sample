@@ -41,7 +41,7 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> RequestDataUpdate()
         {
             var dataUpdateResponse = await _viiaService.InitiateDataUpdate(User);
-            
+
             // If status is `AllQueued`, it means that all connections didn't need a supervised login and were queued successfully
             // Otherwise, a supervised login is needed by the user using the `AuthUrl` received in the response
             return Ok(new
@@ -74,7 +74,7 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> LoginCallback([FromQuery] string code, [FromQuery] string consentId)
         {
             if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(consentId))
-                return View("GenericViewWithPostMessageOnLoad",new CallbackViewModel { IsError = true});
+                return View("GenericViewWithPostMessageOnLoad", new CallbackViewModel {IsError = true});
 
             // Immediately exchange received code for an access token, since code has a short lifespan
             var tokenResponse = await _viiaService.ExchangeCodeForAccessToken(code);
@@ -94,7 +94,9 @@ namespace ViiaSample.Controllers
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
 
-            return View("GenericViewWithPostMessageOnLoad",new CallbackViewModel { Query = Request.QueryString.Value, AutomaticallyFinish = false, IsError = false});
+            return View("GenericViewWithPostMessageOnLoad",
+                new CallbackViewModel
+                    {Query = Request.QueryString.Value, AutomaticallyFinish = false, IsError = false});
         }
 
         [HttpGet("accounts")]
@@ -102,7 +104,7 @@ namespace ViiaSample.Controllers
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            
+
             // If user hasn't connected to Viia or his access token is expired, show empty accounts page
             if (user?.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
             {
@@ -135,7 +137,14 @@ namespace ViiaSample.Controllers
             return View(transactions);
         }
 
-        [HttpGet("transactions/{accountId}/transactions/{transactionId}")]
+        [HttpGet("accounts/{accountId}/transactions/{pagingToken}")]
+        public async Task<IActionResult> Transactions(string accountId, string pagingToken)
+        {
+            var transactions = await _viiaService.GetAccountTransactions(User, accountId, pagingToken);
+            return Ok(transactions);
+        }
+
+        [HttpGet("accounts/{accountId}/transactions/{transactionId}/details")]
         public async Task<IActionResult> TransactionDetails(string accountId, string transactionId)
         {
             return View(await _viiaService.GetTransaction(User, accountId, transactionId));
@@ -149,7 +158,7 @@ namespace ViiaSample.Controllers
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
             if (user == null)
             {
-                return Ok(new {});
+                return Ok(new { });
             }
 
             user.EmailEnabled = !user.EmailEnabled;
