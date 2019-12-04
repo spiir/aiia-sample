@@ -1,27 +1,80 @@
-@model System.Collections.Generic.IEnumerable<ViiaSample.Models.Viia.Transaction>
+@model ViiaSample.Models.Viia.TransactionsResponse
 
 @{
     ViewBag.Title = "Transactions";
     Layout = "_Layout";
 }
 
-<div class="col">
-    @foreach (var transaction in Model)
-    {
-        <!-- Transaction Cell -->
-        <div class="d-flex account-container justify-content-between"
-             onclick="window.location.href = '@Url.Action("TransactionDetails", "Viia", new {accountId = transaction.AccountId, transactionId = transaction.Id})'">
-            <!-- Transaction name / date column -->
-            <div class="flex-column flex-fill">
-                <div class="p-2">@(transaction.Text ?? transaction.OriginalText)</div>
-                <div class="p-2">@transaction.Date?.ToString("dd-MM-yyyy")</div>
-            </div>
-            <div class="flex-column" style="margin-right: 1rem;">
-                <div class="p-2">
-                    <span class="@(transaction.TransactionAmount?.Value >= 0 ? "text-success" : "text-danger")" >@transaction.TransactionAmount?.Value </span>  @transaction.TransactionAmount?.Currency
-                </div>
-                <div class="p-2">@transaction.Balance?.Value @transaction.Balance?.Currency</div>
-            </div>
-        </div>
-    }
+<div id="transaction-container" class="col"></div>
+<div class="container" style="width: 100%;">
+    <button id="load-more-btn"
+            class="btn btn-outline-info btn-lg"
+            style="margin:0 auto; display:block;"
+            onclick="loadMore()">Load More</button>
 </div>
+
+
+@section Scripts
+{
+    <script>
+        const TRANSACTION_STORAGE_KEY = "transactions";
+        const RENDERED_TRANSACTION_IDS_STORAGE_KEY = "rendered_transaction_ids";
+        const PAGING_TOKEN_STORAGE_KEY = "paging_token";
+        
+        $(document).ready(function() {
+            let transactions = @Html.Raw(Json.Serialize(@Model.Transactions));
+            let pagingToken = "@Model.PagingToken";
+            
+            localStorage.setItem(PAGING_TOKEN_STORAGE_KEY, pagingToken);
+            localStorage.setItem(TRANSACTION_STORAGE_KEY, JSON.stringify(transactions));
+            localStorage.setItem(RENDERED_TRANSACTION_IDS_STORAGE_KEY, "[]");
+            renderTransactions();
+        });
+        
+        function renderTransactions() {
+            let transactions = JSON.parse(localStorage.getItem(TRANSACTION_STORAGE_KEY));
+            transactions.forEach(renderSingleTransaction);
+            localStorage.setItem(TRANSACTION_STORAGE_KEY, "[]");
+        }
+        
+        function renderSingleTransaction(transaction) {
+            let amountSpan = $('<span></span>').text(transaction.transactionAmount.value);
+            if(transaction.transactionAmount.value >= 0) {
+                amountSpan.addClass('text-success');
+            } else {
+                amountSpan.addClass('text-danger');
+            }
+            let amountContainer = $(`<div class="p-2"></div>`).append(amountSpan).append(` ${transaction.transactionAmount.currency}`);
+            let balanceContainer = $(`<div class="p-2"></div>`).text(`${transaction.balance.value} ${transaction.balance.currency}`);
+            let amountAndBalanceContainer = $(`<div class="flex-column" style="margin-right: 1rem;"></div>`).append(amountContainer).append(balanceContainer);
+            
+            let txTextContainer = $(`<div class="p-2"></div>`).text(transaction.originalText);
+            let dateContainer = $(`<div class="p-2"></div>`).text(new Date(transaction.date).toISOString());
+            let textAndDateContainer = $(`<div class="flex-column flex-fill"></div>`).append(txTextContainer).append(dateContainer);
+            
+            let transactionContainer = $(`<div class="d-flex account-container justify-content-between"
+                   onclick="window.location.href = '/viia/accounts/${transaction.accountId}/transactions/${transaction.id}/details'">`)
+                   .append(textAndDateContainer)
+                   .append(amountAndBalanceContainer);
+            
+            $('#transaction-container').append(transactionContainer);
+        }
+        
+        function loadMore() {
+            let pagingToken = localStorage.getItem(PAGING_TOKEN_STORAGE_KEY);
+            $.ajax({
+                            url: `/viia/accounts/@Model.Transactions[0].AccountId/transactions/${pagingToken}`,
+                            type: 'GET',
+                            dataType: "json",
+                            success: function(data) {
+                                if(data.pagingToken === null || data.pagingToken === undefined || data.pagingToken === '') {
+                                    $('#load-more-btn').remove();
+                                }
+                                localStorage.setItem(TRANSACTION_STORAGE_KEY, JSON.stringify(data.transactions));
+                                localStorage.setItem(PAGING_TOKEN_STORAGE_KEY, data.pagingToken);
+                                renderTransactions();
+                            }
+                        });
+        }
+    </script>
+}

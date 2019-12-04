@@ -33,7 +33,10 @@ namespace ViiaSample.Services
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
         Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken);
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
-        Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal, string accountId);
+
+        Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal, string accountId,
+            string pagingToken = null);
+
         Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId);
         Task ProcessWebHookPayload(HttpRequest request);
     }
@@ -167,33 +170,26 @@ namespace ViiaSample.Services
                 return null;
             }
 
-            var result = await HttpGet<AccountsResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken, principal);
+            var result =
+                await HttpGet<AccountsResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken, principal);
             return result?.Accounts.ToImmutableList();
         }
 
-        public async Task<IImmutableList<Transaction>> GetAccountTransactions(ClaimsPrincipal principal,
-            string accountId)
+        public async Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal,
+            string accountId, string pagingToken = null)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
             if (user == null)
                 return null;
 
-            var transactions = new List<Transaction>();
-            string token = null;
-            do
+            return await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query", new
             {
-                var result = await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query", new
-                {
-                    Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
-                        SystemClock.Instance.GetCurrentInstant()),
-                    PagingToken = token
-                }, user.ViiaTokenType, user.ViiaAccessToken, principal);
-                token = result.PagingToken;
-                transactions.AddRange(result.Transactions);
-            } while (!string.IsNullOrWhiteSpace(token));
-
-            return transactions.ToImmutableList();
+                Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
+                    SystemClock.Instance.GetCurrentInstant()),
+                PagingToken = pagingToken,
+                PageSize = 20
+            }, user.ViiaTokenType, user.ViiaAccessToken, principal);
         }
 
         public async Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId)
@@ -203,7 +199,8 @@ namespace ViiaSample.Services
             if (user == null)
                 return null;
 
-            return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}", user.ViiaTokenType, user.ViiaAccessToken, principal);
+            return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}",
+                user.ViiaTokenType, user.ViiaAccessToken, principal);
         }
 
         public async Task ProcessWebHookPayload(HttpRequest request)
@@ -232,8 +229,10 @@ namespace ViiaSample.Services
             }
 
 
-            var consentId = string.IsNullOrEmpty(data["consentId"].Value<string>()) ? string.Empty : data["consentId"].Value<string>();
-            
+            var consentId = string.IsNullOrEmpty(data["consentId"].Value<string>())
+                ? string.Empty
+                : data["consentId"].Value<string>();
+
             var user = _dbContext.Users.FirstOrDefault(x => x.ViiaConsentId == consentId);
             if (user == null)
             {
@@ -318,28 +317,34 @@ namespace ViiaSample.Services
             return $"{base64Credentials}";
         }
 
-        public async Task<T> HttpGet<T>(string url, string accessTokenType = null, string accessToken = null, ClaimsPrincipal principal = null, bool isRetry = false)
+        public async Task<T> HttpGet<T>(string url, string accessTokenType = null, string accessToken = null,
+            ClaimsPrincipal principal = null, bool isRetry = false)
         {
             try
             {
                 return await CallApi<T>(url, null, HttpMethod.Get, accessTokenType, accessToken);
             }
-            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() && !isRetry)
+            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
+                                                !isRetry)
             {
                 var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
                 return await HttpGet<T>(url, updatedTokens.TokenType, updatedTokens.AccessToken, principal, true);
             }
         }
 
-        public async Task<T> HttpPost<T>(string url, object body, string accessTokenType = null, string accessToken = null,  ClaimsPrincipal principal = null, bool isRetry = false)
+        public async Task<T> HttpPost<T>(string url, object body, string accessTokenType = null,
+            string accessToken = null, ClaimsPrincipal principal = null, bool isRetry = false)
         {
-            try {
+            try
+            {
                 return await CallApi<T>(url, body, HttpMethod.Post, accessTokenType, accessToken);
             }
-            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() && !isRetry)
+            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
+                                                !isRetry)
             {
                 var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
-                return await HttpPost<T>(url, body, updatedTokens.TokenType, updatedTokens.AccessToken, principal, true);
+                return await HttpPost<T>(url, body, updatedTokens.TokenType, updatedTokens.AccessToken, principal,
+                    true);
             }
         }
 
@@ -414,7 +419,7 @@ namespace ViiaSample.Services
             user.ViiaAccessToken = result.AccessToken;
             user.ViiaRefreshToken = result.RefreshToken;
             user.ViiaTokenType = result.TokenType;
-            
+
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
             return result;
