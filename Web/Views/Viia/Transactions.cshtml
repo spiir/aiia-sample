@@ -12,27 +12,17 @@
             style="margin:0 auto; display:block;"
             onclick="loadMore()">Load More</button>
 </div>
-
+<input type="hidden" id="pagingTokenInput" value="@Model.PagingToken">
 
 @section Scripts
 {
     <script>
-        const TRANSACTION_STORAGE_KEY = "transactions";
-        const PAGING_TOKEN_STORAGE_KEY = "paging_token";
-        
         $(document).ready(function() {
-            let transactions = @Html.Raw(Json.Serialize(@Model.Transactions));
-            let pagingToken = "@Model.PagingToken";
-            
-            localStorage.setItem(PAGING_TOKEN_STORAGE_KEY, pagingToken);
-            localStorage.setItem(TRANSACTION_STORAGE_KEY, JSON.stringify(transactions));
-            renderTransactions();
+            renderTransactions(@Html.Raw(Json.Serialize(@Model.Transactions)));
         });
         
-        function renderTransactions() {
-            let transactions = JSON.parse(localStorage.getItem(TRANSACTION_STORAGE_KEY));
+        function renderTransactions(transactions) {
             transactions.forEach(renderSingleTransaction);
-            localStorage.setItem(TRANSACTION_STORAGE_KEY, "[]");
         }
         
         function renderSingleTransaction(transaction) {
@@ -59,7 +49,7 @@
         }
         
         function loadMore() {
-            let pagingToken = localStorage.getItem(PAGING_TOKEN_STORAGE_KEY);
+            let pagingToken = $('#pagingTokenInput').val();
             $.ajax({
                             url: `/viia/accounts/@Model.Transactions[0].AccountId/transactions/${pagingToken}`,
                             type: 'GET',
@@ -68,9 +58,8 @@
                                 if(data.pagingToken === null || data.pagingToken === undefined || data.pagingToken === '') {
                                     $('#load-more-btn').remove();
                                 }
-                                localStorage.setItem(TRANSACTION_STORAGE_KEY, JSON.stringify(data.transactions));
-                                localStorage.setItem(PAGING_TOKEN_STORAGE_KEY, data.pagingToken);
-                                renderTransactions();
+                                $('#pagingTokenInput').val(data.pagingToken);
+                                renderTransactions(data.transactions);
                             }
                         });
         }
