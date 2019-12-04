@@ -18,7 +18,6 @@
 {
     <script>
         const TRANSACTION_STORAGE_KEY = "transactions";
-        const RENDERED_TRANSACTION_IDS_STORAGE_KEY = "rendered_transaction_ids";
         const PAGING_TOKEN_STORAGE_KEY = "paging_token";
         
         $(document).ready(function() {
@@ -27,7 +26,6 @@
             
             localStorage.setItem(PAGING_TOKEN_STORAGE_KEY, pagingToken);
             localStorage.setItem(TRANSACTION_STORAGE_KEY, JSON.stringify(transactions));
-            localStorage.setItem(RENDERED_TRANSACTION_IDS_STORAGE_KEY, "[]");
             renderTransactions();
         });
         
