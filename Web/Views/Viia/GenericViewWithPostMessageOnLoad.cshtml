@@ -6,26 +6,32 @@
 
 @if (Model.IsError)
 {
-    <div class="text-center" style="height: 80vh; width: 60vw; position: absolute; left: 20vw; top: 10vh;">
-        <h1 class="text-center">Viia flow error</h1>
-        <p>This is the configured callback url, that Viia redirects to, after going through Viia end-user flow, or if it fails.</p>
-        <p>In this case, this is an error scenario, because <b><i>code</i></b> or <b><i>consentId</i></b> were not provided in the query of this callback url, which means that an error happened in the flow or it was cancelled by end-user</p>
-        <button class="btn btn-primary" style="white-space: normal; width: 100%;" onclick="finishFlowIframe()">Finish Flow (Iframe Flow, makes a post message, to which parent page is listening to)</button>
-        <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;"  onclick="finishFlowRedirect()">Finish Flow (Redirect Flow, redirects back to accounts page)</button>
-    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Viia flow error</h5>
+            <p>This is the configured callback url, that Viia redirects to, after going through Viia end-user flow, or if it fails.</p>
+            <p>In this case, this is an error scenario, because <b><i>code</i></b> or <b><i>consentId</i></b> were not provided in the query of this callback url, which means that an error happened in the flow or it was cancelled by end-user</p>
+            <button class="btn btn-info" style="white-space: normal; width: 100%;" onclick="finishFlowIframe()">Finish Flow (Iframe Flow, makes a post message, to which parent page is listening to)</button>
+            <button class="btn btn-info" style="margin-top: 1rem; white-space: normal; width: 100%;"  onclick="finishFlowRedirect()">Finish Flow (Redirect Flow, redirects back to accounts page)</button>
+        </div>
+    </div>    
 }
 @if (!Model.IsError && !Model.AutomaticallyFinish)
 {
-    <div class="text-center" style="height: 80vh; width: 60vw; position: absolute; left: 20vw; top: 10vh;">
-        <h1 class="text-center">Viia flow complete</h1>
-        <p>This is the configured callback url, that Viia redirects to, after going through Viia end-user flow, or if it fails.</p>
-        <p>In success scenario, there's a 'code' query parameter provided. e.g., current query: </p>
-        <pre>@Model.Query</pre>
-        <p>This code can be exchanged with Viia API for an access token that is used for accessing end-user's data</p>
-        <p>In this Sample App's case, we exchanged the code for access token, while processing this request, before rendering the view.</p>
-        <button class="btn btn-primary" style="white-space: normal; width: 100%;" onclick="finishFlowIframe()">Finish Flow (Iframe Flow, makes a post message, to which parent page is listening to)</button>
-        <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;"  onclick="finishFlowRedirect()">Finish Flow (Redirect Flow, redirects back to accounts page)</button>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Viia flow complete</h5>
+            <p class="card-text">This is the configured callback url, that Viia redirects to, after going through Viia end-user flow, or if it fails.</p>
+            <p>In success scenario, there's a 'code' query parameter provided. e.g., current query: </p>
+            <pre>@Model.Query</pre>
+            <p>This code can be exchanged with Viia API for an access token that is used for accessing end-user's data</p>
+            <p>In this Sample App's case, we exchanged the code for access token, while processing this request, before rendering the view.</p>
+            <button class="btn btn-info" style="white-space: normal; width: 100%;" onclick="finishFlowIframe()">Finish Flow (Iframe Flow, makes a post message, to which parent page is listening to)</button>
+            <button class="btn btn-info" style="margin-top: 1rem; white-space: normal; width: 100%;"  onclick="finishFlowRedirect()">Finish Flow (Redirect Flow, redirects back to accounts page)</button>
+        </div>
     </div>
+  
 }
 
 
