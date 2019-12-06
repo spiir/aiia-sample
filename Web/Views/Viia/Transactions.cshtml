@@ -59,7 +59,11 @@
             let balanceContainer = $(`<div class="p-2"></div>`).text(`${transaction.balance.value} ${transaction.balance.currency}`);
             let amountAndBalanceContainer = $(`<div class="flex-column" style="margin-right: 1rem;"></div>`).append(amountContainer).append(balanceContainer);
             
+            let deletedSpan = $(`<span class="text-danger"></span>`).text('(DELETED)');
             let txTextContainer = $(`<div class="p-2"></div>`).text(transaction.originalText);
+            if(transaction.isDeleted === true) {
+                txTextContainer.prepend(deletedSpan);
+            }
             let dateContainer = $(`<div class="p-2"></div>`).text(new Date(transaction.date).toISOString());
             let textAndDateContainer = $(`<div class="flex-column flex-fill"></div>`).append(txTextContainer).append(dateContainer);
             
