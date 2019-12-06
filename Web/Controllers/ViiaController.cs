@@ -134,14 +134,15 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> Transactions(string accountId)
         {
             var transactions = await _viiaService.GetAccountTransactions(User, accountId);
-            return View(transactions);
+            return View(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, false));
         }
+        
 
-        [HttpGet("accounts/{accountId}/transactions/{pagingToken}")]
-        public async Task<IActionResult> Transactions(string accountId, string pagingToken)
+        [HttpGet("accounts/{accountId}/transactions/fetch")]
+        public async Task<IActionResult> FetchTransactions(string accountId, [FromQuery] string pagingToken = null, [FromQuery] bool includeDeleted = false)
         {
             var transactions = await _viiaService.GetAccountTransactions(User, accountId, pagingToken);
-            return Ok(transactions);
+            return Ok(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, includeDeleted));
         }
 
         [HttpGet("accounts/{accountId}/transactions/{transactionId}/details")]

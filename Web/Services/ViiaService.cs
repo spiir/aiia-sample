@@ -35,7 +35,7 @@ namespace ViiaSample.Services
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
 
         Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal, string accountId,
-            string pagingToken = null);
+            string pagingToken = null, bool includeDeleted = false);
 
         Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId);
         Task ProcessWebHookPayload(HttpRequest request);
@@ -176,14 +176,14 @@ namespace ViiaSample.Services
         }
 
         public async Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal,
-            string accountId, string pagingToken = null)
+            string accountId, string pagingToken = null, bool includeDeleted = false)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
             if (user == null)
                 return null;
 
-            return await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query", new
+            return await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query?includeDeleted={includeDeleted.ToString()}", new
             {
                 Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
                     SystemClock.Instance.GetCurrentInstant()),
