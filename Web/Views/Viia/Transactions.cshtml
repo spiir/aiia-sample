@@ -93,9 +93,7 @@
         }
         
         function toggleIncludeDeleted() {
-            console.log(`old ${$('#include-deleted').is(':checked')}`);
             let newValue = !$('#include-deleted').is(':checked');
-            console.log(`new ${newValue}`);
             
             $('#includeDeletedInput').val(newValue ? '1' : '0');
             $('#transaction-container').empty();
