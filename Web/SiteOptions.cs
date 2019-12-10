@@ -5,6 +5,7 @@ namespace ViiaSample
         public ViiaOptions Viia { get; set; }
         public SendGridOptions SendGrid { get; set; }
         public HumioOptions Humio { get; set; }
+        public bool LogToConsole { get; set; } = false;
     }
 
     public class ViiaOptions
