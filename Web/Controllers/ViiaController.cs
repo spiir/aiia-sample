@@ -141,7 +141,7 @@ namespace ViiaSample.Controllers
         [HttpGet("accounts/{accountId}/transactions/fetch")]
         public async Task<IActionResult> FetchTransactions(string accountId, [FromQuery] string pagingToken = null, [FromQuery] bool includeDeleted = false)
         {
-            var transactions = await _viiaService.GetAccountTransactions(User, accountId, pagingToken);
+            var transactions = await _viiaService.GetAccountTransactions(User, accountId, pagingToken, includeDeleted);
             return Ok(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, includeDeleted));
         }
 
