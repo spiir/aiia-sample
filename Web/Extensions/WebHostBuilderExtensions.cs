@@ -53,26 +53,25 @@ namespace ViiaSample.Extensions
                                           configuration.MinimumLevel.Override("System", LogEventLevel.Information);
                                           configuration.MinimumLevel.Override("Microsoft", LogEventLevel.Information);
 
-                                          var options = new HumioOptions();
-                                          context.Configuration.GetSection("Humio")
-                                                 .Bind(options);
+                                          var options = new SiteOptions();
+                                          context.Configuration.Bind(options);
 
-                                          if (options.IngestToken.IsSet() && options.IngestUrl.IsSet())
-                                              configuration.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(options.IngestUrl))
+                                          if (options.Humio.IngestToken.IsSet() && options.Humio.IngestUrl.IsSet())
+                                              configuration.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(options.Humio.IngestUrl))
                                                                                   {
                                                                                       MinimumLogEventLevel =
                                                                                           LogEventLevel
                                                                                               .Debug,
                                                                                       ModifyConnectionSettings =
                                                                                           c =>
-                                                                                              c.BasicAuthentication(options
+                                                                                              c.BasicAuthentication(options.Humio
                                                                                                                         .IngestToken,
                                                                                                                     ""),
                                                                                       Period = TimeSpan
                                                                                           .FromMilliseconds(500)
                                                                                   });
 
-                                          if (context.HostingEnvironment.IsDevelopment())
+                                          if (context.HostingEnvironment.IsDevelopment() && options.LogToConsole)
                                               configuration.WriteTo.Console(outputTemplate:
                                                                             "[{Timestamp:HH:mm:ss} {Level:u3}] {Properties:j} {Message:lj}{NewLine}{Exception}");
                                       });
