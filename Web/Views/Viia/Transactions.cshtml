@@ -57,48 +57,100 @@
             }
             let amountContainer = $(`<div class="p-2"></div>`).append(amountSpan).append(` ${transaction.transactionAmount.currency}`);
             let balanceContainer = $(`<div class="p-2"></div>`).text(`${transaction.balance.value} ${transaction.balance.currency}`);
-            let amountAndBalanceContainer = $(`<div class="flex-column" style="margin-right: 1rem;"></div>`).append(amountContainer).append(balanceContainer);
+            let amountAndBalanceContainer = $(`<div class="flex-column" style="margin-right: 1rem;"></div>`)
+                .append(amountContainer)
+                .append(balanceContainer);
             
             let deletedSpan = $(`<span class="text-danger"></span>`).text('(DELETED)');
             let txTextContainer = $(`<div class="p-2"></div>`).text(transaction.originalText);
-            if(transaction.isDeleted === true) {
+            // Not sure why, but sometimes js think it's a string and not a boolean
+            if(transaction.isDeleted === true || transaction.isDeleted === 'true') {
                 txTextContainer.prepend(deletedSpan);
             }
             let dateContainer = $(`<div class="p-2"></div>`).text(new Date(transaction.date).toISOString());
             let textAndDateContainer = $(`<div class="flex-column flex-fill"></div>`).append(txTextContainer).append(dateContainer);
             
-            let transactionContainer = $(`<div class="d-flex account-container justify-content-between"
-                   onclick="window.location.href = '/viia/accounts/${transaction.accountId}/transactions/${transaction.id}/details'">`)
-                   .append(textAndDateContainer)
-                   .append(amountAndBalanceContainer);
+            let rowTextAndAmountContainer = $(`<div class="d-flex justify-content-between"/>`)
+                .append(textAndDateContainer)
+                .append(amountAndBalanceContainer);
+            
+            let collapsibleContainer = $(`<div class="collapse" style="margin-right: 1rem;" id="collapse-${transaction.id}"></div>"`)
+                .append(createDynamicTable(transaction));
+            
+            let transactionContainer = $(`<div class="account-container "
+                   onclick="toggleCollapsible('${transaction.id}')">`)
+                   .append(rowTextAndAmountContainer)
+                   .append(collapsibleContainer);
             
             $('#transaction-container').append(transactionContainer);
+        }
+        
+        function createDynamicTable(json) {
+            json = flatten(json);
+            let table = $(`<table style="width:100%" />`).addClass('table');
+            $.each(json, function(key, data) {
+                let row = $("<tr/>")
+                    .append($(`<td style="width:30%"/>`).text(key))
+                    .append($(`<td style="width:70%;max-width: 0; overflow:hidden;text-overflow: ellipsis; white-space: nowrap;"/>`).text(data === null || data === undefined ? 'null' : data));
+                
+                table.append(row);
+            });
+            return table;
         }
         
         function loadMore() {
             let pagingToken = $('#pagingTokenInput').val();
             let includeDeleted = $('#includeDeletedInput').val() === '1';
+            console.log(includeDeleted);
             $.ajax({
-                            url: `/viia/accounts/@Model.Transactions[0].AccountId/transactions/fetch?pagingToken=${pagingToken}&includeDeleted=${includeDeleted}`,
-                            type: 'GET',
-                            dataType: "json",
-                            success: function(data) {
-                                if(data.pagingToken === null || data.pagingToken === undefined || data.pagingToken === '') {
-                                    $('#load-more-btn').remove();
-                                }
-                                $('#pagingTokenInput').val(data.pagingToken);
-                                renderTransactions(data.transactions);
-                            }
-                        });
+                url: `/viia/accounts/@Model.Transactions[0].AccountId/transactions/fetch?pagingToken=${pagingToken}&includeDeleted=${includeDeleted}`,
+                type: 'GET',
+                dataType: "json",
+                success: function(data) {
+                    if(data.pagingToken === null || data.pagingToken === undefined || data.pagingToken === '') {
+                        $('#load-more-btn').remove();
+                    }
+                    $('#pagingTokenInput').val(data.pagingToken);
+                    renderTransactions(data.transactions);
+                }
+            });
+        }
+        
+        function toggleCollapsible(transactionId) {
+            $(`#collapse-${transactionId}`).collapse('toggle');
         }
         
         function toggleIncludeDeleted() {
-            let newValue = !$('#include-deleted').is(':checked');
+            let newValue = $('#include-deleted').is(':checked');
             
             $('#includeDeletedInput').val(newValue ? '1' : '0');
             $('#transaction-container').empty();
             $('#pagingTokenInput').val('');
             loadMore();
+        }
+        
+        function flatten(data) { 
+            let result = {};
+            function recurse (cur, prop) {
+                if (Object(cur) !== cur) {
+                    result[prop] = cur;
+                } else if (Array.isArray(cur)) {
+                     for(var i=0, l=cur.length; i<l; i++)
+                         recurse(cur[i], prop + "[" + i + "]");
+                    if (l == 0)
+                        result[prop] = [];
+                } else {
+                    var isEmpty = true;
+                    for (var p in cur) {
+                        isEmpty = false;
+                        recurse(cur[p], prop ? prop+"."+p : p);
+                    }
+                    if (isEmpty && prop)
+                        result[prop] = {};
+                }
+            }
+            recurse(data, "");
+            return result;
         }
     </script>
 }
