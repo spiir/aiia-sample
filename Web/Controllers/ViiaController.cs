@@ -145,12 +145,6 @@ namespace ViiaSample.Controllers
             return Ok(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, includeDeleted));
         }
 
-        [HttpGet("accounts/{accountId}/transactions/{transactionId}/details")]
-        public async Task<IActionResult> TransactionDetails(string accountId, string transactionId)
-        {
-            return View(await _viiaService.GetTransaction(User, accountId, transactionId));
-        }
-
         // Toggles email notifications for webhook, might be interesting to check how/when/what Viia sends in webhooks, but gets a bit annoying in the long run
         [HttpPost("toggle-email")]
         public async Task<IActionResult> DisconnectFromViia()
