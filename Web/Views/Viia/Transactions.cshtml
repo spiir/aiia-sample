@@ -26,13 +26,24 @@
         </section>
     
     
-    <div id="transaction-container" class="col"></div>
-    <div class="container" style="width: 100%;">
-        <button id="load-more-btn"
-                class="btn btn-outline-info btn-lg"
-                style="margin:0 auto; display:block;"
-                onclick="loadMore()">Load More</button>
-    </div>
+    
+    @if (Model.Transactions != null && Model.Transactions.Count > 0)
+    {
+        <div id="transaction-container" class="col"></div>
+        <div class="container" style="width: 100%;">
+            <button id="load-more-btn"
+                    class="btn btn-outline-info btn-lg"
+                    style="margin:0 auto; display:block;"
+                    onclick="loadMore()">Load More</button>
+        </div>
+    }
+    else
+    {
+        <div id="transaction-container" class="col">
+            <h3 class="text-center">No transactions found. <a href="https://docs.getviia.com/#/accounts/sync">Data synchronization</a> might still be in progress</h3>
+        </div>
+    }
+    
     <input type="hidden" id="pagingTokenInput" value="@Model.PagingToken">
     <input type="hidden" id="includeDeletedInput" value="@(Model.IncludeDeleted ? 1 : 0)">
 </div>
@@ -101,9 +112,8 @@
         function loadMore() {
             let pagingToken = $('#pagingTokenInput').val();
             let includeDeleted = $('#includeDeletedInput').val() === '1';
-            console.log(includeDeleted);
             $.ajax({
-                url: `/viia/accounts/@Model.Transactions[0].AccountId/transactions/fetch?pagingToken=${pagingToken}&includeDeleted=${includeDeleted}`,
+                url: `/viia/accounts/@(Model.Transactions == null || Model.Transactions.Count == 0 ? "" : Model.Transactions[0].AccountId)/transactions/fetch?pagingToken=${pagingToken}&includeDeleted=${includeDeleted}`,
                 type: 'GET',
                 dataType: "json",
                 success: function(data) {
