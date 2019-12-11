@@ -7,6 +7,8 @@ namespace ViiaSample.Models
         public string PagingToken { get; set; }
         public bool IncludeDeleted { get; set; }
         public List<QueryPart> Filters { get; set; }
+        public QueryFieldBetween AmountValueBetween { get; set; }
+        public QueryFieldBetween BalanceValueBetween { get; set; }
     }
 
     public class QueryPart
@@ -20,5 +22,11 @@ namespace ViiaSample.Models
     {
         AND,
         OR
+    }
+
+    public class QueryFieldBetween
+    {
+        public double Min { get; set; }
+        public double Max { get; set; }
     }
 }
