@@ -133,7 +133,7 @@
                                         
                                         <p> @(account.Number.Bban ?? account.Number.Iban) </p>
                                         <p><small class="text-muted">Last updated @(account.LastSynchronized)
-                                            @if (hasNeverBeenSynced(account.LastSynchronized)) {
+                                            @if (HasNeverBeenSynced(account.LastSynchronized)) {
                                                 <small class="text-muted">(Never updated)</small>
                                             }
                                         </small></p>
@@ -219,15 +219,7 @@
         return JsonConvert.SerializeObject(niceJsonObj, Formatting.Indented);
     }
 
-    Boolean hasNeverBeenSynced(DateTime? syncTime)
-    {
-        if(syncTime.Value.Year == 1970)
-        {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    bool HasNeverBeenSynced(DateTime? syncTime) => syncTime?.Year == 1970;
 }
 
 @section Scripts
