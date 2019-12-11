@@ -6,27 +6,36 @@
 }
 
 <div class="container-fluid">
-        <section class="jumbotron text-center">
-            <div class="container">
-                <h1 class="jumbotron-heading">
-                    Transactions
-                </h1>
-                <hr class="my-4">
+    <section class="jumbotron text-center">
+        <div class="container">
+            <h1 class="jumbotron-heading">
+                Transactions
+            </h1>
+            <hr class="my-4">
 
-                <div class= "row justify-content-md-center">
-                   <div class="form-check">
-                     <input class="form-check-input" type="checkbox" value="" id="include-deleted" checked="@Model.IncludeDeleted" onclick="toggleIncludeDeleted()">
-                     <label class="form-check-label" for="include-deleted">
-                       Include soft-deleted transactions
-                     </label>
-                   </div>
-                </div>   
-       
+            <div class="row justify-content-md-center">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="include-deleted" checked="@Model.IncludeDeleted" onclick="toggleIncludeDeleted()">
+                    <label class="form-check-label" for="include-deleted">
+                        Include soft-deleted transactions
+                    </label>
+                </div>
             </div>
-        </section>
-    
-    
-    
+
+            <div id="filter-container">
+                <div class="row justify-content-md-center">
+                    <button class="col btn btn-outline-info mr-1" onclick="addFilter()">Add filter</button>
+                    <button class="col btn btn-outline-info mr-1" onclick="addNumberBetweenFilter('amount')">Add transaction amount filter</button>
+                    <button class="col btn btn-outline-info mr-1" onclick="addNumberBetweenFilter('balance')">Add account balance filter</button>
+                </div>
+                <div id="filter-button-container" class="row justify-content-md-center mt-1">
+                    <button class="col btn btn-outline-info mr-1" id="apply-filters-btn" onclick="applyFilters()" disabled>Apply filters</button>
+                    <button class="col btn btn-outline-danger ml-1" onclick="clearFilters()">Clear filters</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
     @if (Model.Transactions != null && Model.Transactions.Count > 0)
     {
         <div id="transaction-container" class="col"></div>
@@ -34,7 +43,9 @@
             <button id="load-more-btn"
                     class="btn btn-outline-info btn-lg"
                     style="margin:0 auto; display:block;"
-                    onclick="loadMore()">Load More</button>
+                    onclick="loadMore()">
+                Load More
+            </button>
         </div>
     }
     else
@@ -43,7 +54,7 @@
             <h3 class="text-center">No transactions found. <a href="https://docs.getviia.com/#/accounts/sync">Data synchronization</a> might still be in progress</h3>
         </div>
     }
-    
+
     <input type="hidden" id="pagingTokenInput" value="@Model.PagingToken">
     <input type="hidden" id="includeDeletedInput" value="@(Model.IncludeDeleted ? 1 : 0)">
 </div>
@@ -89,7 +100,7 @@
                 .append(createDynamicTable(transaction));
             
             let transactionContainer = $(`<div class="account-container "
-                   onclick="toggleCollapsible('${transaction.id}')">`)
+                   onclick="$('#collapse-${transaction.id}').collapse('toggle');">`)
                    .append(rowTextAndAmountContainer)
                    .append(collapsibleContainer);
             
@@ -110,33 +121,176 @@
         }
         
         function loadMore() {
-            let pagingToken = $('#pagingTokenInput').val();
-            let includeDeleted = $('#includeDeletedInput').val() === '1';
             $.ajax({
-                url: `/viia/accounts/@(Model.Transactions == null || Model.Transactions.Count == 0 ? "" : Model.Transactions[0].AccountId)/transactions/fetch?pagingToken=${pagingToken}&includeDeleted=${includeDeleted}`,
-                type: 'GET',
-                dataType: "json",
+                url: `/viia/accounts/@(Model.Transactions == null || Model.Transactions.Count == 0 ? "" : Model.Transactions[0].AccountId)/transactions/query`,
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(generateTransactionQueryRequestBody()),
                 success: function(data) {
                     if(data.pagingToken === null || data.pagingToken === undefined || data.pagingToken === '') {
-                        $('#load-more-btn').remove();
+                        $('#load-more-btn').hide();
+                    } else {
+                        $('#load-more-btn').show();
                     }
                     $('#pagingTokenInput').val(data.pagingToken);
                     renderTransactions(data.transactions);
+                    if(data.transactions.length === 0) {
+                        alert('No transactions found with specified filters');
+                    }
+                },
+                error: function() {
+                    alert('Failed to load more transactions, check your filters');
                 }
             });
         }
         
-        function toggleCollapsible(transactionId) {
-            $(`#collapse-${transactionId}`).collapse('toggle');
+        function generateTransactionQueryRequestBody() {
+            let result = {
+                pagingToken: $('#pagingTokenInput').val(),
+                includeDeleted: $('#includeDeletedInput').val() === '1',
+                filters: []
+            };
+            let transactionFilters = $('.transaction-filter');
+            if(transactionFilters.length) {
+                transactionFilters.each(function(index, element) {
+                    let propertyValue = $(element).find('.filter-select').val();
+                    let filterValue = $(element).find('.filter-value').val();
+                    let operatorValue = $(element).find('.operator-select').val();
+                    result.filters.push({property: propertyValue, value: filterValue, operator: operatorValue}); 
+                });
+            }
+            let amountFilter = $('.amount-filter');
+            if(amountFilter.length) {
+                let minValue = amountFilter.find('.min-amount-value').val();
+                let maxValue = amountFilter.find('.max-amount-value').val();
+                result.amountValueBetween = {
+                    min: minValue,
+                    max: maxValue
+                };
+            }
+            
+            let balanceFilter = $('.balance-filter');
+            if(balanceFilter.length) {
+                console.table(balanceFilter);
+                let minValue = balanceFilter.find('.min-balance-value').val();
+                let maxValue = balanceFilter.find('.max-balance-value').val();
+                console.log(minValue);
+                console.log(maxValue);
+                result.balanceValueBetween = {
+                    min: minValue,
+                    max: maxValue
+                };
+            }
+            return result;
         }
         
         function toggleIncludeDeleted() {
             let newValue = $('#include-deleted').is(':checked');
             
             $('#includeDeletedInput').val(newValue ? '1' : '0');
+            reloadTransactions()
+        }
+        
+        function reloadTransactions() {
             $('#transaction-container').empty();
             $('#pagingTokenInput').val('');
             loadMore();
+        }
+        
+        function addFilter() {
+            $("#apply-filters-btn").attr("disabled", false);
+            let propertySelect = $(`
+                <div class="input-group" style="width:auto;">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text">Property</label>
+                    </div>
+                    <select class="custom-select filter-select">
+                        <option value="originalText">Original Text</option>
+                        <option value="text">Text</option>
+                        <option value="state">State</option>
+                        <option value="type">Type</option>
+                        <option value="date">Date</option>
+                    </select>
+                </div>`);
+            
+            let valueInput = $(`
+                <div class="input-group" style="width:auto;">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="custom-locale">Value</label>
+                    </div>
+                    <input type="text" class="filter-value pl-1">
+                </div>`);
+            
+            let operatorSelect = $(`
+                <div class="input-group" style="width:auto;">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text">Operator</label>
+                    </div>
+                    <select class="custom-select operator-select">
+                        <option value="AND">AND</option>
+                        <option value="OR">OR</option>
+                    </select>
+                </div>`)
+            
+            let filter = $(`<div class="row d-flex my-2 justify-content-between transaction-filter"></div>`)
+                .append(propertySelect)
+                .append($(`<span>Contains</span>`))
+                .append(valueInput)
+                .append(operatorSelect);
+                
+            $(`#filter-container`)
+                .append(filter);
+        }
+        
+        function addNumberBetweenFilter(propertyName) {
+            if($(`.${propertyName}-filter`).length) {
+                alert(`Already contains a ${propertyName} filter.`);
+                return;
+            }
+            $("#apply-filters-btn").attr("disabled", false);
+            
+            let propertyNameLabel = $(`
+                            <div class="input-group" style="width:auto;">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">Property</label>
+                                </div>
+                                <input type="text" class="${propertyName}-label pl-1" value="${propertyName}" readonly>
+                            </div>`);
+            
+            let minInput = $(`
+                            <div class="input-group" style="width:auto;">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">Min</label>
+                                </div>
+                                <input type="number" class="min-${propertyName}-value pl-1" value="0">
+                            </div>`);
+            let maxInput = $(`
+                            <div class="input-group" style="width:auto;">
+                                <div class="input-group-prepend">
+                                    <label class="input-group-text">Max</label>
+                                </div>
+                                <input type="number" class="max-${propertyName}-value pl-1" value="0">
+                            </div>`);
+            
+            let betweenFilter = $(`<div class="row d-flex my-2 justify-content-between ${propertyName}-filter"></div>`)
+                .append(propertyNameLabel)
+                .append(minInput)
+                .append(maxInput);
+            $(`#filter-container`)
+                .append(betweenFilter);
+            
+        }
+        
+        function applyFilters() {
+            $('#load-more-btn').hide();
+            reloadTransactions()
+        }
+        
+        function clearFilters() {
+            $("#apply-filters-btn").attr("disabled", false);
+            $(`.transaction-filter`).remove();
+            reloadTransactions();
         }
         
         function flatten(data) { 
@@ -147,11 +301,11 @@
                 } else if (Array.isArray(cur)) {
                      for(var i=0, l=cur.length; i<l; i++)
                          recurse(cur[i], prop + "[" + i + "]");
-                    if (l == 0)
+                    if (l === 0)
                         result[prop] = [];
                 } else {
-                    var isEmpty = true;
-                    for (var p in cur) {
+                    let isEmpty = true;
+                    for (let p in cur) {
                         isEmpty = false;
                         recurse(cur[p], prop ? prop+"."+p : p);
                     }
