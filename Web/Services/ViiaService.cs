@@ -22,6 +22,7 @@ using NodaTime;
 using NodaTime.Serialization.JsonNet;
 using ViiaSample.Data;
 using ViiaSample.Extensions;
+using ViiaSample.Models;
 using ViiaSample.Models.Viia;
 
 namespace ViiaSample.Services
@@ -35,7 +36,7 @@ namespace ViiaSample.Services
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
 
         Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal, string accountId,
-            string pagingToken = null, bool includeDeleted = false);
+            string pagingToken = null, bool includeDeleted = false, List<ViiaQueryPart> filters = null);
 
         Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId);
         Task ProcessWebHookPayload(HttpRequest request);
@@ -176,7 +177,7 @@ namespace ViiaSample.Services
         }
 
         public async Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal,
-            string accountId, string pagingToken = null, bool includeDeleted = false)
+            string accountId, string pagingToken = null, bool includeDeleted = false, List<ViiaQueryPart> filters = null)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -188,7 +189,8 @@ namespace ViiaSample.Services
                 Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
                     SystemClock.Instance.GetCurrentInstant()),
                 PagingToken = pagingToken,
-                PageSize = 20
+                PageSize = 20,
+                Patterns = filters
             }, user.ViiaTokenType, user.ViiaAccessToken, principal);
         }
 

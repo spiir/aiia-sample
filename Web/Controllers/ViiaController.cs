@@ -138,11 +138,11 @@ namespace ViiaSample.Controllers
         }
         
 
-        [HttpGet("accounts/{accountId}/transactions/fetch")]
-        public async Task<IActionResult> FetchTransactions(string accountId, [FromQuery] string pagingToken = null, [FromQuery] bool includeDeleted = false)
+        [HttpPost("accounts/{accountId}/transactions/query")]
+        public async Task<IActionResult> FetchTransactions(string accountId, [FromBody] TransactionQueryRequestViewModel body)
         {
-            var transactions = await _viiaService.GetAccountTransactions(User, accountId, pagingToken, includeDeleted);
-            return Ok(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, includeDeleted));
+            var transactions = await _viiaService.GetAccountTransactions(User, accountId, body.PagingToken, body.IncludeDeleted, body.Filters?.Select(MapQueryPartToViiaQueryPart).ToList());
+            return Ok(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, body.IncludeDeleted));
         }
 
         // Toggles email notifications for webhook, might be interesting to check how/when/what Viia sends in webhooks, but gets a bit annoying in the long run
@@ -161,5 +161,15 @@ namespace ViiaSample.Controllers
             await _dbContext.SaveChangesAsync();
             return Ok(new {updatedStatus = user.EmailEnabled});
         }
+
+        private ViiaQueryPart MapQueryPartToViiaQueryPart(QueryPart filter)
+        {
+            return new ViiaQueryPart
+            {
+                IncludedQueryProperties = new List<string> {filter.Property},
+                Pattern = filter.Value,
+                Operator = filter.Operator,
+            };
+        } 
     }
 }
