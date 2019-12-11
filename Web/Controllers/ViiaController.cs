@@ -141,7 +141,7 @@ namespace ViiaSample.Controllers
         [HttpPost("accounts/{accountId}/transactions/query")]
         public async Task<IActionResult> FetchTransactions(string accountId, [FromBody] TransactionQueryRequestViewModel body)
         {
-            var transactions = await _viiaService.GetAccountTransactions(User, accountId, body.PagingToken, body.IncludeDeleted, body.Filters?.Select(MapQueryPartToViiaQueryPart).ToList());
+            var transactions = await _viiaService.GetAccountTransactions(User, accountId, body);
             return Ok(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, body.IncludeDeleted));
         }
 
@@ -161,15 +161,5 @@ namespace ViiaSample.Controllers
             await _dbContext.SaveChangesAsync();
             return Ok(new {updatedStatus = user.EmailEnabled});
         }
-
-        private ViiaQueryPart MapQueryPartToViiaQueryPart(QueryPart filter)
-        {
-            return new ViiaQueryPart
-            {
-                IncludedQueryProperties = new List<string> {filter.Property},
-                Pattern = filter.Value,
-                Operator = filter.Operator,
-            };
-        } 
     }
 }

@@ -36,7 +36,7 @@ namespace ViiaSample.Services
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
 
         Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal, string accountId,
-            string pagingToken = null, bool includeDeleted = false, List<ViiaQueryPart> filters = null);
+            TransactionQueryRequestViewModel queryRequest = null);
 
         Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId);
         Task ProcessWebHookPayload(HttpRequest request);
@@ -177,20 +177,22 @@ namespace ViiaSample.Services
         }
 
         public async Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal,
-            string accountId, string pagingToken = null, bool includeDeleted = false, List<ViiaQueryPart> filters = null)
+            string accountId, TransactionQueryRequestViewModel queryRequest = null)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
             if (user == null)
                 return null;
 
-            return await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query?includeDeleted={includeDeleted.ToString()}", new
+            return await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query?includeDeleted={queryRequest?.IncludeDeleted.ToString() ?? "false"}", new
             {
                 Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
                     SystemClock.Instance.GetCurrentInstant()),
-                PagingToken = pagingToken,
+                PagingToken = queryRequest?.PagingToken,
                 PageSize = 20,
-                Patterns = filters
+                Patterns = queryRequest?.Filters.Select(MapQueryPartToViiaQueryPart).ToList(),
+                AmountValueBetween = queryRequest?.AmountValueBetween,
+                BalanceValueBetween = queryRequest?.BalanceValueBetween
             }, user.ViiaTokenType, user.ViiaAccessToken, principal);
         }
 
@@ -438,5 +440,15 @@ namespace ViiaSample.Services
 
             return $"{request.Scheme}://{host}{pathBase}";
         }
+        
+        private ViiaQueryPart MapQueryPartToViiaQueryPart(QueryPart filter)
+        {
+            return new ViiaQueryPart
+            {
+                IncludedQueryProperties = new List<string> {filter.Property},
+                Pattern = filter.Value,
+                Operator = filter.Operator,
+            };
+        } 
     }
 }
