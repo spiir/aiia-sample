@@ -6,6 +6,11 @@
         <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <Version Condition=" '$(Configuration)' == 'Debug' ">1.0.0</Version>
+        <Version Condition=" '$(Configuration)' != 'Debug' ">1.0.$(Build_BuildID)</Version>
+    </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
