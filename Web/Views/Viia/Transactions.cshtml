@@ -1,27 +1,166 @@
-@model System.Collections.Generic.IEnumerable<ViiaSample.Models.Viia.Transaction>
+@model TransactionsViewModel
 
 @{
     ViewBag.Title = "Transactions";
     Layout = "_Layout";
 }
 
-<div class="col">
-    @foreach (var transaction in Model)
+<div class="container-fluid">
+        <section class="jumbotron text-center">
+            <div class="container">
+                <h1 class="jumbotron-heading">
+                    Transactions
+                </h1>
+                <hr class="my-4">
+
+                <div class= "row justify-content-md-center">
+                   <div class="form-check">
+                     <input class="form-check-input" type="checkbox" value="" id="include-deleted" checked="@Model.IncludeDeleted" onclick="toggleIncludeDeleted()">
+                     <label class="form-check-label" for="include-deleted">
+                       Include soft-deleted transactions
+                     </label>
+                   </div>
+                </div>   
+       
+            </div>
+        </section>
+    
+    
+    
+    @if (Model.Transactions != null && Model.Transactions.Count > 0)
     {
-        <!-- Transaction Cell -->
-        <div class="d-flex account-container justify-content-between"
-             onclick="window.location.href = '@Url.Action("TransactionDetails", "Viia", new {accountId = transaction.AccountId, transactionId = transaction.Id})'">
-            <!-- Transaction name / date column -->
-            <div class="flex-column flex-fill">
-                <div class="p-2">@(transaction.Text ?? transaction.OriginalText)</div>
-                <div class="p-2">@transaction.Date?.ToString("dd-MM-yyyy")</div>
-            </div>
-            <div class="flex-column" style="margin-right: 1rem;">
-                <div class="p-2">
-                    <span class="@(transaction.TransactionAmount?.Value >= 0 ? "text-success" : "text-danger")" >@transaction.TransactionAmount?.Value </span>  @transaction.TransactionAmount?.Currency
-                </div>
-                <div class="p-2">@transaction.Balance?.Value @transaction.Balance?.Currency</div>
-            </div>
+        <div id="transaction-container" class="col"></div>
+        <div class="container" style="width: 100%;">
+            <button id="load-more-btn"
+                    class="btn btn-outline-info btn-lg"
+                    style="margin:0 auto; display:block;"
+                    onclick="loadMore()">Load More</button>
         </div>
     }
+    else
+    {
+        <div id="transaction-container" class="col">
+            <h3 class="text-center">No transactions found. <a href="https://docs.getviia.com/#/accounts/sync">Data synchronization</a> might still be in progress</h3>
+        </div>
+    }
+    
+    <input type="hidden" id="pagingTokenInput" value="@Model.PagingToken">
+    <input type="hidden" id="includeDeletedInput" value="@(Model.IncludeDeleted ? 1 : 0)">
 </div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function() {
+            renderTransactions(@Html.Raw(Json.Serialize(@Model.Transactions)));
+        });
+        
+        function renderTransactions(transactions) {
+            transactions.forEach(renderSingleTransaction);
+        }
+        
+        function renderSingleTransaction(transaction) {
+            let amountSpan = $('<span></span>').text(transaction.transactionAmount.value);
+            if(transaction.transactionAmount.value >= 0) {
+                amountSpan.addClass('text-success');
+            } else {
+                amountSpan.addClass('text-danger');
+            }
+            let amountContainer = $(`<div class="p-2"></div>`).append(amountSpan).append(` ${transaction.transactionAmount.currency}`);
+            let balanceContainer = $(`<div class="p-2"></div>`).text(`${transaction.balance.value} ${transaction.balance.currency}`);
+            let amountAndBalanceContainer = $(`<div class="flex-column" style="margin-right: 1rem;"></div>`)
+                .append(amountContainer)
+                .append(balanceContainer);
+            
+            let deletedSpan = $(`<span class="text-danger"></span>`).text('(DELETED)');
+            let txTextContainer = $(`<div class="p-2"></div>`).text(transaction.originalText);
+            // Not sure why, but sometimes js think it's a string and not a boolean
+            if(transaction.isDeleted === true || transaction.isDeleted === 'true') {
+                txTextContainer.prepend(deletedSpan);
+            }
+            let dateContainer = $(`<div class="p-2"></div>`).text(new Date(transaction.date).toISOString());
+            let textAndDateContainer = $(`<div class="flex-column flex-fill"></div>`).append(txTextContainer).append(dateContainer);
+            
+            let rowTextAndAmountContainer = $(`<div class="d-flex justify-content-between"/>`)
+                .append(textAndDateContainer)
+                .append(amountAndBalanceContainer);
+            
+            let collapsibleContainer = $(`<div class="collapse" style="margin-right: 1rem;" id="collapse-${transaction.id}"></div>"`)
+                .append(createDynamicTable(transaction));
+            
+            let transactionContainer = $(`<div class="account-container "
+                   onclick="toggleCollapsible('${transaction.id}')">`)
+                   .append(rowTextAndAmountContainer)
+                   .append(collapsibleContainer);
+            
+            $('#transaction-container').append(transactionContainer);
+        }
+        
+        function createDynamicTable(json) {
+            json = flatten(json);
+            let table = $(`<table style="width:100%" />`).addClass('table');
+            $.each(json, function(key, data) {
+                let row = $("<tr/>")
+                    .append($(`<td style="width:30%"/>`).text(key))
+                    .append($(`<td style="width:70%;max-width: 0; overflow:hidden;text-overflow: ellipsis; white-space: nowrap;"/>`).text(data === null || data === undefined ? 'null' : data));
+                
+                table.append(row);
+            });
+            return table;
+        }
+        
+        function loadMore() {
+            let pagingToken = $('#pagingTokenInput').val();
+            let includeDeleted = $('#includeDeletedInput').val() === '1';
+            $.ajax({
+                url: `/viia/accounts/@(Model.Transactions == null || Model.Transactions.Count == 0 ? "" : Model.Transactions[0].AccountId)/transactions/fetch?pagingToken=${pagingToken}&includeDeleted=${includeDeleted}`,
+                type: 'GET',
+                dataType: "json",
+                success: function(data) {
+                    if(data.pagingToken === null || data.pagingToken === undefined || data.pagingToken === '') {
+                        $('#load-more-btn').remove();
+                    }
+                    $('#pagingTokenInput').val(data.pagingToken);
+                    renderTransactions(data.transactions);
+                }
+            });
+        }
+        
+        function toggleCollapsible(transactionId) {
+            $(`#collapse-${transactionId}`).collapse('toggle');
+        }
+        
+        function toggleIncludeDeleted() {
+            let newValue = $('#include-deleted').is(':checked');
+            
+            $('#includeDeletedInput').val(newValue ? '1' : '0');
+            $('#transaction-container').empty();
+            $('#pagingTokenInput').val('');
+            loadMore();
+        }
+        
+        function flatten(data) { 
+            let result = {};
+            function recurse (cur, prop) {
+                if (Object(cur) !== cur) {
+                    result[prop] = cur;
+                } else if (Array.isArray(cur)) {
+                     for(var i=0, l=cur.length; i<l; i++)
+                         recurse(cur[i], prop + "[" + i + "]");
+                    if (l == 0)
+                        result[prop] = [];
+                } else {
+                    var isEmpty = true;
+                    for (var p in cur) {
+                        isEmpty = false;
+                        recurse(cur[p], prop ? prop+"."+p : p);
+                    }
+                    if (isEmpty && prop)
+                        result[prop] = {};
+                }
+            }
+            recurse(data, "");
+            return result;
+        }
+    </script>
+}
