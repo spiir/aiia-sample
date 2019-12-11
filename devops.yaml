@@ -13,4 +13,17 @@ steps:
     dotnet publish --configuration $(buildConfiguration) --output $BUILD_ARTIFACTSTAGINGDIRECTORY
   failOnStderr: true
 
+- script: |
+    curl -sL https://sentry.io/get-cli/ | bash 2> /dev/null
+    export SENTRY_URL=$SENTRY_BASEURL
+    export SENTRY_AUTH_TOKEN=$SENTRY_TOKEN
+    export SENTRY_ORG=$SENTRY_ORGANIZATION
+    export SENTRY_PROJECT=$SENTRY_APIPROJECT
+    sentry-cli releases new viia-sample@1.0.$BUILD_BUILDID
+    sentry-cli releases set-commits viia-sample@1.0.$BUILD_BUILDID --auto
+    sentry-cli releases finalize viia-sample@1.0.$BUILD_BUILDID
+  displayName: 'Create sentry release'
+  failOnStderr: true
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
 - task: PublishBuildArtifacts@1
