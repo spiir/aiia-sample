@@ -247,6 +247,7 @@
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
             url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
             url = addQueryParamToUrl(url, 'bank_account_numbers', $('#bank-account-ids').val());
+            url = url.replace(/amp;/g, '');
             return url;
         }
         
@@ -263,17 +264,12 @@
                 return url;
             }
             
-            if(url.includes('amp;')) {
-                url = url.replace(/amp;/g, '');
-            }
-            
             if(value.trim().length > 0){
                 url += `&${name}=${value}`;
             }
+            
             return url;
         }
-
- 
     
         function updateEmailTexts() {
             var emailEnabled = $("#EmailEnabled").val() === 'true';
