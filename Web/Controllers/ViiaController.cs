@@ -105,27 +105,36 @@ namespace ViiaSample.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
 
+            var providers = await _viiaService.GetProviders();
+            providers = providers
+                .OrderBy(x => x.CountryCode)
+                .ThenBy(y => y.Name)
+                .ToImmutableList();
+
             // If user hasn't connected to Viia or his access token is expired, show empty accounts page
             if (user?.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
             {
-                return View(new AccountViewModel
+                return View(new AccountsViewModel
                 {
                     AccountsGroupedByProvider = null,
                     ViiaConnectUrl = _viiaService.GetAuthUri(user?.Email).ToString(),
-                    EmailEnabled = user?.EmailEnabled ?? false
+                    EmailEnabled = user?.EmailEnabled ?? false,
+                    Providers = providers
                 });
             }
 
             var accounts = await _viiaService.GetUserAccounts(User);
             var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
 
-            var model = new AccountViewModel
+
+            var model = new AccountsViewModel
             {
                 AccountsGroupedByProvider = groupedAccounts,
                 ViiaConnectUrl = _viiaService.GetAuthUri(user.Email).ToString(),
                 JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
                 RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
-                EmailEnabled = user.EmailEnabled
+                EmailEnabled = user.EmailEnabled,
+                Providers = providers
             };
             return View(model);
         }

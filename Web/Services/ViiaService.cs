@@ -38,8 +38,8 @@ namespace ViiaSample.Services
         Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal, string accountId,
             TransactionQueryRequestViewModel queryRequest = null);
 
-        Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId);
         Task ProcessWebHookPayload(HttpRequest request);
+        Task<ImmutableList<BankProvider>> GetProviders();
     }
 
     public class ViiaService : IViiaService
@@ -232,7 +232,6 @@ namespace ViiaSample.Services
                 return;
             }
 
-
             var consentId = string.IsNullOrEmpty(data["consentId"].Value<string>())
                 ? string.Empty
                 : data["consentId"].Value<string>();
@@ -252,6 +251,11 @@ namespace ViiaSample.Services
             }
 
             await _emailService.SendWebhookEmail(user.Email, payloadString);
+        }
+
+        public Task<ImmutableList<BankProvider>> GetProviders()
+        {
+            return HttpGet<ImmutableList<BankProvider>>($"/v1/providers");
         }
 
         private async Task<string> ReadRequestBody(Stream bodyStream)
