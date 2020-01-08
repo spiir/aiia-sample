@@ -244,10 +244,10 @@
     <script>
         function getConnectUrl() {
             let url = decodeURI('@Model.ViiaConnectUrl');
-            url = url.replace(/amp;/g, '');
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
             url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
             url = addQueryParamToUrl(url, 'bank_account_numbers', $('#bank-account-ids').val());
+            url = url.replace(/amp;/g, '');
             return url;
         }
         
