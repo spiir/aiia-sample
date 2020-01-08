@@ -1,6 +1,6 @@
 @using Newtonsoft.Json
 @using ViiaSample.Services
-@model AccountViewModel
+@model AccountsViewModel
 
 @{
     ViewBag.Title = "Accounts";
@@ -86,7 +86,24 @@
         
                 </ul>
             </div>    
-            <div class= "row justify-content-md-center">
+            <div class="row justify-content-md-center">
+                    @if (Model.Providers != null && Model.Providers.Any())
+                    {
+                        <div class="input-group mb-3 mt-4">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="bank-provider">Pre-selected bank provider</label>
+                            </div>
+                            <select class="custom-select" id="bank-provider">
+                                <option value="">-</option>
+                                @foreach (var provider in Model.Providers)
+                                {
+                                    <option value="@provider.Id">[@provider.CountryCode] @(provider.Name ?? provider.Id)</option>
+                                }
+                            </select>
+                        </div>
+                    }
+                    
+                
                 <div class="input-group mb-3 mt-4">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="custom-locale">Locale</label>
@@ -220,11 +237,18 @@
 {
     <script>
         function getConnectUrl() {
-            return addCultureToUrl(decodeURI('@Model.ViiaConnectUrl'));
+            let url = decodeURI('@Model.ViiaConnectUrl');
+            url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
+            url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
+            return url;
         }
         
-        function addCultureToUrl(url) {
+        function addQueryParamToUrl(url, name, value) {
             if(typeof(url) !== 'string' || !url instanceof String) {
+                return url;
+            }
+            
+            if(typeof(name) !== 'string' || !name instanceof String) {
                 return url;
             }
             
@@ -232,13 +256,13 @@
                 url = url.replace(/amp;/g, '');
             }
             
-            var locale = $("#custom-locale").val();
-            
-            if(locale.trim().length > 0){
-                url += "&culture=" + locale;
+            if(value.trim().length > 0){
+                url += `&${name}=${value}`;
             }
             return url;
         }
+
+ 
     
         function updateEmailTexts() {
             var emailEnabled = $("#EmailEnabled").val() === 'true';
