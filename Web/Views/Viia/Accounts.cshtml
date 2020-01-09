@@ -314,7 +314,7 @@
                 success: function(data) {
                     if (data.authUrl) {
                         // Auth url not empty or null means we need a supervised login
-                        showViiaModal(addCultureToUrl(data.authUrl));
+                        showViiaModal(addQueryParamToUrl(data.authUrl, 'culture', $("#custom-locale").val()));
                     } else {
                         alert("All accounts didn't require user-assisted authentication and were queued up for sync");
                         // refresh page?
@@ -331,7 +331,7 @@
                         success: function(data) {
                             if (data.authUrl) {
                                 // Auth url not empty or null means we need a supervised login
-                                window.location.href = addCultureToUrl(data.authUrl);
+                                window.location.href = addQueryParamToUrl(data.authUrl, 'culture', $("#custom-locale").val());
                             } else {
                                 alert("All accounts didn't require user-assisted authentication and were queued up for sync");
                                 // refresh page?
