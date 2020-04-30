@@ -118,6 +118,7 @@ namespace ViiaSample.Controllers
                 {
                     AccountsGroupedByProvider = null,
                     ViiaConnectUrl = _viiaService.GetAuthUri(user?.Email).ToString(),
+                    ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
                     EmailEnabled = user?.EmailEnabled ?? false,
                     Providers = providers
                 });
@@ -126,11 +127,11 @@ namespace ViiaSample.Controllers
             var accounts = await _viiaService.GetUserAccounts(User);
             var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
 
-
             var model = new AccountsViewModel
             {
                 AccountsGroupedByProvider = groupedAccounts,
                 ViiaConnectUrl = _viiaService.GetAuthUri(user.Email).ToString(),
+                ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
                 JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
                 RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
                 EmailEnabled = user.EmailEnabled,
