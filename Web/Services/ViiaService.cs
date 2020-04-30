@@ -29,7 +29,7 @@ namespace ViiaSample.Services
 {
     public interface IViiaService
     {
-        Uri GetAuthUri(string userEmail);
+        Uri GetAuthUri(string userEmail, bool oneTime = false);
         Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
         Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken);
@@ -69,13 +69,14 @@ namespace ViiaSample.Services
             });
         }
 
-        public Uri GetAuthUri(string email)
+        public Uri GetAuthUri(string email, bool oneTime = false)
         {
             var connectUrl =
                 $"{_options.CurrentValue.Viia.BaseApiUrl}/v1/oauth/connect" +
                 $"?client_id={_options.CurrentValue.Viia.ClientId}" +
                 "&response_type=code" +
-                $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}";
+                $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}" +
+                $"&flow={(oneTime ? "OneTimeUser" : "PersistentUser")}";
 
             // Adding `email` query parameter will prefill email input in the Viia app
             if (email != null)
@@ -184,16 +185,18 @@ namespace ViiaSample.Services
             if (user == null)
                 return null;
 
-            return await HttpPost<TransactionsResponse>($"/v1/accounts/{accountId}/transactions/query?includeDeleted={queryRequest?.IncludeDeleted.ToString() ?? "false"}", new
-            {
-                Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
-                    SystemClock.Instance.GetCurrentInstant()),
-                PagingToken = queryRequest?.PagingToken,
-                PageSize = 20,
-                Patterns = queryRequest?.Filters.Select(MapQueryPartToViiaQueryPart).ToList(),
-                AmountValueBetween = queryRequest?.AmountValueBetween,
-                BalanceValueBetween = queryRequest?.BalanceValueBetween
-            }, user.ViiaTokenType, user.ViiaAccessToken, principal);
+            return await HttpPost<TransactionsResponse>(
+                $"/v1/accounts/{accountId}/transactions/query?includeDeleted={queryRequest?.IncludeDeleted.ToString() ?? "false"}",
+                new
+                {
+                    Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
+                        SystemClock.Instance.GetCurrentInstant()),
+                    PagingToken = queryRequest?.PagingToken,
+                    PageSize = 20,
+                    Patterns = queryRequest?.Filters.Select(MapQueryPartToViiaQueryPart).ToList(),
+                    AmountValueBetween = queryRequest?.AmountValueBetween,
+                    BalanceValueBetween = queryRequest?.BalanceValueBetween
+                }, user.ViiaTokenType, user.ViiaAccessToken, principal);
         }
 
         public async Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId)
@@ -444,7 +447,7 @@ namespace ViiaSample.Services
 
             return $"{request.Scheme}://{host}{pathBase}";
         }
-        
+
         private ViiaQueryPart MapQueryPartToViiaQueryPart(QueryPart filter)
         {
             return new ViiaQueryPart
@@ -453,6 +456,6 @@ namespace ViiaSample.Services
                 Pattern = filter.Value,
                 Operator = filter.Operator,
             };
-        } 
+        }
     }
 }
