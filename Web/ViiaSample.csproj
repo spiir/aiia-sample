@@ -29,6 +29,7 @@
 
     <ItemGroup>
       <Folder Include="Views\Account" />
+      <Folder Include="wwwroot\lib\assets\fonts\galano" />
     </ItemGroup>
 
 </Project>
