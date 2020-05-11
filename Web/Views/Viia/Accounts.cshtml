@@ -11,131 +11,133 @@
 
 <div class="container-fluid">
 
+    
+       
+    <h1 class="text-center">
+        
+        Accounts
+    </h1>
+    <p class="text-mute text-center">
+        
+        Use Viia to connect to various finance related services such as banks, travel cards, and pension accounts.
+    </p>
+      
     <section class="jumbotron text-center">
-        <div class="container">
-            <h1 class="jumbotron-heading">
-                Accounts
-            </h1>
-            <p class="lead text-muted">
-                Use Viia to connect to various finance related services such as banks, travel cards, and pension accounts.
-            </p>
-            <hr class="my-4">
-            <div class="row justify-content-md-center">
+        <div class="row justify-content-md-center">
 
-                <ul class="nav nav-pills mb-4">
+            <ul class="nav nav-pills mb-4">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                       data-toggle="dropdown"
+                       href="#"
+                       role="button"
+                       aria-haspopup="true"
+                       aria-expanded="false">
+                        Connect Accounts
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item"
+                           style="cursor:pointer;"
+                           onclick="window.location.href = getConnectUrl(false)">
+                            Redirect
+                        </a>
+                        <a class="dropdown-item"
+                           style="cursor:pointer;"
+                           onclick="window.location.href = getConnectUrl(true)">
+                            One-Time
+                        </a>
+                        <a class="dropdown-item"
+                           style="cursor:pointer;"
+                           onclick="showViiaModal(getConnectUrl())">
+                            iFrame
+                        </a>
+                    </div>
+                </li>
+
+                @if (Model?.AccountsGroupedByProvider != null && Model.AccountsGroupedByProvider.Any())
+                {
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle"
                            data-toggle="dropdown"
-                           href="#"
-                           role="button"
+                           href="#" role="button"
                            aria-haspopup="true"
                            aria-expanded="false">
-                            Connect Accounts
+                            Update Accounts
                         </a>
                         <div class="dropdown-menu">
                             <a class="dropdown-item"
                                style="cursor:pointer;"
-                               onclick="window.location.href = getConnectUrl(false)">
+                               onclick="requestDataUpdateRedirect()">
                                 Redirect
                             </a>
                             <a class="dropdown-item"
                                style="cursor:pointer;"
-                               onclick="window.location.href = getConnectUrl(true)">
-                                One-Time
-                            </a>
-                            <a class="dropdown-item"
-                               style="cursor:pointer;"
-                               onclick="showViiaModal(getConnectUrl())">
+                               onclick="requestDataUpdateIframe()">
                                 iFrame
                             </a>
                         </div>
                     </li>
-
-                    @if (Model?.AccountsGroupedByProvider != null && Model.AccountsGroupedByProvider.Any())
-                    {
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle"
-                               data-toggle="dropdown"
-                               href="#" role="button"
-                               aria-haspopup="true"
-                               aria-expanded="false">
-                                Update Accounts
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item"
-                                   style="cursor:pointer;"
-                                   onclick="requestDataUpdateRedirect()">
-                                    Redirect
-                                </a>
-                                <a class="dropdown-item"
-                                   style="cursor:pointer;"
-                                   onclick="requestDataUpdateIframe()">
-                                    iFrame
-                                </a>
-                            </div>
-                        </li>
-                    }
+                }
+                <li class="nav-item">
+                    <a class="nav-link"
+                       role="button"
+                       href="#"
+                       id="email-button"
+                       style="cursor:pointer;"
+                       onclick="toggleEmail()">
+                        @(Model.EmailEnabled ? "Disable email notifications" : "Enable email notifications")
+                    </a>
+                </li>
+                @if (Model?.JwtToken != null)
+                {
                     <li class="nav-item">
                         <a class="nav-link"
-                           role="button"
                            href="#"
-                           id="email-button"
                            style="cursor:pointer;"
-                           onclick="toggleEmail()">
-                            @(Model.EmailEnabled ? "Disable email notifications" : "Enable email notifications")
+                           onclick="toggleModal('dataModal')">
+                            Toggle JWT token payload
                         </a>
                     </li>
-                    @if (Model?.JwtToken != null)
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link"
-                               href="#"
-                               style="cursor:pointer;"
-                               onclick="toggleModal('dataModal')">
-                                Toggle JWT token payload
-                            </a>
-                        </li>
-                    }
-
-                </ul>
-            </div>
-            <div class="row justify-content-md-center">
-                @if (Model.Providers != null && Model.Providers.Any())
-                {
-                    <div class="input-group mb-3 mt-4">
-                        <div class="input-group-prepend">
-                            <label class="input-group-text" for="bank-provider">(Optional) Pre-selected bank provider</label>
-                        </div>
-                        <select class="custom-select" id="bank-provider">
-                            <option value="">-</option>
-                            @foreach (var provider in Model.Providers)
-                            {
-                                <option value="@provider.Id">[@provider.CountryCode] @(provider.Name ?? provider.Id)</option>
-                            }
-                        </select>
-                    </div>
                 }
 
+            </ul>
+        </div>
+        <div class="row justify-content-md-center">
+            @if (Model.Providers != null && Model.Providers.Any())
+            {
                 <div class="input-group mb-3 mt-4">
                     <div class="input-group-prepend">
-                        <label class="input-group-text" for="custom-locale">(Optional) Pre-selected bank accounts</label>
+                        <label class="input-group-text" for="bank-provider">(Optional) Pre-selected bank provider</label>
                     </div>
-                    <input class="form-control" id="bank-account-ids" type="text" placeholder="Comma separated BBAN or IBAN accounts. Requires Pre-selected bank provider."/>
-                </div>
-
-                <div class="input-group mb-3 mt-4">
-                    <div class="input-group-prepend">
-                        <label class="input-group-text" for="custom-locale">(Optional) Locale</label>
-                    </div>
-                    <select class="custom-select" id="custom-locale">
+                    <select class="custom-select" id="bank-provider">
                         <option value="">-</option>
-                        <option value="en">en</option>
-                        <option value="da">da</option>
-                        <option value="fi">fi</option>
+                        @foreach (var provider in Model.Providers)
+                        {
+                            <option value="@provider.Id">[@provider.CountryCode] @(provider.Name ?? provider.Id)</option>
+                        }
                     </select>
                 </div>
+            }
+
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="custom-locale">(Optional) Pre-selected bank accounts</label>
+                </div>
+                <input class="form-control" id="bank-account-ids" type="text" placeholder="Comma separated BBAN or IBAN accounts. Requires Pre-selected bank provider."/>
             </div>
 
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="custom-locale">(Optional) Locale</label>
+                </div>
+                <select class="custom-select" id="custom-locale">
+                    <option value="">-</option>
+                    <option value="en">en</option>
+                    <option value="da">da</option>
+                    <option value="fi">fi</option>
+                    <option value="sv">sv</option>
+                </select>
+            </div>
         </div>
     </section>
     <div class="row">
@@ -152,7 +154,7 @@
                 foreach (var group in Model.AccountsGroupedByProvider)
                 {
                     <div class="card mb-3">
-                        <div class="card-header" style="background:#8FBC8F">
+                        <div class="card-header">
                             Provider: @group.Key
                         </div>
                         <div class="card-body">

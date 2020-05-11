@@ -2,25 +2,24 @@
     ViewData["Title"] = "Home Page";
 }
 
-<section class="jumbotron text-center">
+
     <div class="container ">
-        <h1 class="jumbotron-heading">
+        <h1 class="text-center">
             Viia Demo App
         </h1>
-        <p class="lead text-muted">
+        <p class="text-muted text-center">
             This app is an example of how you can use Viia to serve financial information to your customer.
         </p>
-    
-        <hr class="my-4">
         
+        <section class="jumbotron text-center">
         <p>Start by logging in and connecting accounts.</p>
 
-        <a class="btn btn-outline-info btn-lg" 
+        <a class="btn btn-primary btn-lg" 
             asp-area="" 
             asp-controller="Viia" 
             asp-action="Accounts">Start
         </a>
+        </section>
                                
     </div>                
 
-</section>

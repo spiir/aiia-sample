@@ -6,22 +6,21 @@
 }
 
 <div class="container-fluid">
+    <h1 class="text-center">
+        Transactions
+    </h1>
+   
     <section class="jumbotron text-center">
-        <div class="container">
-            <h1 class="jumbotron-heading">
-                Transactions
-            </h1>
-            <hr class="my-4">
-
-            <div class="row justify-content-md-center">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="include-deleted" checked="@Model.IncludeDeleted" onclick="toggleIncludeDeleted()">
-                    <label class="form-check-label" for="include-deleted">
-                        Include soft-deleted transactions
-                    </label>
-                </div>
+        <div class="row justify-content-md-center">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="include-deleted" checked="@Model.IncludeDeleted" onclick="toggleIncludeDeleted()">
+                <label class="form-check-label" for="include-deleted">
+                    Include soft-deleted transactions
+                </label>
             </div>
-
+        </div>
+        <br/>
+        <div class="container">
             <div id="filter-container">
                 <div class="row justify-content-md-center">
                     <button class="col btn btn-outline-info mr-1" onclick="addFilter()">Add filter</button>

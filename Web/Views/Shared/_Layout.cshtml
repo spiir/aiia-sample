@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Demo App</title>
+    <title>@ViewData["Title"] - Viia Demo App</title>
 
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -21,7 +21,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm mb-3 navbar-dark" style="background:#7B68EE">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm mb-3 navbar-light">
             <div class="container">
             
                 <button class="navbar-toggler" 
@@ -36,17 +36,12 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Demo App</a>
-                        <li class="nav-item">
-                            <a class="nav-link" 
-                                asp-area="" 
-                                asp-controller="Home" 
-                                asp-action="Index">Home</a>
-                        </li>
+                        <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Viia Demo App</a>
+        
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" 
+                                <a class="nav-link nav-blue" 
                                     asp-area="" 
                                     asp-controller="Viia" 
                                     asp-action="Accounts">Accounts</a>
@@ -65,7 +60,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2019 - Demo App
+            &copy; 2020 - Viia Demo App
         </div>
     </footer>
 
