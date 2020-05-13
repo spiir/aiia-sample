@@ -17,25 +17,25 @@ namespace ViiaSample.Extensions
         public static IWebHostBuilder UseKeyVault(this IWebHostBuilder builder)
         {
             return builder.ConfigureAppConfiguration((context, config) =>
-            {
-                var builtConfig = config.Build();
-                if (builtConfig["KEY_VAULT_NAME"]
-                    .IsSet())
-                {
-                    var azureServiceTokenProvider = new AzureServiceTokenProvider();
-                    var keyVaultClient = new KeyVaultClient(
-                        new KeyVaultClient.AuthenticationCallback(
-                            azureServiceTokenProvider
-                                .KeyVaultTokenCallback));
+                                                     {
+                                                         var builtConfig = config.Build();
+                                                         if (builtConfig["KEY_VAULT_NAME"]
+                                                             .IsSet())
+                                                         {
+                                                             var azureServiceTokenProvider = new AzureServiceTokenProvider();
+                                                             var keyVaultClient = new KeyVaultClient(
+                                                                                                     new KeyVaultClient.AuthenticationCallback(
+                                                                                                                                               azureServiceTokenProvider
+                                                                                                                                                   .KeyVaultTokenCallback));
 
-                    config.AddAzureKeyVault(
-                        $"https://{builtConfig["KEY_VAULT_NAME"]}.vault.azure.net/",
-                        keyVaultClient,
-                        new DefaultKeyVaultSecretManager());
-                }
-            });
+                                                             config.AddAzureKeyVault(
+                                                                                     $"https://{builtConfig["KEY_VAULT_NAME"]}.vault.azure.net/",
+                                                                                     keyVaultClient,
+                                                                                     new DefaultKeyVaultSecretManager());
+                                                         }
+                                                     });
         }
-        
+
         public static IWebHostBuilder UseSerilogHumio(this IWebHostBuilder builder)
         {
             return builder.UseSerilog((context, configuration) =>
@@ -65,7 +65,7 @@ namespace ViiaSample.Extensions
                                                                                       ModifyConnectionSettings =
                                                                                           c =>
                                                                                               c.BasicAuthentication(options.Humio
-                                                                                                                        .IngestToken,
+                                                                                                                           .IngestToken,
                                                                                                                     ""),
                                                                                       Period = TimeSpan
                                                                                           .FromMilliseconds(500)
@@ -76,7 +76,5 @@ namespace ViiaSample.Extensions
                                                                             "[{Timestamp:HH:mm:ss} {Level:u3}] {Properties:j} {Message:lj}{NewLine}{Exception}");
                                       });
         }
-        
-        
     }
 }

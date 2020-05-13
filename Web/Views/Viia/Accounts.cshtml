@@ -1,5 +1,4 @@
 @using Newtonsoft.Json
-@using ViiaSample.Services
 @model AccountsViewModel
 
 @{
@@ -9,16 +8,16 @@
 
 @Html.Hidden("EmailEnabled", Model.EmailEnabled)
 
-       
+
 <h1 class="text-center">
-    
+
     Accounts
 </h1>
 <p class="text-center">
-    
+
     Use Viia to connect to various finance related services such as banks, travel cards, and pension accounts.
 </p>
-  
+
 <section class="jumbotron text-center">
     <div class="row justify-content-md-center">
 
@@ -34,17 +33,17 @@
                 </a>
                 <div class="dropdown-menu">
                     <a class="dropdown-item"
-                       style="cursor:pointer;"
+                       style="cursor: pointer;"
                        onclick="window.location.href = getConnectUrl(false)">
                         Redirect
                     </a>
                     <a class="dropdown-item"
-                       style="cursor:pointer;"
+                       style="cursor: pointer;"
                        onclick="window.location.href = getConnectUrl(true)">
                         One-Time
                     </a>
                     <a class="dropdown-item"
-                       style="cursor:pointer;"
+                       style="cursor: pointer;"
                        onclick="showViiaModal(getConnectUrl())">
                         iFrame
                     </a>
@@ -63,12 +62,12 @@
                     </a>
                     <div class="dropdown-menu">
                         <a class="dropdown-item"
-                           style="cursor:pointer;"
+                           style="cursor: pointer;"
                            onclick="requestDataUpdateRedirect()">
                             Redirect
                         </a>
                         <a class="dropdown-item"
-                           style="cursor:pointer;"
+                           style="cursor: pointer;"
                            onclick="requestDataUpdateIframe()">
                             iFrame
                         </a>
@@ -80,7 +79,7 @@
                    role="button"
                    href="#"
                    id="email-button"
-                   style="cursor:pointer;"
+                   style="cursor: pointer;"
                    onclick="toggleEmail()">
                     @(Model.EmailEnabled ? "Disable email notifications" : "Enable email notifications")
                 </a>
@@ -90,7 +89,7 @@
                 <li class="nav-item">
                     <a class="nav-link"
                        href="#"
-                       style="cursor:pointer;"
+                       style="cursor: pointer;"
                        onclick="toggleModal('dataModal')">
                         Toggle JWT token payload
                     </a>
@@ -160,7 +159,7 @@
                             <div class="media bg-light mb-2 w-100"
                                  onclick="window.location.href = '@Url.Action("Transactions", "Viia", new {accountId = account.Id})'">
 
-                                <div class="media-body ml-3" style="cursor:pointer">
+                                <div class="media-body ml-3" style="cursor: pointer">
                                     <p class="mt-3">@account.Name</p>
 
                                     @if (account.Number?.Bban != null || account.Number?.Iban != null)
@@ -194,7 +193,7 @@
             <div style="position: relative">
                 <iframe id="viia-iframe"
                         data-src="getConnectUrl()"
-                        style="position: absolute; top: 0px; width: 100%; height: 90vh;"
+                        style="height: 90vh; position: absolute; top: 0px; width: 100%;"
                         frameborder="0"
                         allowtransparency="true">
                 </iframe>
@@ -247,7 +246,11 @@
         dynamic parsedAlgJson = JsonConvert.DeserializeObject(algorithmJson);
         dynamic parsedPayloadJson = JsonConvert.DeserializeObject(payloadJson);
 
-        dynamic niceJsonObj = new {algorithm = parsedAlgJson, payload = parsedPayloadJson};
+        dynamic niceJsonObj = new
+                              {
+                                  algorithm = parsedAlgJson,
+                                  payload = parsedPayloadJson
+                              };
 
         return JsonConvert.SerializeObject(niceJsonObj, Formatting.Indented);
     }
@@ -257,8 +260,8 @@
 {
     <script>
         function getConnectUrl(oneTime) {
-            let baseConnectUrl = oneTime === true ? '@Model.ViiaOneTimeConnectUrl' : '@Model.ViiaConnectUrl';
-            
+            const baseConnectUrl = oneTime === true ? '@Model.ViiaOneTimeConnectUrl' : '@Model.ViiaConnectUrl';
+
             let url = decodeURI(baseConnectUrl);
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
             url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
@@ -266,39 +269,39 @@
             url = url.replace(/amp;/g, '');
             return url;
         }
-        
+
         function addQueryParamToUrl(url, name, value) {
-            if(typeof(url) !== 'string' || !url instanceof String) {
+            if (typeof(url) !== 'string' || !url instanceof String) {
                 return url;
             }
-            
-            if(typeof(name) !== 'string' || !name instanceof String) {
+
+            if (typeof(name) !== 'string' || !name instanceof String) {
                 return url;
             }
-            
-            if(value === '') {
+
+            if (value === '') {
                 return url;
             }
-            
-            if(value.trim().length > 0){
+
+            if (value.trim().length > 0) {
                 url += `&${name}=${value}`;
             }
-            
+
             return url;
         }
-    
+
         function updateEmailTexts() {
-            var emailEnabled = $("#EmailEnabled").val() === 'true';
-            var buttonText = emailEnabled ? "Disable Email Notifications" : "Enable Email Notifications";
+            const emailEnabled = $("#EmailEnabled").val() === 'true';
+            const buttonText = emailEnabled ? "Disable Email Notifications" : "Enable Email Notifications";
             $("#email-button").text(buttonText);
         }
-        
+
         function toggleModal(id) {
             $('#' + id).modal('toggle');
         }
-        
+
         function showViiaModal(url) {
-            var iframe = $('#viia-iframe');
+            const iframe = $('#viia-iframe');
             iframe.attr("src", url);
             $('#viiaModal').modal('show');
         }
@@ -338,24 +341,24 @@
                 }
             });
         }
-        
+
         function requestDataUpdateRedirect() {
-                    $.ajax({
-                        url: '/viia/update',
-                        type: 'POST',
-                        dataType: "json",
-                        success: function(data) {
-                            if (data.authUrl) {
-                                // Auth url not empty or null means we need a supervised login
-                                window.location.href = addQueryParamToUrl(data.authUrl, 'culture', $("#custom-locale").val());
-                            } else {
-                                alert("All accounts didn't require user-assisted authentication and were queued up for sync");
-                                // refresh page?
-                            }
-                        }
-                    });
+            $.ajax({
+                url: '/viia/update',
+                type: 'POST',
+                dataType: "json",
+                success: function(data) {
+                    if (data.authUrl) {
+                        // Auth url not empty or null means we need a supervised login
+                        window.location.href = addQueryParamToUrl(data.authUrl, 'culture', $("#custom-locale").val());
+                    } else {
+                        alert("All accounts didn't require user-assisted authentication and were queued up for sync");
+                        // refresh page?
+                    }
                 }
-        
+            });
+        }
+
         function toggleEmail() {
             $.ajax({
                 url: '/viia/toggle-email',
