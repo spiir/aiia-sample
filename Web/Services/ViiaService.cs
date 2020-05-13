@@ -13,7 +13,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -91,7 +90,14 @@ namespace ViiaSample.Services
                                     redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
                                 };
 
-                var response = await httpClient.PostAsJsonAsync(requestUrl, tokenBody);
+                var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+                              {
+                                  Content = new StringContent(JsonConvert.SerializeObject(tokenBody),
+                                                              Encoding.UTF8,
+                                                              "application/json")
+                              };
+
+                var response = await httpClient.SendAsync(request);
                 var content = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
@@ -241,7 +247,6 @@ namespace ViiaSample.Services
 
         public async Task ProcessWebHookPayload(HttpRequest request)
         {
-            request.EnableRewind();
             var payloadString = await ReadRequestBody(request.Body);
 
             _logger.LogInformation($"Received webhook: {payloadString}");
@@ -302,7 +307,14 @@ namespace ViiaSample.Services
                                     redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
                                 };
 
-                var response = await httpClient.PostAsJsonAsync(requestUrl, tokenBody);
+                var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
+                              {
+                                  Content = new StringContent(JsonConvert.SerializeObject(tokenBody),
+                                                              Encoding.UTF8,
+                                                              "application/json")
+                              };
+
+                var response = await httpClient.SendAsync(request);
                 var content = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)

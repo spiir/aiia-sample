@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using ViiaSample.Data;
 using ViiaSample.Services;
 
@@ -23,12 +22,13 @@ namespace ViiaSample
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseRouting();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {
@@ -42,13 +42,16 @@ namespace ViiaSample
             app.UseCookiePolicy();
 
             app.UseAuthentication();
+            app.UseAuthorization();
 
-            app.UseMvc(routes =>
-                       {
-                           routes.MapRoute(
-                                           "default",
-                                           "{controller=Home}/{action=Index}/{id?}");
-                       });
+            app.UseStaticFiles();
+            app.UseEndpoints(endpoints =>
+                             {
+                                 endpoints.MapControllerRoute(
+                                                              "default",
+                                                              "{controller=Home}/{action=Index}/{id?}");
+                                 endpoints.MapControllers();
+                             });
         }
 
         public void ConfigureDevelopmentServices(IServiceCollection services)
@@ -87,13 +90,13 @@ namespace ViiaSample
                                                                     options.Password.RequiredLength = 4;
                                                                     options.Password.RequiredUniqueChars = 1;
                                                                 })
-                    .AddDefaultUI(UIFramework.Bootstrap4)
                     .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IEmailService, EmailService>();
             services.AddScoped<IViiaService, ViiaService>();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddRazorPages();
+            services.AddControllers();
         }
 
         private static void UpdateDatabase(IApplicationBuilder app)
