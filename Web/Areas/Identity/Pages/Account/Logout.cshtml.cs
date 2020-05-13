@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,8 +11,8 @@ namespace ViiaSample.Areas.Identity.Pages.Account
     [AllowAnonymous]
     public class LogoutModel : PageModel
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LogoutModel> _logger;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public LogoutModel(SignInManager<ApplicationUser> signInManager, ILogger<LogoutModel> logger)
         {
@@ -23,9 +20,7 @@ namespace ViiaSample.Areas.Identity.Pages.Account
             _logger = logger;
         }
 
-        public void OnGet()
-        {
-        }
+        public void OnGet() { }
 
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
@@ -35,10 +30,7 @@ namespace ViiaSample.Areas.Identity.Pages.Account
             {
                 return LocalRedirect(returnUrl);
             }
-            else
-            {
-                return Page();
-            }
+            return Page();
         }
     }
 }
