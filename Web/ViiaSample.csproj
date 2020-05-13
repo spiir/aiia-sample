@@ -12,6 +12,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Views\Account\**" />
+      <Content Remove="Views\Account\**" />
+      <EmbeddedResource Remove="Views\Account\**" />
+      <None Remove="Views\Account\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
@@ -32,7 +39,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Views\Account" />
       <Folder Include="wwwroot\lib\assets\fonts\galano" />
     </ItemGroup>
 
