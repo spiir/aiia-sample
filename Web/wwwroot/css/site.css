@@ -71,6 +71,7 @@ section.jumbotron p {
 
 .btn-primary {
   background-color: #0000FF;
+  border-color: #0000FF;
 }
 
 .navbar {
