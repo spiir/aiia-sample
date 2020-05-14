@@ -51,6 +51,7 @@ namespace ViiaSample
                                                               "default",
                                                               "{controller=Home}/{action=Index}/{id?}");
                                  endpoints.MapControllers();
+                                 endpoints.MapRazorPages();
                              });
         }
 
