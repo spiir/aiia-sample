@@ -90,6 +90,8 @@ namespace ViiaSample
                                                                     options.Password.RequireUppercase = false;
                                                                     options.Password.RequiredLength = 4;
                                                                     options.Password.RequiredUniqueChars = 1;
+
+                                                                    options.User.RequireUniqueEmail = true;
                                                                 })
                     .AddEntityFrameworkStores<ApplicationDbContext>();
 
