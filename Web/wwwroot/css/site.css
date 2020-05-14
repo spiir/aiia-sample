@@ -52,7 +52,10 @@ section.jumbotron p { font-family: Galano_Bold, Arial, Helvetica, sans-serif; }
 
 .media { border-radius: .3rem; }
 
-.btn-primary { background-color: #0000FF; }
+.btn-primary { 
+    background-color: #0000FF;
+    border-color: #0000FF;
+}
 
 .navbar {
     border-bottom: 1px solid #CFCFCF;
