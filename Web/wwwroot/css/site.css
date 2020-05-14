@@ -1,217 +1,165 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
-@font-face
-{
-  font-family: Galano_Black;
-  src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque Black.otf");
-}
-@font-face
-{
-  font-family: Galano_Medium;
-  src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque Medium.otf");
+@font-face {
+    font-family: Galano_Black;
+    src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque Black.otf");
 }
 
-@font-face
-{
-  font-family: Galano_SemiBold;
-  src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque SemiBold.otf");
+@font-face {
+    font-family: Galano_Medium;
+    src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque Medium.otf");
 }
 
-@font-face
-{
-  font-family: Galano_Bold;
-  src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque Bold.otf");
+@font-face {
+    font-family: Galano_SemiBold;
+    src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque SemiBold.otf");
 }
 
-@font-face
-{
-  font-family: Galano;
-  src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque.otf");
+@font-face {
+    font-family: Galano_Bold;
+    src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque Bold.otf");
+}
+
+@font-face {
+    font-family: Galano;
+    src: url("../lib/assets/fonts/galano/Rene Bieder - Galano Grotesque.otf");
 }
 
 @media (min-width: 768px) {
-  .container {
-    max-width: 1000px;
-  }
+    .container { max-width: 1000px; }
 }
 
-body {
-  font-family: Galano, Arial, Helvetica, sans-serif;
- 
-}
+body { font-family: Galano, Arial, Helvetica, sans-serif; }
 
-h1 {
-  font-family: Galano_SemiBold, Arial, Helvetica, sans-serif;
-}
+h1 { font-family: Galano_SemiBold, Arial, Helvetica, sans-serif; }
 
-section.jumbotron p {
-  font-family: Galano_Bold, Arial, Helvetica, sans-serif;
-}
+section.jumbotron p { font-family: Galano_Bold, Arial, Helvetica, sans-serif; }
 
 .btn.btn-primary {
-  border-radius: 2rem;
-  font-size: 16px;
-  padding: .5rem 2rem;
-  font-family: Galano_SemiBold, Arial, Helvetica, sans-serif;
+    border-radius: 2rem;
+    font-family: Galano_SemiBold, Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    padding: .5rem 2rem;
 }
 
 .card-header {
-  font-family: Galano_SemiBold, Arial, Helvetica, sans-serif;
-  font-size: 24px;git
+    font-family: Galano_SemiBold, Arial, Helvetica, sans-serif;
+    font-size: 24px;
 }
 
-.media-body p:first-child{
-  font-family: Galano_Bold, Arial, Helvetica, sans-serif;
-}
+.media-body p:first-child { font-family: Galano_Bold, Arial, Helvetica, sans-serif; }
 
-.media {
-  border-radius: .3rem;
-}
+.media { border-radius: .3rem; }
 
-.btn-primary {
-  background-color: #0000FF;
-}
+.btn-primary { background-color: #0000FF; }
 
 .navbar {
-  font-family: Galano_SemiBold, Arial, Helvetica, sans-serif;
-  border-bottom: 1px solid #CFCFCF;
+    border-bottom: 1px solid #CFCFCF;
+    font-family: Galano_SemiBold, Arial, Helvetica, sans-serif;
 }
+
 a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
-  
+    text-align: center;
+    white-space: normal;
+    word-break: break-all;
 }
 
-.nav-pills .nav-link.active {
-  background-color: #0000FF;
-}
+.nav-pills .nav-link.active { background-color: #0000FF; }
 
-a, .navbar-light .navbar-nav .nav-link {
-  color: #212529;
-}
+a, .navbar-light .navbar-nav .nav-link { color: #212529; }
 
-a, .navbar-light .navbar-nav a.nav-link.nav-blue, .btn-link {
-  color: #0000FF;
-}
-.jumbotron {
-  background-color: #F5F5F5;
-}
+a, .navbar-light .navbar-nav a.nav-link.nav-blue, .btn-link { color: #0000FF; }
+
+.jumbotron { background-color: #F5F5F5; }
 
 @media (min-width: 576px) {
-  .jumbotron {
-    padding: 2rem 2rem;
-  }
-}
-.card {
-  border: none;
+    .jumbotron { padding: 2rem 2rem; }
 }
 
-.card-body {
-  padding: 0;
-}
+.card { border: none; }
+
+.card-body { padding: 0; }
+
 .card-header {
-  background-color: transparent;
-  border-bottom: none;
-  padding: 0.75rem 0;
+    background-color: transparent;
+    border-bottom: none;
+    padding: 0.75rem 0;
 }
 
-.card-body .media-body p {
-  margin-bottom: .5rem;
-  
-}
+.card-body .media-body p { margin-bottom: .5rem; }
 
 #transaction-container.col {
-  padding-left: 0;
-  padding-right: 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .btn-outline-info {
-  color: #0000FF;
-  border-color: #0000FF;
+    border-color: #0000FF;
+    color: #0000FF;
 }
 
-.btn-outline-info:hover {
-  background-color: #0000FF;
-}
+.btn-outline-info:hover { background-color: #0000FF; }
 
 .btn-outline-info:disabled {
-  color: #0000FF;
-  background-color: transparent;
+    background-color: transparent;
+    color: #0000FF;
 }
 
-.btn-outline-info:disabled:hover {
-  border-color: #0000FF;
-}
+.btn-outline-info:disabled:hover { border-color: #0000FF; }
 
-html {
-  font-size: 14px;
-}
+html { font-size: 14px; }
+
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html { font-size: 16px; }
 }
 
-.border-top {
-  border-top: 1px solid #e5e5e5;
-}
+.border-top { border-top: 1px solid #e5e5e5; }
 
 button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
+    font-size: 1rem;
+    line-height: inherit;
 }
 
 /* Sticky footer styles
 -------------------------------------------------- */
+
 html {
-  position: relative;
-  min-height: 100%;
-  
+    min-height: 100%;
+    position: relative;
 }
 
 body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
 }
+
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  /* Set the fixed height of the footer here */
-  height: 60px;
-  line-height: 60px; /* Vertically center the text there */
+    bottom: 0;
+    /* Set the fixed height of the footer here */
+    height: 60px;
+    line-height: 60px; /* Vertically center the text there */
+    position: absolute;
+    white-space: nowrap;
+    width: 100%;
 }
 
 .account-container {
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  margin-bottom: 0.5rem;
-  padding: 1rem;
-  border: 1px solid rgb(220,220,220);
+    border: 1px solid rgb(220, 220, 220);
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+    padding: 1rem;
 }
 
-.account-container:hover {
-  background-color: rgb(220,220,220);
-}
+.account-container:hover { background-color: rgb(220, 220, 220); }
 
-.account-container label {
-  margin: 0;
-}
+.account-container label { margin: 0; }
 
-.active-connection {
-  opacity: 0.4;
-}
+.active-connection { opacity: 0.4; }
 
-.connection-wrapper .active-connection:hover {
-  border-color: transparent;
-}
-.grey-text {
-  color: rgb(160, 160, 160);
-}
+.connection-wrapper .active-connection:hover { border-color: transparent; }
 
-.detail-card {
-  margin: 1rem;
-}
+.grey-text { color: rgb(160, 160, 160); }
+
+.detail-card { margin: 1rem; }

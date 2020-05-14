@@ -9,7 +9,7 @@
     <h1 class="text-center">
         Transactions
     </h1>
-   
+
     <section class="jumbotron text-center">
         <div class="row justify-content-md-center">
             <div class="form-check">
@@ -41,7 +41,7 @@
         <div class="container" style="width: 100%;">
             <button id="load-more-btn"
                     class="btn btn-outline-info btn-lg"
-                    style="margin:0 auto; display:block;"
+                    style="display: block; margin: 0 auto;"
                     onclick="loadMore()">
                 Load More
             </button>
@@ -62,63 +62,64 @@
 {
     <script>
         $(document).ready(function() {
-            renderTransactions(@Html.Raw(Json.Serialize(@Model.Transactions)));
+            renderTransactions(@Html.Raw(Json.Serialize(Model.Transactions)));
         });
-        
+
         function renderTransactions(transactions) {
             transactions.forEach(renderSingleTransaction);
         }
-        
+
         function renderSingleTransaction(transaction) {
-            let amountSpan = $('<span></span>').text(transaction.transactionAmount.value);
-            if(transaction.transactionAmount.value >= 0) {
+            const amountSpan = $('<span></span>').text(transaction.transactionAmount.value);
+            if (transaction.transactionAmount.value >= 0) {
                 amountSpan.addClass('text-success');
             } else {
                 amountSpan.addClass('text-danger');
             }
-            let amountContainer = $(`<div class="p-2"></div>`).append(amountSpan).append(` ${transaction.transactionAmount.currency}`);
-            let balanceContainer = $(`<div class="p-2"></div>`).text(`${transaction.balance.value} ${transaction.balance.currency}`);
-            let amountAndBalanceContainer = $(`<div class="flex-column" style="margin-right: 1rem;"></div>`)
+            const amountContainer = $(`<div class="p-2"></div>`).append(amountSpan).append(` ${transaction.transactionAmount.currency}`);
+            const balanceContainer = $(`<div class="p-2"></div>`).text(`${transaction.balance.value} ${transaction.balance.currency}`);
+            const amountAndBalanceContainer = $(`<div class="flex-column" style="margin-right: 1rem;"></div>`)
                 .append(amountContainer)
                 .append(balanceContainer);
-            
-            let deletedSpan = $(`<span class="text-danger"></span>`).text('(DELETED)');
-            let txTextContainer = $(`<div class="p-2"></div>`).text(transaction.originalText);
+
+            const deletedSpan = $(`<span class="text-danger"></span>`).text('(DELETED)');
+            const txTextContainer = $(`<div class="p-2"></div>`).text(transaction.originalText);
             // Not sure why, but sometimes js think it's a string and not a boolean
-            if(transaction.isDeleted === true || transaction.isDeleted === 'true') {
+            if (transaction.isDeleted === true || transaction.isDeleted === 'true') {
                 txTextContainer.prepend(deletedSpan);
             }
-            let dateContainer = $(`<div class="p-2"></div>`).text(new Date(transaction.date).toISOString());
-            let textAndDateContainer = $(`<div class="flex-column flex-fill"></div>`).append(txTextContainer).append(dateContainer);
-            
-            let rowTextAndAmountContainer = $(`<div class="d-flex justify-content-between"/>`)
+            const dateContainer = $(`<div class="p-2"></div>`).text(new Date(transaction.date).toISOString());
+            const textAndDateContainer = $(`<div class="flex-column flex-fill"></div>`).append(txTextContainer).append(dateContainer);
+
+            const rowTextAndAmountContainer = $(`<div class="d-flex justify-content-between"/>`)
                 .append(textAndDateContainer)
                 .append(amountAndBalanceContainer);
-            
-            let collapsibleContainer = $(`<div class="collapse" style="margin-right: 1rem;" id="collapse-${transaction.id}"></div>"`)
+
+            const collapsibleContainer = $(`<div class="collapse" style="margin-right: 1rem;" id="collapse-${transaction.id}"></div>"`)
                 .append(createDynamicTable(transaction));
-            
-            let transactionContainer = $(`<div class="account-container "
+
+            const transactionContainer = $(`<div class="account-container "
                    onclick="$('#collapse-${transaction.id}').collapse('toggle');">`)
-                   .append(rowTextAndAmountContainer)
-                   .append(collapsibleContainer);
-            
+                .append(rowTextAndAmountContainer)
+                .append(collapsibleContainer);
+
             $('#transaction-container').append(transactionContainer);
         }
-        
+
         function createDynamicTable(json) {
             json = flatten(json);
-            let table = $(`<table style="width:100%" />`).addClass('table');
-            $.each(json, function(key, data) {
-                let row = $("<tr/>")
-                    .append($(`<td style="width:30%"/>`).text(key))
-                    .append($(`<td style="width:70%;max-width: 0; overflow:hidden;text-overflow: ellipsis; white-space: nowrap;"/>`).text(data === null || data === undefined ? 'null' : data));
-                
-                table.append(row);
-            });
+            const table = $(`<table style="width:100%" />`).addClass('table');
+            $.each(json,
+                function(key, data) {
+                    const row = $("<tr/>")
+                        .append($(`<td style="width:30%"/>`).text(key))
+                        .append($(`<td style="width:70%;max-width: 0; overflow:hidden;text-overflow: ellipsis; white-space: nowrap;"/>`).text(data === null || data === undefined ? 'null' : data));
+
+                    table.append(row);
+                });
             return table;
         }
-        
+
         function loadMore() {
             $.ajax({
                 url: `/viia/accounts/@(Model.Transactions == null || Model.Transactions.Count == 0 ? "" : Model.Transactions[0].AccountId)/transactions/query`,
@@ -127,14 +128,14 @@
                 contentType: 'application/json',
                 data: JSON.stringify(generateTransactionQueryRequestBody()),
                 success: function(data) {
-                    if(data.pagingToken === null || data.pagingToken === undefined || data.pagingToken === '') {
+                    if (data.pagingToken === null || data.pagingToken === undefined || data.pagingToken === '') {
                         $('#load-more-btn').hide();
                     } else {
                         $('#load-more-btn').show();
                     }
                     $('#pagingTokenInput').val(data.pagingToken);
                     renderTransactions(data.transactions);
-                    if(data.transactions.length === 0) {
+                    if (data.transactions.length === 0) {
                         alert('No transactions found with specified filters');
                     }
                 },
@@ -143,37 +144,37 @@
                 }
             });
         }
-        
+
         function generateTransactionQueryRequestBody() {
-            let result = {
+            const result = {
                 pagingToken: $('#pagingTokenInput').val(),
                 includeDeleted: $('#includeDeletedInput').val() === '1',
                 filters: []
             };
-            let transactionFilters = $('.transaction-filter');
-            if(transactionFilters.length) {
+            const transactionFilters = $('.transaction-filter');
+            if (transactionFilters.length) {
                 transactionFilters.each(function(index, element) {
-                    let propertyValue = $(element).find('.filter-select').val();
-                    let filterValue = $(element).find('.filter-value').val();
-                    let operatorValue = $(element).find('.operator-select').val();
-                    result.filters.push({property: propertyValue, value: filterValue, operator: operatorValue}); 
+                    const propertyValue = $(element).find('.filter-select').val();
+                    const filterValue = $(element).find('.filter-value').val();
+                    const operatorValue = $(element).find('.operator-select').val();
+                    result.filters.push({ property: propertyValue, value: filterValue, operator: operatorValue });
                 });
             }
-            let amountFilter = $('.amount-filter');
-            if(amountFilter.length) {
-                let minValue = amountFilter.find('.min-amount-value').val();
-                let maxValue = amountFilter.find('.max-amount-value').val();
+            const amountFilter = $('.amount-filter');
+            if (amountFilter.length) {
+                const minValue = amountFilter.find('.min-amount-value').val();
+                const maxValue = amountFilter.find('.max-amount-value').val();
                 result.amountValueBetween = {
                     min: minValue,
                     max: maxValue
                 };
             }
-            
-            let balanceFilter = $('.balance-filter');
-            if(balanceFilter.length) {
+
+            const balanceFilter = $('.balance-filter');
+            if (balanceFilter.length) {
                 console.table(balanceFilter);
-                let minValue = balanceFilter.find('.min-balance-value').val();
-                let maxValue = balanceFilter.find('.max-balance-value').val();
+                const minValue = balanceFilter.find('.min-balance-value').val();
+                const maxValue = balanceFilter.find('.max-balance-value').val();
                 console.log(minValue);
                 console.log(maxValue);
                 result.balanceValueBetween = {
@@ -183,23 +184,23 @@
             }
             return result;
         }
-        
+
         function toggleIncludeDeleted() {
-            let newValue = $('#include-deleted').is(':checked');
-            
+            const newValue = $('#include-deleted').is(':checked');
+
             $('#includeDeletedInput').val(newValue ? '1' : '0');
-            reloadTransactions()
+            reloadTransactions();
         }
-        
+
         function reloadTransactions() {
             $('#transaction-container').empty();
             $('#pagingTokenInput').val('');
             loadMore();
         }
-        
+
         function addFilter() {
             $("#apply-filters-btn").attr("disabled", false);
-            let propertySelect = $(`
+            const propertySelect = $(`
                 <div class="input-group" style="width:auto;">
                     <div class="input-group-prepend">
                         <label class="input-group-text">Property</label>
@@ -212,16 +213,16 @@
                         <option value="date">Date</option>
                     </select>
                 </div>`);
-            
-            let valueInput = $(`
+
+            const valueInput = $(`
                 <div class="input-group" style="width:auto;">
                     <div class="input-group-prepend">
                         <label class="input-group-text" for="custom-locale">Value</label>
                     </div>
                     <input type="text" class="filter-value pl-1">
                 </div>`);
-            
-            let operatorSelect = $(`
+
+            const operatorSelect = $(`
                 <div class="input-group" style="width:auto;">
                     <div class="input-group-prepend">
                         <label class="input-group-text">Operator</label>
@@ -230,88 +231,90 @@
                         <option value="AND">AND</option>
                         <option value="OR">OR</option>
                     </select>
-                </div>`)
-            
-            let filter = $(`<div class="row d-flex my-2 justify-content-between transaction-filter"></div>`)
+                </div>`);
+
+            const filter = $(`<div class="row d-flex my-2 justify-content-between transaction-filter"></div>`)
                 .append(propertySelect)
                 .append($(`<span>Contains</span>`))
                 .append(valueInput)
                 .append(operatorSelect);
-                
+
             $(`#filter-container`)
                 .append(filter);
         }
-        
+
         function addNumberBetweenFilter(propertyName) {
-            if($(`.${propertyName}-filter`).length) {
+            if ($(`.${propertyName}-filter`).length) {
                 alert(`Already contains a ${propertyName} filter.`);
                 return;
             }
             $("#apply-filters-btn").attr("disabled", false);
-            
-            let propertyNameLabel = $(`
+
+            const propertyNameLabel = $(`
                             <div class="input-group" style="width:auto;">
                                 <div class="input-group-prepend">
                                     <label class="input-group-text">Property</label>
                                 </div>
                                 <input type="text" class="${propertyName}-label pl-1" value="${propertyName}" readonly>
                             </div>`);
-            
-            let minInput = $(`
+
+            const minInput = $(`
                             <div class="input-group" style="width:auto;">
                                 <div class="input-group-prepend">
                                     <label class="input-group-text">Min</label>
                                 </div>
                                 <input type="number" class="min-${propertyName}-value pl-1" value="0">
                             </div>`);
-            let maxInput = $(`
+            const maxInput = $(`
                             <div class="input-group" style="width:auto;">
                                 <div class="input-group-prepend">
                                     <label class="input-group-text">Max</label>
                                 </div>
                                 <input type="number" class="max-${propertyName}-value pl-1" value="0">
                             </div>`);
-            
-            let betweenFilter = $(`<div class="row d-flex my-2 justify-content-between ${propertyName}-filter"></div>`)
+
+            const betweenFilter = $(`<div class="row d-flex my-2 justify-content-between ${propertyName}-filter"></div>`)
                 .append(propertyNameLabel)
                 .append(minInput)
                 .append(maxInput);
             $(`#filter-container`)
                 .append(betweenFilter);
-            
+
         }
-        
+
         function applyFilters() {
             $('#load-more-btn').hide();
-            reloadTransactions()
+            reloadTransactions();
         }
-        
+
         function clearFilters() {
             $("#apply-filters-btn").attr("disabled", false);
             $(`.transaction-filter`).remove();
             reloadTransactions();
         }
-        
-        function flatten(data) { 
-            let result = {};
-            function recurse (cur, prop) {
+
+        function flatten(data) {
+            const result = {};
+
+            function recurse(cur, prop) {
                 if (Object(cur) !== cur) {
                     result[prop] = cur;
                 } else if (Array.isArray(cur)) {
-                     for(var i=0, l=cur.length; i<l; i++)
-                         recurse(cur[i], prop + "[" + i + "]");
+                    for (var i = 0, l = cur.length; i < l; i++)
+                        recurse(cur[i], prop + "[" + i + "]");
                     if (l === 0)
                         result[prop] = [];
                 } else {
                     let isEmpty = true;
                     for (let p in cur) {
                         isEmpty = false;
-                        recurse(cur[p], prop ? prop+"."+p : p);
+                        recurse(cur[p], prop ? prop + "." + p : p);
                     }
                     if (isEmpty && prop)
                         result[prop] = {};
                 }
             }
+
             recurse(data, "");
             return result;
         }

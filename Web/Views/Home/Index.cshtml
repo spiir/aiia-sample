@@ -3,23 +3,22 @@
 }
 
 
+<h1 class="text-center">
+    Viia Demo App
+</h1>
+<p class="text-center">
+    This app is an example of how you can use Viia to serve financial information to your customer.
+</p>
 
-        <h1 class="text-center">
-            Viia Demo App
-        </h1>
-        <p class="text-center">
-            This app is an example of how you can use Viia to serve financial information to your customer.
-        </p>
-        
-        <section class="jumbotron text-center">
-        <p>Start by logging in and connecting accounts.</p>
-
-        <a class="btn btn-primary btn-lg" 
-            asp-area="" 
-            asp-controller="Viia" 
-            asp-action="Accounts">Start
-        </a>
-        </section>
-                               
-          
-
+<section class="jumbotron text-center">
+    <p>Start by logging in and connecting accounts.</p>
+@if (User.Identity.IsAuthenticated)
+{
+    <a class="btn btn-primary btn-lg"
+       asp-area=""
+       asp-controller="Viia"
+       asp-action="Accounts">
+        Start
+    </a>
+}
+</section>

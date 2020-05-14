@@ -1,5 +1,3 @@
-using System;
-
 namespace ViiaSample.Models
 {
     public class ErrorViewModel

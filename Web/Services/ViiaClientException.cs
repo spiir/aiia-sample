@@ -6,21 +6,22 @@ namespace ViiaSample.Services
 {
     public class ViiaClientException : Exception
     {
-        public HttpStatusCode StatusCode { get; }
         public HttpMethod Method { get; }
+        public HttpStatusCode StatusCode { get; }
 
         public ViiaClientException(string url, HttpStatusCode statusCode) : base(FormatMessage(url, statusCode))
         {
             StatusCode = statusCode;
         }
-        
-        public ViiaClientException(string url, HttpMethod method, HttpResponseMessage message, Exception innerException) : base(FormatMessage(url, method, message), innerException)
+
+        public ViiaClientException(string url, HttpMethod method, HttpResponseMessage message, Exception innerException) :
+            base(FormatMessage(url, method, message), innerException)
         {
             Method = method;
         }
 
         public ViiaClientException(string url, HttpMethod method, string response, Exception innerException) : base(
-            FormatMessage(url, method, response))
+                                                                                                                    FormatMessage(url, method, response))
         {
             Method = method;
         }
@@ -29,12 +30,12 @@ namespace ViiaSample.Services
         {
             return $"Request to {url} Failed with code {code}.";
         }
-        
+
         private static string FormatMessage(string url, HttpMethod method, string response)
         {
             return $"Request {method} - {url} Failed. Response Body:\n{response}\n. End";
         }
-        
+
         private static string FormatMessage(string url, HttpMethod method, HttpResponseMessage response)
         {
             if (response == null)
