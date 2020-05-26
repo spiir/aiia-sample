@@ -134,6 +134,13 @@
                 <option value="sv">sv</option>
             </select>
         </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="custom-selectAllAccounts">(Optional) Select All Accounts</label>
+            </div>
+            <input type="checkbox" class="custom-checkbox" id="custom-selectAllAccounts"/>
+        </div>
     </div>
 </section>
 <div class="row">
@@ -247,10 +254,10 @@
         dynamic parsedPayloadJson = JsonConvert.DeserializeObject(payloadJson);
 
         dynamic niceJsonObj = new
-                              {
-                                  algorithm = parsedAlgJson,
-                                  payload = parsedPayloadJson
-                              };
+        {
+            algorithm = parsedAlgJson,
+            payload = parsedPayloadJson
+        };
 
         return JsonConvert.SerializeObject(niceJsonObj, Formatting.Indented);
     }
@@ -266,6 +273,9 @@
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
             url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
             url = addQueryParamToUrl(url, 'bank_account_numbers', $('#bank-account-ids').val());
+            if($('#custom-selectAllAccounts').is(':checked')) {
+                url = addQueryParamToUrl(url, 'select_all_accounts', 'true');
+            }
             url = url.replace(/amp;/g, '');
             return url;
         }
