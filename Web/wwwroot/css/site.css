@@ -111,6 +111,11 @@ a, .navbar-light .navbar-nav a.nav-link.nav-blue, .btn-link { color: #0000FF; }
 
 .btn-outline-info:disabled:hover { border-color: #0000FF; }
 
+.custom-checkbox {
+    height: 20px;
+    width: 20px;
+    margin: 10px;
+}
 html { font-size: 14px; }
 
 @media (min-width: 768px) {
