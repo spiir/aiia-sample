@@ -86,10 +86,20 @@ namespace ViiaSample.Controllers
         }
 
         [HttpPost("payments")]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequestViewModel body)
+        public async Task<ActionResult<CreatePaymentResultViewModel>> CreatePayment([FromBody] CreatePaymentRequestViewModel body)
         {
-            var result = await _viiaService.CreatePayment(User, body);
-            return Ok();
+            var result = new CreatePaymentResultViewModel();
+            try
+            {
+                var createPaymentResult = await _viiaService.CreatePayment(User, body);
+                result.PaymentId = createPaymentResult.PaymentId;
+                result.PaymentId = createPaymentResult.PaymentUrl;
+            }
+            catch (ViiaClientException e)
+            {
+                result.ErrorDescription = e.Message;
+            }
+            return Ok(result);
         }
 
         // Web hook for Viia to push data to

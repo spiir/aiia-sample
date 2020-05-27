@@ -385,12 +385,12 @@ namespace ViiaSample.Services
                     return $"v1/accounts/{request.SourceAccountId}/payments/";
                 
             }
-            return null;
         }
 
         private string GetPaymentRedirectUrl()
         {
-            return "";
+            var request = _httpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}{request.PathBase}/viia/payments/callback";
         }
 
         private async Task<T> CallApi<T>(string url,
@@ -434,7 +434,7 @@ namespace ViiaSample.Services
                 if (!result.IsSuccessStatusCode)
                 {
                     responseContent = await result.Content.ReadAsStringAsync();
-                    throw new ViiaClientException(url, result.StatusCode);
+                    throw new ViiaClientException(url, result.StatusCode, responseContent);
                 }
 
                 responseContent = await result.Content.ReadAsStringAsync();

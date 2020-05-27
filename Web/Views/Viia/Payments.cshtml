@@ -170,9 +170,6 @@ else
                                                        scheduledPaymentDate: $('#payment-scheduled-date').val(),
                                                        paymentType: $('#payment-type').val()
                                                    };
-                                                   console.table(body);
-                                                   console.log(body);
-                                                   console.log(JSON.stringify(body));
              $.ajax({
                             url: '/viia/payments',
                             type: 'POST',
@@ -180,7 +177,17 @@ else
                             contentType: 'application/json',    
                             data: JSON.stringify(body),
                             success: function(data) {
-                                console.log('success');
+                                if(data.errorDescription) {
+                                    alert(`Failed:\n${data.errorDescription}`);
+                                }
+                                else if(data.paymentUrl) {
+                                    alert('Account doesn\'t support unattended login, supervised login is needed (which is not implemented at the moment)');
+                                } else {
+                                    alert(`Success! Payment Id: ${data.paymentId}`);
+                                }
+                            },
+                            error: function(data) {
+                                alert('Request failed');
                             }
                         });
         }

@@ -13,6 +13,11 @@ namespace ViiaSample.Services
         {
             StatusCode = statusCode;
         }
+        
+        public ViiaClientException(string url, HttpStatusCode statusCode, string response) : base(FormatMessage(url, statusCode, response))
+        {
+            StatusCode = statusCode;
+        }
 
         public ViiaClientException(string url, HttpMethod method, HttpResponseMessage message, Exception innerException) :
             base(FormatMessage(url, method, message), innerException)
@@ -29,6 +34,11 @@ namespace ViiaSample.Services
         private static string FormatMessage(string url, HttpStatusCode code)
         {
             return $"Request to {url} Failed with code {code}.";
+        }
+        
+        private static string FormatMessage(string url, HttpStatusCode code, string response)
+        {
+            return $"Request to {url} Failed with code {code}. Response Body:\n{response}";
         }
 
         private static string FormatMessage(string url, HttpMethod method, string response)
