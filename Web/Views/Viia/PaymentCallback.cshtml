@@ -1,0 +1,46 @@
+@model PaymentCallbackViewModel
+
+@{
+    ViewBag.Title = "Complete";
+}
+
+@if (Model.IsError)
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Viia payment flow error</h5>
+            <p>This is the configured payment callback url, that Viia redirects to, after going through Viia payment flow, or if it fails..</p>
+            <p>
+                In this case, this is an error scenario, because
+                <b>
+                    <i>paymentId</i>
+                </b>
+                was not provided in the query of this callback url, which means that an error happened in the flow or it was cancelled by end-user
+            </p>
+            <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="finishFlow()">Back to payments</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Viia payment flow complete</h5>
+            <p class="card-text">This is the configured payment callback url, that Viia redirects to, after going through Viia payment flow, or if it fails.</p>
+            <p>In success scenario, there's a 'paymentId' query parameter provided. e.g., current query: </p>
+            <pre>@Model.Query</pre>
+            <p>This paymentId can be later used to retrieve the payment to see its details and/or status.</p>
+            <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="finishFlow()">Back to payments</button>
+        </div>
+    </div>
+}
+
+
+@section Scripts
+{
+    <script>
+        function finishFlow() {
+            window.location.href = "/viia/payments";
+        }
+    </script>
+}

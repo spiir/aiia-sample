@@ -181,7 +181,7 @@ else
                                     alert(`Failed:\n${data.errorDescription}`);
                                 }
                                 else if(data.paymentUrl) {
-                                    alert('Account doesn\'t support unattended login, supervised login is needed (which is not implemented at the moment)');
+                                    window.location.href = data.paymentUrl;
                                 } else {
                                     alert(`Success! Payment Id: ${data.paymentId}`);
                                 }
