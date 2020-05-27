@@ -15,6 +15,10 @@
       <Content Remove="Views\Account\**" />
       <EmbeddedResource Remove="Views\Account\**" />
       <None Remove="Views\Account\**" />
+      <Content Update="Views\Viia\Payments.cshtml">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

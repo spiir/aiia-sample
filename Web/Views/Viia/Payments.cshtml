@@ -1,0 +1,195 @@
+@model PaymentsViewModel
+
+@{
+    ViewBag.Title = "Payments";
+    Layout = "_Layout";
+}
+
+
+
+@if (Model?.Accounts?.Count != 0)
+{
+    <div class="row justify-content-md-center">
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-source">Source Account</label>
+            </div>
+            <select class="custom-select" id="payment-source">
+                @foreach (var account in Model.Accounts)
+                {
+                    <option value="@account.Id">@account.Name (@(account?.Number.Iban ?? account?.Number.Bban ?? "Unknown account number"))</option>
+                }
+            </select>
+        </div>
+
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-type">Destination type</label>
+            </div>
+            <select class="custom-select" id="payment-target-type">
+                <option value="iban">IBAN</option>
+                <option value="bban">BBAN</option>
+            </select>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="payment-iban-input-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-iban">Destination IBAN</label>
+            </div>
+            <input class="form-control" id="payment-target-iban" type="text" placeholder="DK5001234567890123"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="payment-bban-bank-input-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-bban-bank">Destination BBAN Bank identifier</label>
+            </div>
+            <input class="form-control" id="payment-target-bban-bank" type="text" placeholder="0040"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="payment-bban-account-input-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-bban-account">Destination BBAN Account identifier</label>
+            </div>
+            <input class="form-control" id="payment-target-bban-account" type="text" placeholder="012345678901"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-name">Destination account owner's name</label>
+            </div>
+            <input class="form-control" id="payment-target-name" type="text" placeholder="John Smith"/>
+        </div>
+
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-amount">Amount</label>
+            </div>
+            <input class="form-control" id="payment-amount" type="number" placeholder="100"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-currency">Currency</label>
+            </div>
+            <input class="form-control" id="payment-currency" type="text" placeholder="DKK"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-message">Message</label>
+            </div>
+            <input class="form-control" id="payment-message" type="text" placeholder=""/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-transaction-text">Transaction text</label>
+            </div>
+            <input class="form-control" id="payment-transaction-text" type="text" placeholder=""/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-type">Payment type</label>
+            </div>
+            <select class="custom-select" id="payment-type">
+                <option value="instant">Instant</option>
+                <option value="normal">Normal</option>
+                <option value="scheduled">Scheduled</option>
+            </select>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="payment-scheduled-input-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-scheduled-date">Scheduled payment date</label>
+            </div>
+            <input class="form-control" id="payment-scheduled-date" type="text" placeholder="2020-01-01"/>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="sendRequestToCreatePayment()">Create payment</button>
+    </div>
+}
+else
+{
+    <div class="row justify-content-md-center">
+        <h2>It is required to have non one-time account connected to be able to create payments.</h2>
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function() {
+            toggleCorrectDestinationInput();
+            $('#payment-scheduled-input-container').hide();
+        });
+        
+        $('#payment-target-type').change(function() {
+            toggleCorrectDestinationInput();
+        });
+        
+        $('#payment-type').change(function() {
+            let paymentType = $('#payment-type').val();
+            if(paymentType === 'scheduled') {
+                $('#payment-scheduled-input-container').show();
+            }
+        })
+    
+        function toggleCorrectDestinationInput() {
+            let ibanInputContainer = $('#payment-iban-input-container');
+            let bbanBankInputeContainer = $('#payment-bban-bank-input-container');
+            let bbanAccountInputeContainer = $('#payment-bban-account-input-container');
+            
+            ibanInputContainer.hide()
+            bbanBankInputeContainer.hide();
+            bbanAccountInputeContainer.hide();
+            
+            let destinationType = $('#payment-target-type').val();
+            
+            if(destinationType === 'iban') {
+                ibanInputContainer.show();
+            } else {
+                bbanBankInputeContainer.show();
+                bbanAccountInputeContainer.show();
+            }
+        }
+        
+        function sendRequestToCreatePayment() {
+            
+            let body = {
+                            sourceAccountId: $('#payment-source').val(),
+                                                       Iban: $('#payment-target-iban').val(),
+                                                       BbanBankCode: $('#payment-target-bban-bank').val(),
+                                                       bbanAccountNumber: $('#payment-target-bban-account').val(),
+                                                       Amount: parseFloat($('#payment-amount').val()),
+                                                       Currency: $('#payment-currency').val(),
+                                                       message: $('#payment-message').val(),
+                                                       transactionText: $('#payment-transaction-text').val(),
+                                                       scheduledPaymentDate: $('#payment-scheduled-date').val(),
+                                                       paymentType: $('#payment-type').val()
+                                                   };
+             $.ajax({
+                            url: '/viia/payments',
+                            type: 'POST',
+                            dataType: 'json',
+                            contentType: 'application/json',    
+                            data: JSON.stringify(body),
+                            success: function(data) {
+                                if(data.errorDescription) {
+                                    alert(`Failed:\n${data.errorDescription}`);
+                                }
+                                else if(data.paymentUrl) {
+                                    alert('Account doesn\'t support unattended login, supervised login is needed (which is not implemented at the moment)');
+                                } else {
+                                    alert(`Success! Payment Id: ${data.paymentId}`);
+                                }
+                            },
+                            error: function(data) {
+                                alert('Request failed');
+                            }
+                        });
+        }
+    </script>
+}

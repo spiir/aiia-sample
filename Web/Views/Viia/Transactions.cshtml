@@ -172,11 +172,8 @@
 
             const balanceFilter = $('.balance-filter');
             if (balanceFilter.length) {
-                console.table(balanceFilter);
                 const minValue = balanceFilter.find('.min-balance-value').val();
                 const maxValue = balanceFilter.find('.max-balance-value').val();
-                console.log(minValue);
-                console.log(maxValue);
                 result.balanceValueBetween = {
                     min: minValue,
                     max: maxValue

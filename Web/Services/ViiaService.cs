@@ -19,7 +19,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NodaTime;
 using NodaTime.Serialization.JsonNet;
+using ViiaSample.Constants;
 using ViiaSample.Data;
+using ViiaSample.Exceptions;
 using ViiaSample.Extensions;
 using ViiaSample.Models;
 using ViiaSample.Models.Viia;
@@ -41,6 +43,7 @@ namespace ViiaSample.Services
 
         Task ProcessWebHookPayload(HttpRequest request);
         Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken);
+        Task<CreatePaymentResponse>CreatePayment(ClaimsPrincipal principal, CreatePaymentRequestViewModel request);
     }
 
     public class ViiaService : IViiaService
@@ -328,6 +331,68 @@ namespace ViiaSample.Services
             }
         }
 
+        public async Task<CreatePaymentResponse> CreatePayment(ClaimsPrincipal principal, CreatePaymentRequestViewModel request)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+            var paymentRequest = new CreatePaymentRequest
+            {
+                Culture = request.Culture,
+                RedirectUrl = GetPaymentRedirectUrl(),
+                Payment = new PaymentRequest
+                {
+                    Message = request.message,
+                    TransactionText = request.TransactionText,
+                    Amount = new PaymentAmountRequest
+                    {
+                        Currency = request.Currency,
+                        Value = request.Amount
+                    },
+                    Destination = new PaymentDestinationRequest()
+                },
+            };
+
+            if (!string.IsNullOrWhiteSpace(request.Iban))
+            {
+                paymentRequest.Payment.Destination.IBan = request.Iban;
+            }
+            else
+            {
+                paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
+                {
+                    BankCode = request.BbanBankCode,
+                    AccountNumber = request.BbanAccountNumber
+                };
+            }
+
+            return await CallApi<CreatePaymentResponse>(GetCreatePaymentUrlForPaymentType(request), paymentRequest, HttpMethod.Post,
+                user.ViiaTokenType, user.ViiaAccessToken);
+        }
+
+        private string GetCreatePaymentUrlForPaymentType(CreatePaymentRequestViewModel request)
+        {
+            switch (request.PaymentType)
+            {
+                case PaymentExecutionTypes.Instant:
+                    return $"v1/accounts/{request.SourceAccountId}/payments/instant";
+                case PaymentExecutionTypes.Scheduled:
+                    return $"v1/accounts/{request.SourceAccountId}/payments/scheduled/{request.ScheduledPaymentDate}";
+                default:
+                    return $"v1/accounts/{request.SourceAccountId}/payments/";
+                
+            }
+        }
+
+        private string GetPaymentRedirectUrl()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}{request.PathBase}/viia/payments/callback";
+        }
+
         private async Task<T> CallApi<T>(string url,
                                          object body,
                                          HttpMethod method,
@@ -369,7 +434,7 @@ namespace ViiaSample.Services
                 if (!result.IsSuccessStatusCode)
                 {
                     responseContent = await result.Content.ReadAsStringAsync();
-                    throw new ViiaClientException(url, result.StatusCode);
+                    throw new ViiaClientException(url, result.StatusCode, responseContent);
                 }
 
                 responseContent = await result.Content.ReadAsStringAsync();

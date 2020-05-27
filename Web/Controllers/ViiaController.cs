@@ -67,6 +67,41 @@ namespace ViiaSample.Controllers
             return View(model);
         }
 
+        [HttpGet("payments")]
+        public async Task<IActionResult> Payments()
+        {
+            IImmutableList<Account> accounts = ImmutableList.Create<Account>();
+            try
+            {
+                accounts = await _viiaService.GetUserAccounts(User);
+            }
+            catch (ViiaClientException e)
+            {
+                // TODO
+            }
+            return View(new PaymentsViewModel
+            {
+                Accounts = accounts
+            });
+        }
+
+        [HttpPost("payments")]
+        public async Task<ActionResult<CreatePaymentResultViewModel>> CreatePayment([FromBody] CreatePaymentRequestViewModel body)
+        {
+            var result = new CreatePaymentResultViewModel();
+            try
+            {
+                var createPaymentResult = await _viiaService.CreatePayment(User, body);
+                result.PaymentId = createPaymentResult.PaymentId;
+                result.PaymentId = createPaymentResult.PaymentUrl;
+            }
+            catch (ViiaClientException e)
+            {
+                result.ErrorDescription = e.Message;
+            }
+            return Ok(result);
+        }
+
         // Web hook for Viia to push data to
         [HttpPost("webhook")]
         [AllowAnonymous]
