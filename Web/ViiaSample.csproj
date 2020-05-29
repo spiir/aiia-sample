@@ -11,21 +11,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Views\Account\**" />
-      <Content Remove="Views\Account\**" />
-      <EmbeddedResource Remove="Views\Account\**" />
-      <None Remove="Views\Account\**" />
-      <Content Update="Views\Viia\Payments.cshtml">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-      <Content Update="Views\Viia\PaymentCallback.cshtml">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />

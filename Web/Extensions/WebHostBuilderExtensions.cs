@@ -72,7 +72,7 @@ namespace ViiaSample.Extensions
                                                                                           .FromMilliseconds(500)
                                                                                   });
 
-                                          if (context.HostingEnvironment.IsDevelopment() && options.LogToConsole)
+                                          if (context.HostingEnvironment.IsDevelopment())
                                               configuration.WriteTo.Console(outputTemplate:
                                                                             "[{Timestamp:HH:mm:ss} {Level:u3}] {Properties:j} {Message:lj}{NewLine}{Exception}");
                                       });
