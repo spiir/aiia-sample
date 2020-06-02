@@ -76,7 +76,7 @@ namespace ViiaSample.Controllers
         }
         
         
-        [HttpGet("accounts/{accountId}/transactions")]
+        [HttpGet("{accountId}/transactions")]
         public async Task<IActionResult> Transactions(string accountId)
         {
             var transactions = await _viiaService.GetAccountTransactions(User, accountId);
