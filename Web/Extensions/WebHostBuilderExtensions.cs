@@ -43,7 +43,7 @@ namespace ViiaSample.Extensions
                                       {
                                           configuration.Enrich.FromLogContext();
                                           configuration.Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName);
-                                          configuration.Enrich.WithProperty("Type", "Viia Sample");
+                                          configuration.Enrich.WithProperty("Type", "viia-sample");
                                           configuration.Enrich.WithProperty("Culture", Thread.CurrentThread.CurrentCulture);
                                           configuration.Enrich.WithProperty("Version",
                                                                             Assembly.GetEntryAssembly()
