@@ -1,0 +1,24 @@
+@using System.Globalization
+@model ViiaSample.Models.Viia.Payment 
+@{
+    ViewBag.Title = "Payments";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col">
+    @if (Model == null)
+    {
+        <h1>Payment not found</h1>
+    }
+    else
+    {
+        <h1>Payment @Model.Id</h1>
+            
+        <p><b>ID:</b> @Model.Id</p>
+        <p><b>Created:</b> @Model.CreatedAt</p>
+        <p><b>Status:</b> @(Model?.Status?.PaymentStatusCode ??  "Unknown")</p>
+        <p><b>Is Terminal:</b> @(Model?.Status?.Terminal == null ? "Unknown" : Model.Status.Terminal.ToString())</p> 
+    }
+    </div>
+</div>

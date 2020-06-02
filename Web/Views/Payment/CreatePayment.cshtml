@@ -1,4 +1,4 @@
-@model PaymentsViewModel
+@model CreatePaymentViewModel
 
 @{
     ViewBag.Title = "Payments";
@@ -171,7 +171,7 @@ else
                                                        paymentType: $('#payment-type').val()
                                                    };
              $.ajax({
-                            url: '/viia/payments',
+                            url: '/viia/payments/create',
                             type: 'POST',
                             dataType: 'json',
                             contentType: 'application/json',    

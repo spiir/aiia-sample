@@ -26,103 +26,6 @@ namespace ViiaSample.Controllers
             _dbContext = dbContext;
         }
 
-        [HttpGet("accounts")]
-        public async Task<IActionResult> Accounts()
-        {
-            var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-
-            var providers = await _viiaService.GetProviders();
-            providers = providers
-                .OrderBy(x => x.CountryCode)
-                .ThenBy(y => y.Name)
-                .ToImmutableList();
-
-            // If user hasn't connected to Viia or his access token is expired, show empty accounts page
-            if (user?.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
-            {
-                return View(new AccountsViewModel
-                {
-                    AccountsGroupedByProvider = null,
-                    ViiaConnectUrl = _viiaService.GetAuthUri(user?.Email).ToString(),
-                    ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
-                    EmailEnabled = user?.EmailEnabled ?? false,
-                    Providers = providers
-                });
-            }
-
-            var accounts = await _viiaService.GetUserAccounts(User);
-            var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
-
-            var model = new AccountsViewModel
-            {
-                AccountsGroupedByProvider = groupedAccounts,
-                ViiaConnectUrl = _viiaService.GetAuthUri(user.Email).ToString(),
-                ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
-                JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
-                RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
-                EmailEnabled = user.EmailEnabled,
-                Providers = providers
-            };
-            return View(model);
-        }
-
-        [HttpGet("payments")]
-        public async Task<IActionResult> Payments()
-        {
-            IImmutableList<Account> accounts = ImmutableList.Create<Account>();
-            try
-            {
-                accounts = await _viiaService.GetUserAccounts(User);
-            }
-            catch (ViiaClientException e)
-            {
-                // TODO
-            }
-
-            return View(new PaymentsViewModel
-            {
-                Accounts = accounts
-            });
-        }
-
-        [HttpPost("payments")]
-        public async Task<ActionResult<CreatePaymentResultViewModel>> CreatePayment(
-            [FromBody] CreatePaymentRequestViewModel body)
-        {
-            var result = new CreatePaymentResultViewModel();
-            try
-            {
-                var createPaymentResult = await _viiaService.CreatePayment(User, body);
-                result.PaymentId = createPaymentResult.PaymentId;
-                result.PaymentUrl = createPaymentResult.PaymentUrl;
-            }
-            catch (ViiaClientException e)
-            {
-                result.ErrorDescription = e.Message;
-            }
-
-            return Ok(result);
-        }
-
-        [HttpGet("payments/callback")]
-        public IActionResult PaymentCallback([FromQuery] string paymentId)
-        {
-            if (string.IsNullOrWhiteSpace(paymentId))
-            {
-                return View("PaymentCallback", new PaymentCallbackViewModel
-                {
-                    IsError = true
-                });
-            }
-
-            return View("PaymentCallback", new PaymentCallbackViewModel
-            {
-                Query = Request.QueryString.Value,
-                PaymentId = paymentId
-            });
-        }
-
         // Web hook for Viia to push data to
         [HttpPost("webhook")]
         [AllowAnonymous]
@@ -155,17 +58,6 @@ namespace ViiaSample.Controllers
             await _dbContext.SaveChangesAsync();
             return Ok(new {updatedStatus = user.EmailEnabled});
         }
-
-
-        [HttpPost("accounts/{accountId}/transactions/query")]
-        public async Task<IActionResult> FetchTransactions(string accountId,
-            [FromBody] TransactionQueryRequestViewModel body)
-        {
-            var transactions = await _viiaService.GetAccountTransactions(User, accountId, body);
-            return Ok(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken,
-                body.IncludeDeleted));
-        }
-
 
         [HttpGet("login")]
         public IActionResult Login()
@@ -221,11 +113,5 @@ namespace ViiaSample.Controllers
             });
         }
 
-        [HttpGet("accounts/{accountId}/transactions")]
-        public async Task<IActionResult> Transactions(string accountId)
-        {
-            var transactions = await _viiaService.GetAccountTransactions(User, accountId);
-            return View(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, false));
-        }
     }
 }
