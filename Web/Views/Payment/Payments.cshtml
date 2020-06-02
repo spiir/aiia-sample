@@ -47,11 +47,13 @@
                                     <p class="mt-3">@payment.Id</p>
 
 
-                                    <p>@payment.Status.PaymentStatusCode</p>
-                                    <p>
-                                        <small>@payment.Execution.Amount.Value @payment.Execution.Amount.Currency</small>
-                                    </p>
-
+                                    <p>@(payment.Status?.PaymentStatusCode ?? "Unknown Status")</p>
+                                    @if (payment?.Execution?.Amount != null)
+                                    {
+                                        <p>
+                                            <small>@payment.Execution.Amount.Value @payment.Execution.Amount.Currency</small>
+                                        </p>
+                                    }
                                 </div>
                             </div>
                         }
