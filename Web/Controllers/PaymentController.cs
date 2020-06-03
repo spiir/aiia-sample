@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using ViiaSample.Models;
 using ViiaSample.Models.Viia;
 using ViiaSample.Services;
@@ -14,15 +16,21 @@ namespace ViiaSample.Controllers
     public class PaymentController : Controller
     {
         private readonly IViiaService _viiaService;
+        private readonly IWebHostEnvironment _environment;
 
-        public PaymentController(IViiaService viiaService)
+        public PaymentController(IViiaService viiaService, IWebHostEnvironment environment)
         {
             _viiaService = viiaService;
+            _environment = environment;
         }
 
         [HttpGet("payments")]
         public async Task<IActionResult> Payments()
         {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
             var result = new PaymentsViewModel
             {
                 PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
@@ -48,6 +56,10 @@ namespace ViiaSample.Controllers
         [HttpGet("accounts/{accountId}/payments/{paymentId}")]
         public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
         {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
             try
             {
                 var payment = await _viiaService.GetPayment(User, accountId, paymentId);
@@ -62,6 +74,10 @@ namespace ViiaSample.Controllers
         [HttpGet("payments/create")]
         public async Task<IActionResult> CreatePayment()
         {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
             IImmutableList<Account> accounts = ImmutableList.Create<Account>();
             try
             {
@@ -82,6 +98,10 @@ namespace ViiaSample.Controllers
         public async Task<ActionResult<CreatePaymentResultViewModel>> CreatePayment(
             [FromBody] CreatePaymentRequestViewModel body)
         {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
             var result = new CreatePaymentResultViewModel();
             try
             {
@@ -100,6 +120,10 @@ namespace ViiaSample.Controllers
         [HttpGet("payments/callback")]
         public IActionResult PaymentCallback([FromQuery] string paymentId)
         {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
             if (string.IsNullOrWhiteSpace(paymentId))
             {
                 return View("PaymentCallback", new PaymentCallbackViewModel
