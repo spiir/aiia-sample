@@ -141,6 +141,16 @@
             </div>
             <input type="checkbox" class="custom-checkbox" id="custom-selectAllAccounts"/>
         </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ConsentId))
+        {
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="custom-useConsentId">(Optional) Send ConsentId</label>
+                </div>
+                <input type="checkbox" class="custom-checkbox" id="custom-useConsentId"/>
+            </div>
+        }
     </div>
 </section>
 <div class="row">
@@ -176,7 +186,6 @@
                                             <small>Last updated @(account.LastSynchronized)</small>
                                         </p>
                                     }
-
                                 </div>
                             </div>
                         }
@@ -276,7 +285,13 @@
             if($('#custom-selectAllAccounts').is(':checked')) {
                 url = addQueryParamToUrl(url, 'select_all_accounts', 'true');
             }
+            if($('#custom-useConsentId').is(':checked') && oneTime === false) {
+                url = addQueryParamToUrl(url, 'consentId', '@Html.Raw(Model.ConsentId)');
+            } else {
+                url = addQueryParamToUrl(url, 'email', '@Html.Raw(Model.Email)');
+            }
             url = url.replace(/amp;/g, '');
+            console.log(url);
             return url;
         }
 
@@ -294,7 +309,7 @@
             }
 
             if (value.trim().length > 0) {
-                url += `&${name}=${value}`;
+                url += `&${name}=${encodeURIComponent(value)}`;
             }
 
             return url;

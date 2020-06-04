@@ -61,7 +61,9 @@ namespace ViiaSample.Controllers
                 JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
                 RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
                 EmailEnabled = user.EmailEnabled,
-                Providers = providers
+                Providers = providers,
+                ConsentId = user.ViiaConsentId,
+                Email = user.Email
             };
             return View(model);
         }
