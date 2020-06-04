@@ -14,5 +14,7 @@ namespace ViiaSample.Models
         public JwtSecurityToken RefreshToken { get; set; }
         public string ViiaConnectUrl { get; set; }
         public string ViiaOneTimeConnectUrl { get; set; }
+        public string ConsentId { get; set; }
+        public string Email { get; set; }
     }
 }

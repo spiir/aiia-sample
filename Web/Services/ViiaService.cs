@@ -151,10 +151,6 @@ namespace ViiaSample.Services
                 $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}" +
                 $"&flow={(oneTime ? "OneTimeUser" : "PersistentUser")}";
 
-            // Adding `email` query parameter will prefill email input in the Viia app
-            if (email != null)
-                connectUrl += $"&email={HttpUtility.UrlEncode(email)}";
-
             return new Uri(connectUrl);
         }
 
