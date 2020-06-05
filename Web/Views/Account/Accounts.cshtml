@@ -287,7 +287,7 @@
             }
             if($('#custom-useConsentId').is(':checked') && oneTime === false) {
                 url = addQueryParamToUrl(url, 'consentId', '@Html.Raw(Model.ConsentId)');
-            } else {
+            } else if(oneTime === false) {
                 url = addQueryParamToUrl(url, 'email', '@Html.Raw(Model.Email)');
             }
             url = url.replace(/amp;/g, '');
