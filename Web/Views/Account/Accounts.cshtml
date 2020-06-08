@@ -151,6 +151,15 @@
                 <input type="checkbox" class="custom-checkbox" id="custom-useConsentId"/>
             </div>
         }
+        @if (!string.IsNullOrWhiteSpace(Model.Email))
+        {
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="custom-useEmail">(Optional) Send Email</label>
+                </div>
+                <input type="checkbox" class="custom-checkbox" id="custom-useEmail"/>
+            </div>
+        }
     </div>
 </section>
 <div class="row">
@@ -282,16 +291,16 @@
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
             url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
             url = addQueryParamToUrl(url, 'bank_account_numbers', $('#bank-account-ids').val());
+            
             if($('#custom-selectAllAccounts').is(':checked')) {
                 url = addQueryParamToUrl(url, 'select_all_accounts', 'true');
             }
             if($('#custom-useConsentId').is(':checked') && oneTime === false) {
                 url = addQueryParamToUrl(url, 'consentId', '@Html.Raw(Model.ConsentId)');
-            } else if(oneTime === false) {
+            } else if($('#custom-useEmail').is(':checked') && oneTime === false) {
                 url = addQueryParamToUrl(url, 'email', '@Html.Raw(Model.Email)');
             }
             url = url.replace(/amp;/g, '');
-            console.log(url);
             return url;
         }
 
