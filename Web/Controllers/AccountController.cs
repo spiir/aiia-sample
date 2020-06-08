@@ -46,7 +46,8 @@ namespace ViiaSample.Controllers
                     ViiaConnectUrl = _viiaService.GetAuthUri(user?.Email).ToString(),
                     ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
                     EmailEnabled = user?.EmailEnabled ?? false,
-                    Providers = providers
+                    Providers = providers,
+                    Email = user?.Email
                 });
             }
 
