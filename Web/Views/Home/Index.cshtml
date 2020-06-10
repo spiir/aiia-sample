@@ -12,13 +12,13 @@
 
 <section class="jumbotron text-center">
     <p>Start by logging in and connecting accounts.</p>
-@if (User.Identity.IsAuthenticated)
-{
-    <a class="btn btn-primary btn-lg"
-       asp-area=""
-       asp-controller="Account"
-       asp-action="Accounts">
-        Start
-    </a>
-}
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a class="btn btn-primary btn-lg"
+           asp-area=""
+           asp-controller="Account"
+           asp-action="Accounts">
+            Start
+        </a>
+    }
 </section>

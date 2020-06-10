@@ -77,16 +77,16 @@ namespace ViiaSample
         private void ConfigureStandardServices(IServiceCollection services)
         {
             JsonConvert.DefaultSettings = () =>
-            {
-                var settings = new JsonSerializerSettings()
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    MissingMemberHandling = MissingMemberHandling.Ignore,
-                    NullValueHandling = NullValueHandling.Ignore
-                };
-                settings.Converters.Add(new StringEnumConverter());
-                return settings;
-            };
+                                          {
+                                              var settings = new JsonSerializerSettings
+                                                             {
+                                                                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                                                                 MissingMemberHandling = MissingMemberHandling.Ignore,
+                                                                 NullValueHandling = NullValueHandling.Ignore
+                                                             };
+                                              settings.Converters.Add(new StringEnumConverter());
+                                              return settings;
+                                          };
             services.Configure<CookiePolicyOptions>(options =>
                                                     {
                                                         // This lambda determines whether user consent for non-essential cookies is needed for a given request.
