@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Immutable;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -39,7 +37,7 @@ namespace ViiaSample.Controllers
         [AllowAnonymous]
         public IActionResult DataUpdateCallback()
         {
-            return View("GenericViewWithPostMessageOnLoad", new CallbackViewModel {AutomaticallyFinish = true});
+            return View("GenericViewWithPostMessageOnLoad", new CallbackViewModel { AutomaticallyFinish = true });
         }
 
         // Toggles email notifications for webhook, might be interesting to check how/when/what Viia sends in webhooks, but gets a bit annoying in the long run
@@ -56,7 +54,7 @@ namespace ViiaSample.Controllers
             user.EmailEnabled = !user.EmailEnabled;
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
-            return Ok(new {updatedStatus = user.EmailEnabled});
+            return Ok(new { updatedStatus = user.EmailEnabled });
         }
 
         [HttpGet("login")]
@@ -73,7 +71,7 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> LoginCallback([FromQuery] string code, [FromQuery] string consentId)
         {
             if (string.IsNullOrEmpty(code) || string.IsNullOrEmpty(consentId))
-                return View("GenericViewWithPostMessageOnLoad", new CallbackViewModel {IsError = true});
+                return View("GenericViewWithPostMessageOnLoad", new CallbackViewModel { IsError = true });
 
             // Immediately exchange received code for an access token, since code has a short lifespan
             var tokenResponse = await _viiaService.ExchangeCodeForAccessToken(code);
@@ -94,8 +92,8 @@ namespace ViiaSample.Controllers
             await _dbContext.SaveChangesAsync();
 
             return View("GenericViewWithPostMessageOnLoad",
-                new CallbackViewModel
-                    {Query = Request.QueryString.Value, AutomaticallyFinish = false, IsError = false});
+                        new CallbackViewModel
+                        { Query = Request.QueryString.Value, AutomaticallyFinish = false, IsError = false });
         }
 
         [HttpPost("update")]
@@ -106,12 +104,11 @@ namespace ViiaSample.Controllers
             // If status is `AllQueued`, it means that all connections didn't need a supervised login and were queued successfully
             // Otherwise, a supervised login is needed by the user using the `AuthUrl` received in the response
             return Ok(new
-            {
-                authUrl = dataUpdateResponse.Status == InitiateDataUpdateResponse.UpdateStatus.AllQueued
-                    ? string.Empty
-                    : dataUpdateResponse.AuthUrl
-            });
+                      {
+                          authUrl = dataUpdateResponse.Status == InitiateDataUpdateResponse.UpdateStatus.AllQueued
+                                        ? string.Empty
+                                        : dataUpdateResponse.AuthUrl
+                      });
         }
-
     }
 }

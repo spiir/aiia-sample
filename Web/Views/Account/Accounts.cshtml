@@ -272,10 +272,10 @@
         dynamic parsedPayloadJson = JsonConvert.DeserializeObject(payloadJson);
 
         dynamic niceJsonObj = new
-        {
-            algorithm = parsedAlgJson,
-            payload = parsedPayloadJson
-        };
+                              {
+                                  algorithm = parsedAlgJson,
+                                  payload = parsedPayloadJson
+                              };
 
         return JsonConvert.SerializeObject(niceJsonObj, Formatting.Indented);
     }
@@ -291,13 +291,13 @@
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
             url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
             url = addQueryParamToUrl(url, 'bank_account_numbers', $('#bank-account-ids').val());
-            
-            if($('#custom-selectAllAccounts').is(':checked')) {
+
+            if ($('#custom-selectAllAccounts').is(':checked')) {
                 url = addQueryParamToUrl(url, 'select_all_accounts', 'true');
             }
-            if($('#custom-useConsentId').is(':checked') && oneTime === false) {
+            if ($('#custom-useConsentId').is(':checked') && oneTime === false) {
                 url = addQueryParamToUrl(url, 'consentId', '@Html.Raw(Model.ConsentId)');
-            } else if($('#custom-useEmail').is(':checked') && oneTime === false) {
+            } else if ($('#custom-useEmail').is(':checked') && oneTime === false) {
                 url = addQueryParamToUrl(url, 'email', '@Html.Raw(Model.Email)');
             }
             url = url.replace(/amp;/g, '');
@@ -331,7 +331,7 @@
         }
 
         function toggleModal(id) {
-            $('#' + id).modal('toggle');
+            $(`#${id}`).modal('toggle');
         }
 
         function showViiaModal(url) {
@@ -344,7 +344,7 @@
             if (element.addEventListener) {
                 element.addEventListener(eventName, eventHandler, false);
             } else if (element.attachEvent) {
-                element.attachEvent('on' + eventName, eventHandler);
+                element.attachEvent(`on${eventName}`, eventHandler);
             }
         }
 
