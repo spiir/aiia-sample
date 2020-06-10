@@ -128,7 +128,7 @@ namespace ViiaSample.Controllers
                 var accounts = await _viiaService.GetUserAccounts(User);
                 foreach (var account in accounts)
                 {
-                    var payments = await _viiaService.GetPayments(User, account.Id);
+                    var payments = await _viiaService.GetPayments(User);
                     result.PaymentsGroupedByAccountDisplayName.Add(
                                                                    account,
                                                                    payments.Payments);

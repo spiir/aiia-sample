@@ -51,7 +51,7 @@
                                     @if (payment?.Execution?.Amount != null)
                                     {
                                         <p>
-                                            <small>@payment.Execution.Amount.Value @payment.Execution.Amount.Currency</small>
+                                            <small>@payment.Execution.Amount.Value @group.Key.Booked.Currency</small>
                                         </p>
                                     }
                                 </div>

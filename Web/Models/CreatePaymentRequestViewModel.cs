@@ -6,11 +6,8 @@ namespace ViiaSample.Models
         public string BbanAccountNumber { get; set; }
         public string BbanBankCode { get; set; }
         public string Culture { get; set; }
-        public string Currency { get; set; }
         public string Iban { get; set; }
         public string message { get; set; }
-        public string PaymentType { get; set; }
-        public string ScheduledPaymentDate { get; set; }
         public string SourceAccountId { get; set; }
         public string TransactionText { get; set; }
     }
