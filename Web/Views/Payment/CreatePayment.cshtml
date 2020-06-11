@@ -71,13 +71,6 @@
 
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
-                <label class="input-group-text" for="payment-currency">Currency</label>
-            </div>
-            <input class="form-control" id="payment-currency" type="text" placeholder="DKK"/>
-        </div>
-
-        <div class="input-group mb-3 mt-4">
-            <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-message">Message</label>
             </div>
             <input class="form-control" id="payment-message" type="text" placeholder=""/>
@@ -89,25 +82,7 @@
             </div>
             <input class="form-control" id="payment-transaction-text" type="text" placeholder=""/>
         </div>
-
-        <div class="input-group mb-3 mt-4">
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="payment-type">Payment type</label>
-            </div>
-            <select class="custom-select" id="payment-type">
-                <option value="instant">Instant</option>
-                <option value="normal">Normal</option>
-                <option value="scheduled">Scheduled</option>
-            </select>
-        </div>
-
-        <div class="input-group mb-3 mt-4" id="payment-scheduled-input-container">
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="payment-scheduled-date">Scheduled payment date</label>
-            </div>
-            <input class="form-control" id="payment-scheduled-date" type="text" placeholder="2020-01-01"/>
-        </div>
-
+        
         <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="sendRequestToCreatePayment()">Create payment</button>
     </div>
 }
@@ -123,73 +98,68 @@ else
     <script>
         $(document).ready(function() {
             toggleCorrectDestinationInput();
-            $('#payment-scheduled-input-container').hide();
         });
-        
+
         $('#payment-target-type').change(function() {
             toggleCorrectDestinationInput();
         });
-        
+
         $('#payment-type').change(function() {
-            let paymentType = $('#payment-type').val();
-            if(paymentType === 'scheduled') {
+            const paymentType = $('#payment-type').val();
+            if (paymentType === 'scheduled') {
                 $('#payment-scheduled-input-container').show();
             }
-        })
-    
+        });
+
         function toggleCorrectDestinationInput() {
-            let ibanInputContainer = $('#payment-iban-input-container');
-            let bbanBankInputeContainer = $('#payment-bban-bank-input-container');
-            let bbanAccountInputeContainer = $('#payment-bban-account-input-container');
-            
-            ibanInputContainer.hide()
+            const ibanInputContainer = $('#payment-iban-input-container');
+            const bbanBankInputeContainer = $('#payment-bban-bank-input-container');
+            const bbanAccountInputeContainer = $('#payment-bban-account-input-container');
+
+            ibanInputContainer.hide();
             bbanBankInputeContainer.hide();
             bbanAccountInputeContainer.hide();
-            
-            let destinationType = $('#payment-target-type').val();
-            
-            if(destinationType === 'iban') {
+
+            const destinationType = $('#payment-target-type').val();
+
+            if (destinationType === 'iban') {
                 ibanInputContainer.show();
             } else {
                 bbanBankInputeContainer.show();
                 bbanAccountInputeContainer.show();
             }
         }
-        
+
         function sendRequestToCreatePayment() {
-            
-            let body = {
-                            sourceAccountId: $('#payment-source').val(),
-                                                       Iban: $('#payment-target-iban').val(),
-                                                       BbanBankCode: $('#payment-target-bban-bank').val(),
-                                                       bbanAccountNumber: $('#payment-target-bban-account').val(),
-                                                       Amount: parseFloat($('#payment-amount').val()),
-                                                       Currency: $('#payment-currency').val(),
-                                                       message: $('#payment-message').val(),
-                                                       transactionText: $('#payment-transaction-text').val(),
-                                                       scheduledPaymentDate: $('#payment-scheduled-date').val(),
-                                                       paymentType: $('#payment-type').val()
-                                                   };
-             $.ajax({
-                            url: '/viia/payments/create',
-                            type: 'POST',
-                            dataType: 'json',
-                            contentType: 'application/json',    
-                            data: JSON.stringify(body),
-                            success: function(data) {
-                                if(data.errorDescription) {
-                                    alert(`Failed:\n${data.errorDescription}`);
-                                }
-                                else if(data.paymentUrl) {
-                                    window.location.href = data.paymentUrl;
-                                } else {
-                                    alert(`Success! Payment Id: ${data.paymentId}`);
-                                }
-                            },
-                            error: function(data) {
-                                alert('Request failed');
-                            }
-                        });
+
+            const body = {
+                sourceAccountId: $('#payment-source').val(),
+                Iban: $('#payment-target-iban').val(),
+                BbanBankCode: $('#payment-target-bban-bank').val(),
+                bbanAccountNumber: $('#payment-target-bban-account').val(),
+                Amount: parseFloat($('#payment-amount').val()),
+                message: $('#payment-message').val(),
+                transactionText: $('#payment-transaction-text').val()
+            };
+            $.ajax({
+                url: '/viia/payments/create',
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(body),
+                success: function(data) {
+                    if (data.errorDescription) {
+                        alert(`Failed:\n${data.errorDescription}`);
+                    } else if (data.authorizationUrl) {
+                        window.location.href = data.authorizationUrl;
+                    } else {
+                        alert(`Success! Payment Id: ${data.paymentId}`);
+                    }
+                },
+                error: function(data) {
+                    alert('Request failed');
+                }
+            });
         }
     </script>
 }

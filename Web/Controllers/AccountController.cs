@@ -33,52 +33,53 @@ namespace ViiaSample.Controllers
 
             var providers = await _viiaService.GetProviders();
             providers = providers
-                .OrderBy(x => x.CountryCode)
-                .ThenBy(y => y.Name)
-                .ToImmutableList();
+                        .OrderBy(x => x.CountryCode)
+                        .ThenBy(y => y.Name)
+                        .ToImmutableList();
 
             // If user hasn't connected to Viia or his access token is expired, show empty accounts page
             if (user?.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
             {
                 return View(new AccountsViewModel
-                {
-                    AccountsGroupedByProvider = null,
-                    ViiaConnectUrl = _viiaService.GetAuthUri(user?.Email).ToString(),
-                    ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
-                    EmailEnabled = user?.EmailEnabled ?? false,
-                    Providers = providers,
-                    Email = user?.Email
-                });
+                            {
+                                AccountsGroupedByProvider = null,
+                                ViiaConnectUrl = _viiaService.GetAuthUri(user?.Email).ToString(),
+                                ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
+                                EmailEnabled = user?.EmailEnabled ?? false,
+                                Providers = providers,
+                                Email = user?.Email
+                            });
             }
 
             var accounts = await _viiaService.GetUserAccounts(User);
             var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
 
             var model = new AccountsViewModel
-            {
-                AccountsGroupedByProvider = groupedAccounts,
-                ViiaConnectUrl = _viiaService.GetAuthUri(user.Email).ToString(),
-                ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
-                JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
-                RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
-                EmailEnabled = user.EmailEnabled,
-                Providers = providers,
-                ConsentId = user.ViiaConsentId,
-                Email = user.Email
-            };
+                        {
+                            AccountsGroupedByProvider = groupedAccounts,
+                            ViiaConnectUrl = _viiaService.GetAuthUri(user.Email).ToString(),
+                            ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
+                            JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
+                            RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
+                            EmailEnabled = user.EmailEnabled,
+                            Providers = providers,
+                            ConsentId = user.ViiaConsentId,
+                            Email = user.Email
+                        };
             return View(model);
         }
-        
+
         [HttpPost("{accountId}/transactions/query")]
         public async Task<IActionResult> FetchTransactions(string accountId,
-            [FromBody] TransactionQueryRequestViewModel body)
+                                                           [FromBody] TransactionQueryRequestViewModel body)
         {
             var transactions = await _viiaService.GetAccountTransactions(User, accountId, body);
-            return Ok(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken,
-                body.IncludeDeleted));
+            return Ok(new TransactionsViewModel(transactions.Transactions,
+                                                transactions.PagingToken,
+                                                body.IncludeDeleted));
         }
-        
-        
+
+
         [HttpGet("{accountId}/transactions")]
         public async Task<IActionResult> Transactions(string accountId)
         {

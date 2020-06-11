@@ -52,7 +52,7 @@ section.jumbotron p { font-family: Galano_Bold, Arial, Helvetica, sans-serif; }
 
 .media { border-radius: .3rem; }
 
-.btn-primary { 
+.btn-primary {
     background-color: #0000FF;
     border-color: #0000FF;
 }
@@ -113,9 +113,10 @@ a, .navbar-light .navbar-nav a.nav-link.nav-blue, .btn-link { color: #0000FF; }
 
 .custom-checkbox {
     height: 20px;
-    width: 20px;
     margin: 10px;
+    width: 20px;
 }
+
 html { font-size: 14px; }
 
 @media (min-width: 768px) {

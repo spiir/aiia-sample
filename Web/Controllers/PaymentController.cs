@@ -15,60 +15,13 @@ namespace ViiaSample.Controllers
     [Authorize]
     public class PaymentController : Controller
     {
-        private readonly IViiaService _viiaService;
         private readonly IWebHostEnvironment _environment;
+        private readonly IViiaService _viiaService;
 
         public PaymentController(IViiaService viiaService, IWebHostEnvironment environment)
         {
             _viiaService = viiaService;
             _environment = environment;
-        }
-
-        [HttpGet("payments")]
-        public async Task<IActionResult> Payments()
-        {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
-            var result = new PaymentsViewModel
-            {
-                PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
-            };
-            try
-            {
-                var accounts = await _viiaService.GetUserAccounts(User);
-                foreach (var account in accounts)
-                {
-                    var payments = await _viiaService.GetPayments(User, account.Id);
-                    result.PaymentsGroupedByAccountDisplayName.Add(
-                        account, payments.Payments);
-                }
-            }
-            catch (ViiaClientException e)
-            {
-                // TODO
-            }
-
-            return View(result);
-        }
-
-        [HttpGet("accounts/{accountId}/payments/{paymentId}")]
-        public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
-        {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
-            try
-            {
-                var payment = await _viiaService.GetPayment(User, accountId, paymentId);
-                return View(payment);
-            }
-            catch (ViiaClientException)
-            {
-                return View();
-            }
         }
 
         [HttpGet("payments/create")]
@@ -89,9 +42,9 @@ namespace ViiaSample.Controllers
             }
 
             return View(new CreatePaymentViewModel
-            {
-                Accounts = accounts
-            });
+                        {
+                            Accounts = accounts
+                        });
         }
 
         [HttpPost("payments/create")]
@@ -107,7 +60,7 @@ namespace ViiaSample.Controllers
             {
                 var createPaymentResult = await _viiaService.CreatePayment(User, body);
                 result.PaymentId = createPaymentResult.PaymentId;
-                result.PaymentUrl = createPaymentResult.PaymentUrl;
+                result.AuthorizationUrl = createPaymentResult.AuthorizationUrl;
             }
             catch (ViiaClientException e)
             {
@@ -126,17 +79,67 @@ namespace ViiaSample.Controllers
             }
             if (string.IsNullOrWhiteSpace(paymentId))
             {
-                return View("PaymentCallback", new PaymentCallbackViewModel
-                {
-                    IsError = true
-                });
+                return View("PaymentCallback",
+                            new PaymentCallbackViewModel
+                            {
+                                IsError = true
+                            });
             }
 
-            return View("PaymentCallback", new PaymentCallbackViewModel
+            return View("PaymentCallback",
+                        new PaymentCallbackViewModel
+                        {
+                            Query = Request.QueryString.Value,
+                            PaymentId = paymentId
+                        });
+        }
+
+        [HttpGet("accounts/{accountId}/payments/{paymentId}")]
+        public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
+        {
+            if (_environment.IsProduction())
             {
-                Query = Request.QueryString.Value,
-                PaymentId = paymentId
-            });
+                return NotFound();
+            }
+            try
+            {
+                var payment = await _viiaService.GetPayment(User, accountId, paymentId);
+                return View(payment);
+            }
+            catch (ViiaClientException)
+            {
+                return View();
+            }
+        }
+
+        [HttpGet("payments")]
+        public async Task<IActionResult> Payments()
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            var result = new PaymentsViewModel
+                         {
+                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
+                         };
+            try
+            {
+                var accounts = await _viiaService.GetUserAccounts(User);
+                foreach (var account in accounts)
+                {
+                    var payments = await _viiaService.GetPayments(User);
+                    result.PaymentsGroupedByAccountDisplayName.Add(
+                                                                   account,
+                                                                   payments.Payments);
+                }
+            }
+            catch (ViiaClientException e)
+            {
+                // TODO
+            }
+
+            return View(result);
         }
     }
 }
