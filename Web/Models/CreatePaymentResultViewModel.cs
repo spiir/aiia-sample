@@ -4,6 +4,6 @@ namespace ViiaSample.Models
     {
         public string ErrorDescription { get; set; }
         public string PaymentId { get; set; }
-        public string PaymentUrl { get; set; }
+        public string AuthorizationUrl { get; set; }
     }
 }

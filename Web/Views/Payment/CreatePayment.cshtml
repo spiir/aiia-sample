@@ -150,8 +150,8 @@ else
                 success: function(data) {
                     if (data.errorDescription) {
                         alert(`Failed:\n${data.errorDescription}`);
-                    } else if (data.paymentUrl) {
-                        window.location.href = data.paymentUrl;
+                    } else if (data.authorizationUrl) {
+                        window.location.href = data.authorizationUrl;
                     } else {
                         alert(`Success! Payment Id: ${data.paymentId}`);
                     }
