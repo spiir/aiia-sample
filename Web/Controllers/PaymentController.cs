@@ -60,7 +60,7 @@ namespace ViiaSample.Controllers
             {
                 var createPaymentResult = await _viiaService.CreatePayment(User, body);
                 result.PaymentId = createPaymentResult.PaymentId;
-                result.PaymentUrl = createPaymentResult.PaymentUrl;
+                result.AuthorizationUrl = createPaymentResult.AuthorizationUrl;
             }
             catch (ViiaClientException e)
             {
