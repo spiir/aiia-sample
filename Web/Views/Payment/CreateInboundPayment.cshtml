@@ -1,0 +1,77 @@
+@model CreatePaymentViewModel
+
+@{
+    ViewBag.Title = "Payments";
+    Layout = "_Layout";
+}
+
+
+
+@if (Model?.Accounts?.Count != 0)
+{
+    <div class="row justify-content-md-center">
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-source">Destination Account</label>
+            </div>
+            <select class="custom-select" id="payment-source">
+                @foreach (var account in Model.Accounts)
+                {
+                    <option value="@account.Id">@account.Name (@(account?.Number.Iban ?? account?.Number.Bban ?? "Unknown account number"))</option>
+                }
+            </select>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-amount">Amount</label>
+            </div>
+            <input class="form-control" id="payment-amount" type="number" placeholder="100"/>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="sendRequestToCreatePayment()">Create payment</button>
+    </div>
+}
+else
+{
+    <div class="row justify-content-md-center">
+        <h2>It is required to have non one-time account connected to be able to create payments.</h2>
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        function sendRequestToCreatePayment() {
+
+            const body = {
+                sourceAccountId: $('#payment-source').val(),
+                Iban: $('#payment-target-iban').val(),
+                BbanBankCode: $('#payment-target-bban-bank').val(),
+                bbanAccountNumber: $('#payment-target-bban-account').val(),
+                Amount: parseFloat($('#payment-amount').val()),
+                message: $('#payment-message').val(),
+                transactionText: $('#payment-transaction-text').val()
+            };
+            $.ajax({
+                url: '/viia/payments/create/inbound',
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(body),
+                success: function(data) {
+                    if (data.errorDescription) {
+                        alert(`Failed:\n${data.errorDescription}`);
+                    } else if (data.authorizationUrl) {
+                        window.location.href = data.authorizationUrl;
+                    } else {
+                        alert(`Success! Payment Id: ${data.paymentId}`);
+                    }
+                },
+                error: function(data) {
+                    alert('Request failed');
+                }
+            });
+        }
+    </script>
+}

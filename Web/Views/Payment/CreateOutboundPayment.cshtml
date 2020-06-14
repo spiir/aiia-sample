@@ -142,7 +142,7 @@ else
                 transactionText: $('#payment-transaction-text').val()
             };
             $.ajax({
-                url: '/viia/payments/create',
+                url: '/viia/payments/create/outbound',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',

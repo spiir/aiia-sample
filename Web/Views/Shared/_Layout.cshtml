@@ -53,8 +53,18 @@
                                 <a class="nav-link nav-blue"
                                    asp-area=""
                                    asp-controller="Payment"
-                                   asp-action="Payments">
-                                    Payments
+                                   asp-action="outboundpayments">
+                                    Outbound Payments
+                                </a>
+                            </li>
+                        </environment>
+                        <environment exclude="Production">
+                            <li class="nav-item">
+                                <a class="nav-link nav-blue"
+                                   asp-area=""
+                                   asp-controller="Payment"
+                                   asp-action="inboundpayments">
+                                    Inbound Payments
                                 </a>
                             </li>
                         </environment>

@@ -28,7 +28,8 @@ namespace ViiaSample.Services
 {
     public interface IViiaService
     {
-        Task<CreatePaymentResponse> CreatePayment(ClaimsPrincipal principal, CreatePaymentRequestViewModel request);
+        Task<CreatePaymentResponse> CreateInboundPayment(ClaimsPrincipal user, CreatePaymentRequestViewModel body);
+        Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal, CreatePaymentRequestViewModel request);
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
 
         Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal,
@@ -76,8 +77,36 @@ namespace ViiaSample.Services
                                                });
         }
 
-        public async Task<CreatePaymentResponse> CreatePayment(ClaimsPrincipal principal,
-                                                               CreatePaymentRequestViewModel request)
+        public async Task<CreatePaymentResponse> CreateInboundPayment(ClaimsPrincipal principal, CreatePaymentRequestViewModel request)
+        {
+            {
+                var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+                if (user == null)
+                {
+                    throw new UserNotFoundException();
+                }
+
+                var paymentRequest = new CreateInboundPaymentRequest
+                                     {
+                                         Culture = request.Culture,
+                                         RedirectUrl = GetPaymentRedirectUrl(),
+                                         Amount = new PaymentAmountRequest
+                                                  {
+                                                      Value = request.Amount
+                                                  },
+                                     };
+
+                return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/inbound",
+                                                            paymentRequest,
+                                                            HttpMethod.Post,
+                                                            user.ViiaTokenType,
+                                                            user.ViiaAccessToken);
+            }
+        }
+
+        public async Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
+                                                                       CreatePaymentRequestViewModel request)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -86,7 +115,7 @@ namespace ViiaSample.Services
                 throw new UserNotFoundException();
             }
 
-            var paymentRequest = new CreatePaymentRequest
+            var paymentRequest = new CreateOutboundPaymentRequest
                                  {
                                      Culture = request.Culture,
                                      RedirectUrl = GetPaymentRedirectUrl(),
@@ -241,19 +270,6 @@ namespace ViiaSample.Services
             return HttpGet<ImmutableList<BankProvider>>("/v1/providers");
         }
 
-        public async Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId)
-        {
-            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-                return null;
-
-            return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}",
-                                              user.ViiaTokenType,
-                                              user.ViiaAccessToken,
-                                              principal);
-        }
-
         public async Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -266,48 +282,6 @@ namespace ViiaSample.Services
             var result =
                 await HttpGet<AccountsResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken, principal);
             return result?.Accounts.ToImmutableList();
-        }
-
-        public async Task<T> HttpGet<T>(string url,
-                                        string accessTokenType = null,
-                                        string accessToken = null,
-                                        ClaimsPrincipal principal = null,
-                                        bool isRetry = false)
-        {
-            try
-            {
-                return await CallApi<T>(url, null, HttpMethod.Get, accessTokenType, accessToken);
-            }
-            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
-                                                !isRetry)
-            {
-                var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
-                return await HttpGet<T>(url, updatedTokens.TokenType, updatedTokens.AccessToken, principal, true);
-            }
-        }
-
-        public async Task<T> HttpPost<T>(string url,
-                                         object body,
-                                         string accessTokenType = null,
-                                         string accessToken = null,
-                                         ClaimsPrincipal principal = null,
-                                         bool isRetry = false)
-        {
-            try
-            {
-                return await CallApi<T>(url, body, HttpMethod.Post, accessTokenType, accessToken);
-            }
-            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
-                                                !isRetry)
-            {
-                var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
-                return await HttpPost<T>(url,
-                                         body,
-                                         updatedTokens.TokenType,
-                                         updatedTokens.AccessToken,
-                                         principal,
-                                         true);
-            }
         }
 
         public Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal)
@@ -521,6 +495,61 @@ namespace ViiaSample.Services
         {
             var request = _httpContextAccessor.HttpContext.Request;
             return $"{request.Scheme}://{request.Host}{request.PathBase}/viia/payments/callback";
+        }
+
+        private async Task<Transaction> GetTransaction(ClaimsPrincipal principal, string accountId, string transactionId)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+                return null;
+
+            return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}",
+                                              user.ViiaTokenType,
+                                              user.ViiaAccessToken,
+                                              principal);
+        }
+
+        private async Task<T> HttpGet<T>(string url,
+                                         string accessTokenType = null,
+                                         string accessToken = null,
+                                         ClaimsPrincipal principal = null,
+                                         bool isRetry = false)
+        {
+            try
+            {
+                return await CallApi<T>(url, null, HttpMethod.Get, accessTokenType, accessToken);
+            }
+            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
+                                                !isRetry)
+            {
+                var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
+                return await HttpGet<T>(url, updatedTokens.TokenType, updatedTokens.AccessToken, principal, true);
+            }
+        }
+
+        private async Task<T> HttpPost<T>(string url,
+                                          object body,
+                                          string accessTokenType = null,
+                                          string accessToken = null,
+                                          ClaimsPrincipal principal = null,
+                                          bool isRetry = false)
+        {
+            try
+            {
+                return await CallApi<T>(url, body, HttpMethod.Post, accessTokenType, accessToken);
+            }
+            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
+                                                !isRetry)
+            {
+                var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
+                return await HttpPost<T>(url,
+                                         body,
+                                         updatedTokens.TokenType,
+                                         updatedTokens.AccessToken,
+                                         principal,
+                                         true);
+            }
         }
 
         private ViiaQueryPart MapQueryPartToViiaQueryPart(QueryPart filter)

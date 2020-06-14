@@ -1,9 +1,9 @@
 namespace ViiaSample.Models.Viia
 {
-    public class CreatePaymentRequest
+    public class CreateInboundPaymentRequest
     {
+        public PaymentAmountRequest Amount { get; set; }
         public string Culture { get; set; }
-        public PaymentRequest Payment { get; set; }
         public string RedirectUrl { get; set; }
     }
 }
