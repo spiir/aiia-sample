@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -22,29 +23,6 @@ namespace ViiaSample.Controllers
         {
             _viiaService = viiaService;
             _environment = environment;
-        }
-
-        [HttpGet("payments/create/outbound")]
-        public async Task<IActionResult> CreateOutboundPayment()
-        {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
-            IImmutableList<Account> accounts = ImmutableList.Create<Account>();
-            try
-            {
-                accounts = await _viiaService.GetUserAccounts(User);
-            }
-            catch (ViiaClientException e)
-            {
-                // TODO
-            }
-
-            return View(new CreatePaymentViewModel
-                        {
-                            Accounts = accounts
-                        });
         }
 
         [HttpGet("payments/create/inbound")]
@@ -93,6 +71,29 @@ namespace ViiaSample.Controllers
             return Ok(result);
         }
 
+        [HttpGet("payments/create/outbound")]
+        public async Task<IActionResult> CreateOutboundPayment()
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            IImmutableList<Account> accounts = ImmutableList.Create<Account>();
+            try
+            {
+                accounts = await _viiaService.GetUserAccounts(User);
+            }
+            catch (ViiaClientException e)
+            {
+                // TODO
+            }
+
+            return View(new CreatePaymentViewModel
+                        {
+                            Accounts = accounts
+                        });
+        }
+
         [HttpPost("payments/create/outbound")]
         public async Task<ActionResult<CreatePaymentResultViewModel>> CreateOutboundPayment(
             [FromBody] CreatePaymentRequestViewModel body)
@@ -114,6 +115,64 @@ namespace ViiaSample.Controllers
             }
 
             return Ok(result);
+        }
+
+        [HttpGet("inboundpayments")]
+        public async Task<IActionResult> InboundPayments()
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            var result = new PaymentsViewModel
+                         {
+                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
+                         };
+            try
+            {
+                var payments = await _viiaService.GetPayments(User);
+                var accounts = await _viiaService.GetUserAccounts(User);
+                foreach (var account in accounts)
+                {
+                    var accountPayments = payments.Payments?.Where(payment => payment.AccountId == account.Id && payment.Type == PaymentType.Inbound).ToList();
+                    result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
+                }
+            }
+            catch (ViiaClientException e)
+            {
+                // TODO
+            }
+
+            return View(result);
+        }
+
+        [HttpGet("outboundpayments")]
+        public async Task<IActionResult> OutboundPayments()
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            var result = new PaymentsViewModel
+                         {
+                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
+                         };
+            try
+            {
+                var payments = await _viiaService.GetPayments(User);
+                var accounts = await _viiaService.GetUserAccounts(User);
+                foreach (var account in accounts)
+                {
+                    var accountPayments = payments.Payments?.Where(payment => payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
+                    result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
+                }
+            }
+            catch (ViiaClientException e)
+            {
+                // TODO
+            }
+
+            return View(result);
         }
 
         [HttpGet("payments/callback")]
@@ -156,66 +215,6 @@ namespace ViiaSample.Controllers
             {
                 return View();
             }
-        }
-
-        [HttpGet("outboundpayments")]
-        public async Task<IActionResult> OutboundPayments()
-        {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
-            var result = new PaymentsViewModel
-                         {
-                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
-                         };
-            try
-            {
-                var accounts = await _viiaService.GetUserAccounts(User);
-                foreach (var account in accounts)
-                {
-                    var payments = await _viiaService.GetPayments(User);
-                    result.PaymentsGroupedByAccountDisplayName.Add(
-                                                                   account,
-                                                                   payments.Payments);
-                }
-            }
-            catch (ViiaClientException e)
-            {
-                // TODO
-            }
-
-            return View(result);
-        }
-
-        [HttpGet("inboundpayments")]
-        public async Task<IActionResult> InboundPayments()
-        {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
-            var result = new PaymentsViewModel
-                         {
-                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
-                         };
-            try
-            {
-                var accounts = await _viiaService.GetUserAccounts(User);
-                foreach (var account in accounts)
-                {
-                    var payments = await _viiaService.GetPayments(User);
-                    result.PaymentsGroupedByAccountDisplayName.Add(
-                                                                   account,
-                                                                   payments.Payments);
-                }
-            }
-            catch (ViiaClientException e)
-            {
-                // TODO
-            }
-
-            return View(result);
         }
     }
 }
