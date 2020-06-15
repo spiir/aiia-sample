@@ -17,7 +17,8 @@
                 </b>
                 was not provided in the query of this callback url, which means that an error happened in the flow or it was cancelled by end-user
             </p>
-            <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="finishFlow()">Back to payments</button>
+            <button class="btn btn-primary" onclick="backToInbound()">Back to inbound payments</button>
+            <button class="btn btn-primary" onclick="backToOutbound()">Back to outbound payments</button>
         </div>
     </div>
 }
@@ -30,7 +31,8 @@ else
             <p>In success scenario, there's a 'paymentId' query parameter provided. e.g., current query: </p>
             <pre>@Model.Query</pre>
             <p>This paymentId can be later used to retrieve the payment to see its details and/or status.</p>
-            <button class="btn btn-primary" onclick="finishFlow()">Back to payments</button>
+            <button class="btn btn-primary" onclick="backToInbound()">Back to inbound payments</button>
+            <button class="btn btn-primary" onclick="backToOutbound()">Back to outbound payments</button>
         </div>
     </div>
 }
@@ -39,8 +41,12 @@ else
 @section Scripts
 {
     <script>
-        function finishFlow() {
-            window.location.href = "/viia/payments";
+        function backToOutbound() {
+            window.location.href = "/viia/payments/outbound";
+        }
+        
+        function backToInbound() {
+            window.location.href = "/viia/payments/inbound";
         }
     </script>
 }
