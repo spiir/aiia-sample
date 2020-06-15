@@ -1,4 +1,4 @@
-@model ViiaSample.Models.Viia.Payment 
+@model dynamic
 @{
     ViewBag.Title = "Payments";
     Layout = "_Layout";
@@ -13,19 +13,58 @@
         else
         {
             <h1>Payment @Model.Id</h1>
+            <table id="payment-details-table"></table>
 
-            <p>
-                <b>ID:</b> @Model.Id
-            </p>
-            <p>
-                <b>Created:</b> @Model.CreatedAt
-            </p>
-            <p>
-                <b>Status:</b> @(Model?.Status?.PaymentStatusCode ?? "Unknown")
-            </p>
-            <p>
-                <b>Is Terminal:</b> @(Model?.Status?.Terminal == null ? "Unknown" : Model.Status.Terminal.ToString())
-            </p>
         }
     </div>
 </div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function() {
+            createDynamicPaymentDetailsTable();
+        });
+        
+        function createDynamicPaymentDetailsTable() {
+            let paymentJson = flatten(@Html.Raw(Json.Serialize(Model)));
+            const table = $("#payment-details-table")
+                .addClass('table');
+            
+            $.each(paymentJson, function(key, data) {
+                const row = $("<tr/>")
+                    .append($(`<td style="width:30%"/>`).text(key))
+                    .append($(`<td style="width:70%;max-width: 0; overflow:hidden;text-overflow: ellipsis; white-space: nowrap;"/>`)
+                        .text(data === null || data === undefined ? 'null' : data));
+                table.append(row);
+            });
+        }
+        
+        function flatten(data) {
+                    const result = {};
+        
+                    function recurse(cur, prop) {
+                        if (Object(cur) !== cur) {
+                            result[prop] = cur;
+                        } else if (Array.isArray(cur)) {
+                            for (var i = 0, l = cur.length; i < l; i++)
+                                recurse(cur[i], prop + "[" + i + "]");
+                            if (l === 0)
+                                result[prop] = [];
+                        } else {
+                            let isEmpty = true;
+                            for (let p in cur) {
+                                isEmpty = false;
+                                recurse(cur[p], prop ? prop + "." + p : p);
+                            }
+                            if (isEmpty && prop)
+                                result[prop] = {};
+                        }
+                    }
+        
+                    recurse(data, "");
+                    return result;
+                }
+    </script>
+
+}
