@@ -98,10 +98,13 @@ namespace ViiaSample.Services
                 {
                     Culture = request.Culture,
                     RedirectUrl = GetPaymentRedirectUrl(),
-                    Amount = new PaymentAmountRequest
+                    Payment = new InboundPaymentRequest
                     {
-                        Value = request.Amount
-                    },
+                        Amount = new PaymentAmountRequest
+                        {
+                            Value = request.Amount
+                        }
+                    }
                 };
 
                 return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/inbound",
