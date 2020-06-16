@@ -201,6 +201,11 @@
                     </div>
                 </div>
             }
+            @if (Model.AllAccountsSelected != null)
+            {
+                <hr>
+                <p>All accounts were selected - @Html.Raw(Model.AllAccountsSelected)</p>
+            }
         }
     </div>
 </div>
