@@ -117,7 +117,7 @@ namespace ViiaSample.Controllers
             return Ok(result);
         }
 
-        [HttpGet("inboundpayments")]
+        [HttpGet("payments/inbound")]
         public async Task<IActionResult> InboundPayments()
         {
             if (_environment.IsProduction())
@@ -146,7 +146,7 @@ namespace ViiaSample.Controllers
             return View(result);
         }
 
-        [HttpGet("outboundpayments")]
+        [HttpGet("payments/outbound")]
         public async Task<IActionResult> OutboundPayments()
         {
             if (_environment.IsProduction())
@@ -208,12 +208,20 @@ namespace ViiaSample.Controllers
             }
             try
             {
-                var payment = await _viiaService.GetPayment(User, accountId, paymentId);
-                return View(payment);
+                var payment = await _viiaService.GetOutboundPayment(User, accountId, paymentId);
+                return View("PaymentDetails", payment);
             }
             catch (ViiaClientException)
             {
-                return View();
+                try
+                {
+                    var payment = await _viiaService.GetInboundPayment(User, accountId, paymentId);
+                    return View("PaymentDetails", payment);
+                }
+                catch (ViiaClientException)
+                {
+                    return View("PaymentDetails");
+                }
             }
         }
     }

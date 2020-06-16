@@ -37,7 +37,9 @@ namespace ViiaSample.Services
                                                           TransactionQueryRequestViewModel queryRequest = null);
 
         Uri GetAuthUri(string userEmail, bool oneTime = false);
-        Task<Payment> GetPayment(ClaimsPrincipal principal, string accountId, string paymentId);
+        Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
+        Task<InboundPayment> GetInboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
+
         Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal);
         Task<ImmutableList<BankProvider>> GetProviders();
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
@@ -227,7 +229,7 @@ namespace ViiaSample.Services
             return new Uri(connectUrl);
         }
 
-        public async Task<Payment> GetPayment(ClaimsPrincipal principal, string accountId, string paymentId)
+        public async Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal, string accountId, string paymentId)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -236,11 +238,27 @@ namespace ViiaSample.Services
                 throw new UserNotFoundException();
             }
 
-            return await CallApi<Payment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
+            return await CallApi<OutboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
                                           null,
                                           HttpMethod.Get,
                                           user.ViiaTokenType,
                                           user.ViiaAccessToken);
+        }
+
+        public async Task<InboundPayment> GetInboundPayment(ClaimsPrincipal principal, string accountId, string paymentId)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            return await CallApi<InboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
+                null,
+                HttpMethod.Get,
+                user.ViiaTokenType,
+                user.ViiaAccessToken);
         }
 
         public async Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal)
