@@ -47,13 +47,14 @@ namespace ViiaSample.Controllers
                                 ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
                                 EmailEnabled = user?.EmailEnabled ?? false,
                                 Providers = providers,
-                                Email = user?.Email
+                                Email = user?.Email,
+                                ConsentId = user?.ViiaConsentId
                             });
             }
 
             var accounts = await _viiaService.GetUserAccounts(User);
             var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
-
+            var allAccountsSelected = await _viiaService.AllAccountsSelected(User);
             var model = new AccountsViewModel
                         {
                             AccountsGroupedByProvider = groupedAccounts,
@@ -64,7 +65,8 @@ namespace ViiaSample.Controllers
                             EmailEnabled = user.EmailEnabled,
                             Providers = providers,
                             ConsentId = user.ViiaConsentId,
-                            Email = user.Email
+                            Email = user.Email,
+                            AllAccountsSelected = allAccountsSelected
                         };
             return View(model);
         }
