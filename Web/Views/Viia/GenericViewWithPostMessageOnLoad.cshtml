@@ -19,7 +19,6 @@
                     <i>consentId</i>
                 </b> were not provided in the query of this callback url, which means that an error happened in the flow or it was cancelled by end-user
             </p>
-            <button class="btn btn-primary" style="white-space: normal; width: 100%;" onclick="finishFlowIframe()">Finish Flow (Iframe Flow, makes a post message, to which parent page is listening to)</button>
             <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="finishFlowRedirect()">Finish Flow (Redirect Flow, redirects back to accounts page)</button>
         </div>
     </div>
@@ -34,7 +33,6 @@
             <pre>@Model.Query</pre>
             <p>This code can be exchanged with Viia API for an access token that is used for accessing end-user's data</p>
             <p>In this Sample App's case, we exchanged the code for access token, while processing this request, before rendering the view.</p>
-            <button class="btn btn-primary" style="white-space: normal; width: 100%;" onclick="finishFlowIframe()">Finish Flow (Iframe Flow, makes a post message, to which parent page is listening to)</button>
             <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="finishFlowRedirect()">Finish Flow (Redirect Flow, redirects back to accounts page)</button>
         </div>
     </div>
@@ -44,20 +42,9 @@
 @section Scripts
 {
     <script>
-        function finishFlowIframe() {
-            window.parent.postMessage("viia-login-done", '*');
-        }
 
         function finishFlowRedirect() {
             window.location.href = "/viia/accounts";
-        }
-        @if (Model.AutomaticallyFinish)
-        {
-            <text>
-        $(document).ready(function() {
-            finishFlowIframe();
-        });
-            </text>
         }
         
     </script>
