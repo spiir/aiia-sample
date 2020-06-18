@@ -42,11 +42,6 @@
                        onclick="window.location.href = getConnectUrl(true)">
                         One-Time
                     </a>
-                    <a class="dropdown-item"
-                       style="cursor: pointer;"
-                       onclick="showViiaModal(getConnectUrl())">
-                        iFrame
-                    </a>
                 </div>
             </li>
 
@@ -65,11 +60,6 @@
                            style="cursor: pointer;"
                            onclick="requestDataUpdateRedirect()">
                             Redirect
-                        </a>
-                        <a class="dropdown-item"
-                           style="cursor: pointer;"
-                           onclick="requestDataUpdateIframe()">
-                            iFrame
                         </a>
                     </div>
                 </li>
@@ -211,30 +201,6 @@
 </div>
 
 
-<!-- Viia Modal -->
-<div class="modal fade"
-     id="viiaModal"
-     tabindex="-1"
-     role="dialog"
-     aria-labelledby="viiaModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div style="position: relative">
-                <iframe id="viia-iframe"
-                        data-src="getConnectUrl()"
-                        style="height: 90vh; position: absolute; top: 0px; width: 100%;"
-                        frameborder="0"
-                        allowtransparency="true">
-                </iframe>
-            </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
-
 <div class="modal fade"
      id="dataModal"
      tabindex="-1"
@@ -339,12 +305,6 @@
             $(`#${id}`).modal('toggle');
         }
 
-        function showViiaModal(url) {
-            const iframe = $('#viia-iframe');
-            iframe.attr("src", url);
-            $('#viiaModal').modal('show');
-        }
-
         function bindEvent(element, eventName, eventHandler) {
             if (element.addEventListener) {
                 element.addEventListener(eventName, eventHandler, false);
@@ -363,23 +323,6 @@
                     }
                 });
         });
-
-        function requestDataUpdateIframe() {
-            $.ajax({
-                url: '/viia/update',
-                type: 'POST',
-                dataType: "json",
-                success: function(data) {
-                    if (data.authUrl) {
-                        // Auth url not empty or null means we need a supervised login
-                        showViiaModal(addQueryParamToUrl(data.authUrl, 'culture', $("#custom-locale").val()));
-                    } else {
-                        alert("All accounts didn't require user-assisted authentication and were queued up for sync");
-                        // refresh page?
-                    }
-                }
-            });
-        }
 
         function requestDataUpdateRedirect() {
             $.ajax({
