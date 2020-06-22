@@ -77,7 +77,12 @@
                 amountSpan.addClass('text-danger');
             }
             const amountContainer = $(`<div class="p-2"></div>`).append(amountSpan).append(` ${transaction.transactionAmount.currency}`);
-            const balanceContainer = $(`<div class="p-2"></div>`).text(`${transaction.balance.value} ${transaction.balance.currency}`);
+            const balanceContainer = $(`<div class="p-2"></div>`);transaction.balance
+            if(transaction.balance) {
+                balanceContainer.text(`${transaction.balance.value} ${transaction.balance.currency}`);
+            } else {
+                balanceContainer.text('Unknown')
+            }
             const amountAndBalanceContainer = $(`<div class="flex-column" style="margin-right: 1rem;"></div>`)
                 .append(amountContainer)
                 .append(balanceContainer);
