@@ -49,23 +49,31 @@
                             </a>
                         </li>
                         <environment exclude="Production">
-                            <li class="nav-item">
-                                <a class="nav-link nav-blue"
-                                   asp-area=""
-                                   asp-controller="Payment"
-                                   asp-action="outboundpayments">
-                                    Outbound Payments
+                            <li class="nav-item nav-blue dropdown">
+                                <a class="nav-link dropdown-toggle nav-blue"
+                                   data-toggle="dropdown"
+                                   href="#"
+                                   role="button"
+                                   aria-haspopup="true"
+                                   aria-expanded="false">
+                                    Payments
                                 </a>
-                            </li>
-                        </environment>
-                        <environment exclude="Production">
-                            <li class="nav-item">
-                                <a class="nav-link nav-blue"
-                                   asp-area=""
-                                   asp-controller="Payment"
-                                   asp-action="inboundpayments">
-                                    Inbound Payments
-                                </a>
+                                <div class="dropdown-menu nav-blue">
+                                    <a class="nav-link dropdown-item nav-blue"
+                                       style="cursor: pointer;"
+                                       asp-area=""
+                                       asp-controller="Payment"
+                                       asp-action="outboundpayments">
+                                        Outbound
+                                    </a>
+                                    <a class="nav-link dropdown-item nav-blue"
+                                       style="cursor: pointer;"
+                                       asp-area=""
+                                       asp-controller="Payment"
+                                       asp-action="inboundpayments">
+                                        Inbound
+                                    </a>
+                                </div>
                             </li>
                         </environment>
                     }
