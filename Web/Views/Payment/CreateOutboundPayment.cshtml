@@ -139,7 +139,8 @@ else
                 bbanAccountNumber: $('#payment-target-bban-account').val(),
                 Amount: parseFloat($('#payment-amount').val()),
                 message: $('#payment-message').val(),
-                transactionText: $('#payment-transaction-text').val()
+                transactionText: $('#payment-transaction-text').val(),
+                RecipientFullname: $('#payment-target-name').val(),
             };
             $.ajax({
                 url: '/viia/payments/create/outbound',
