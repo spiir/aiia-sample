@@ -4,6 +4,6 @@ namespace ViiaSample.Models.Viia
     {
         public PaymentBBanRequest BBan { get; set; }
         public string IBan { get; set; }
-        public string Name { get; set; }
+        public string RecipientFullname { get; set; }
     }
 }

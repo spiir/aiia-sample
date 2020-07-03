@@ -7,6 +7,7 @@ namespace ViiaSample.Models
         public string BbanBankCode { get; set; }
         public string Culture { get; set; }
         public string Iban { get; set; }
+        public string RecipientFullname { get; set; }
         public string message { get; set; }
         public string SourceAccountId { get; set; }
         public string TransactionText { get; set; }
