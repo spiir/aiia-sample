@@ -289,7 +289,7 @@
             }
 
             if (value.trim().length > 0) {
-                url += `&${name}=${encodeURIComponent(value)}`;
+                url += "&" + name + "=" + encodeURIComponent(value);
             }
 
             return url;
@@ -302,14 +302,14 @@
         }
 
         function toggleModal(id) {
-            $(`#${id}`).modal('toggle');
+            $("#" + id).modal('toggle');
         }
 
         function bindEvent(element, eventName, eventHandler) {
             if (element.addEventListener) {
                 element.addEventListener(eventName, eventHandler, false);
             } else if (element.attachEvent) {
-                element.attachEvent(`on${eventName}`, eventHandler);
+                element.attachEvent("on" + eventName, eventHandler);
             }
         }
 
