@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ViiaSample.Models.Viia
 {
@@ -15,5 +16,6 @@ namespace ViiaSample.Models.Viia
         public string Text { get; set; }
         public Amount TransactionAmount { get; set; }
         public string Type { get; set; }
+        public List<Category> Categories { get; set; }
     }
 }
