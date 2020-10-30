@@ -274,7 +274,7 @@ namespace ViiaSample.Services
                 throw new UserNotFoundException();
             }
 
-            return await CallApi<InboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
+            return await CallApi<InboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/inbound",
                                                  null,
                                                  HttpMethod.Get,
                                                  user.ViiaTokenType,
