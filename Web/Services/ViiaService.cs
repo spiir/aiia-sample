@@ -195,14 +195,14 @@ namespace ViiaSample.Services
 
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
-
+                
                 var tokenBody = new
                                 {
                                     grant_type = "authorization_code",
                                     code,
                                     scope = "read",
-                                    redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
-                                };
+                                    redirect_uri = GetRedirectUrl()
+                };
 
                 var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
                               {
@@ -257,7 +257,7 @@ namespace ViiaSample.Services
                 $"{_options.CurrentValue.Viia.BaseApiUrl}/v1/oauth/connect" +
                 $"?client_id={_options.CurrentValue.Viia.ClientId}" +
                 "&response_type=code" +
-                $"&redirect_uri={_options.CurrentValue.Viia.LoginCallbackUrl}" +
+                $"&redirect_uri={GetRedirectUrl()}" +
                 $"&flow={(oneTime ? "OneTimeUser" : "PersistentUser")}";
 
             return new Uri(connectUrl);
@@ -411,14 +411,14 @@ namespace ViiaSample.Services
 
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
-
+                
                 var tokenBody = new
                                 {
                                     grant_type = "refresh_token",
                                     refresh_token = refreshToken,
                                     scope = "read",
-                                    redirect_uri = _options.CurrentValue.Viia.LoginCallbackUrl
-                                };
+                                    redirect_uri = GetRedirectUrl()
+                };
 
                 var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
                               {
@@ -551,6 +551,12 @@ namespace ViiaSample.Services
         {
             var request = _httpContextAccessor.HttpContext.Request;
             return $"{request.Scheme}://{request.Host}{request.PathBase}/viia/payments/callback";
+        }
+
+        private string GetRedirectUrl()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}{request.PathBase}/viia/callback";
         }
 
         private async Task<Transaction> GetTransaction(ClaimsPrincipal principal,
