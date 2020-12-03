@@ -45,6 +45,16 @@
                 </div>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link"
+                   role="button"
+                   href="#"
+                   style="cursor: pointer;"
+                   onclick="window.location.href = getConnectUrl(false, true)">
+                    Connect Account (Inbound payment)
+                </a>
+            </li>
+
             @if (Model?.AccountsGroupedByProvider != null && Model.AccountsGroupedByProvider.Any())
             {
                 <li class="nav-item dropdown">
@@ -255,14 +265,14 @@
 @section Scripts
 {
     <script>
-        function getConnectUrl(oneTime) {
+        function getConnectUrl(oneTime, inboundPayment) {
             const baseConnectUrl = oneTime === true ? '@Model.ViiaOneTimeConnectUrl' : '@Model.ViiaConnectUrl';
 
             let url = decodeURI(baseConnectUrl);
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
             url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
             url = addQueryParamToUrl(url, 'bank_account_numbers', $('#bank-account-ids').val());
-
+            
             if ($('#custom-selectAllAccounts').is(':checked')) {
                 url = addQueryParamToUrl(url, 'select_all_accounts', 'true');
             }
@@ -270,6 +280,9 @@
                 url = addQueryParamToUrl(url, 'consentId', '@Html.Raw(Model.ConsentId)');
             } else if ($('#custom-useEmail').is(':checked') && oneTime === false) {
                 url = addQueryParamToUrl(url, 'email', '@Html.Raw(Model.Email)');
+            }
+            if (inboundPayment) {
+                url = addQueryParamToUrl(url, 'scope', 'inbound-payments');
             }
             url = url.replace(/amp;/g, '');
             return url;
