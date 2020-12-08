@@ -282,7 +282,7 @@
                 url = addQueryParamToUrl(url, 'email', '@Html.Raw(Model.Email)');
             }
             if (inboundPayment) {
-                url = addQueryParamToUrl(url, 'scope', 'inbound-payments');
+                url = addQueryParamToUrl(url, 'scope', 'payments:inbound');
             }
             url = url.replace(/amp;/g, '');
             return url;
