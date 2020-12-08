@@ -45,16 +45,6 @@
                 </div>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link"
-                   role="button"
-                   href="#"
-                   style="cursor: pointer;"
-                   onclick="window.location.href = getConnectUrl(false, true)">
-                    Connect Account (Inbound payment)
-                </a>
-            </li>
-
             @if (Model?.AccountsGroupedByProvider != null && Model.AccountsGroupedByProvider.Any())
             {
                 <li class="nav-item dropdown">
@@ -99,6 +89,27 @@
         </ul>
     </div>
     <div class="row justify-content-md-center">
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" >(Optional) Scopes</label>
+            </div>
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="custom-scope-offlineAccess">offline_access</label>
+            </div>
+            <input type="checkbox" class="custom-checkbox" id="custom-scope-offlineAccess" />
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="custom-scope-accounts">accounts</label>
+            </div>
+            <input type="checkbox" class="custom-checkbox" id="custom-scope-accounts" />
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="custom-scope-paymentsInbound">payments:inbound</label>
+            </div>
+            <input type="checkbox" class="custom-checkbox" id="custom-scope-paymentsInbound" />
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="custom-scope-paymentsOutbound">payments:outbound</label>
+            </div>
+            <input type="checkbox" class="custom-checkbox" id="custom-scope-paymentsOutbound" />
+        </div>
         @if (Model.Providers != null && Model.Providers.Any())
         {
             <div class="input-group mb-3 mt-4">
@@ -265,7 +276,7 @@
 @section Scripts
 {
     <script>
-        function getConnectUrl(oneTime, inboundPayment) {
+        function getConnectUrl(oneTime) {
             const baseConnectUrl = oneTime === true ? '@Model.ViiaOneTimeConnectUrl' : '@Model.ViiaConnectUrl';
 
             let url = decodeURI(baseConnectUrl);
@@ -281,9 +292,20 @@
             } else if ($('#custom-useEmail').is(':checked') && oneTime === false) {
                 url = addQueryParamToUrl(url, 'email', '@Html.Raw(Model.Email)');
             }
-            if (inboundPayment) {
-                url = addQueryParamToUrl(url, 'scope', 'inbound-payments');
+            var scopes = [];
+            if ($('#custom-scope-offlineAccess').is(':checked')) {
+                scopes.push('offline_access');
             }
+            if ($('#custom-scope-accounts').is(':checked')) {
+                scopes.push('accounts');
+            }
+            if ($('#custom-scope-paymentsInbound').is(':checked')) {
+                scopes.push('payments:inbound');
+            }
+            if ($('#custom-scope-paymentsOutbound').is(':checked')) {
+                scopes.push('payments:outbound');
+            }
+            url = addQueryParamToUrl(url, 'scope', scopes.join(' '));
             url = url.replace(/amp;/g, '');
             return url;
         }
