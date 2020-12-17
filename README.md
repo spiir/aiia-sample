@@ -1,27 +1,27 @@
-# viia-sample
+# Aiia-sample
 
-Sample ASP.NET web app and mobile Flutter apps showcasing a basic usage and feature of Viia.
+Sample ASP.NET web app and mobile Flutter apps showcasing a basic usage and feature of Aiia.
 
 ## Introduction
 
-The sample app implements some very basic features of Viia to get you familiar to how it works.
+The sample app implements some very basic features of Aiia to get you familiar to how it works.
 
-It's focused more on developers, and it's is still work in progress. Our goal is to showcase all of the Viia features in this project.
+It's focused more on developers, and it's is still work in progress. Our goal is to showcase all of the Aiia features in this project.
 
 
-You can find Viia documentation at https://api.getviia.com/docs/index.html
+You can find Viia documentation at https://api.aiia.eu/docs/index.html
 
 ## Web
 
 ### Running locally
 
-For starters, you'll need to get access to Viia, currently this is possible only by contacting us at support@nordicapigateway.com .
+For starters, you'll need to get access to Aiia, currently this is possible only by contacting us at support@nordicapigateway.com .
 
-When you have access, you'll need to update `Viia` configuration section in `appsettings.json`:
+When you have access, you'll need to update `Aiia` configuration section in `appsettings.json`:
 
 ```
 ...
-  "Viia": {
+  "Aiia": {
     ...
     "ClientId": "your-client-id",
     "ClientSecret": "your-client-secret",
@@ -40,7 +40,7 @@ At this point you should be good to go as long as you have .NET Core ( https://d
 2. Register
 3. Navigate to `Accounts` page using `Accounts` button in the navigation bar
 4. Press either `Connect More Accounts via iframe` or `Connect More Accounts via redirect` it showcases 2 different types of flows
-5. Go through the Viia flow
+5. Go through the Aiia flow
 6. At the end you'll be redirected to sample app's callback page with some explanation of what's happening behind the scenes
 7. Press the appropriate button for the flow you went through in the callback page
 8. You'll be navigated back to the Accounts page, which will be not empty anymore
