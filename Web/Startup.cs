@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Aiia.Sample.Data;
+using Aiia.Sample.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -10,10 +12,8 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using ViiaSample.Data;
-using ViiaSample.Services;
 
-namespace ViiaSample
+namespace Aiia.Sample
 {
     public class Startup
     {
@@ -111,7 +111,7 @@ namespace ViiaSample
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IEmailService, EmailService>();
-            services.AddScoped<IViiaService, ViiaService>();
+            services.AddScoped<IAiiaService, AiiaService>();
             services.AddRazorPages();
             services.AddControllers();
         }

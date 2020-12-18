@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using ViiaSample.Models.Viia;
+using Aiia.Sample.Models.Aiia;
 
-namespace ViiaSample.Models
+namespace Aiia.Sample.Models
 {
     public class PaymentsViewModel
     {

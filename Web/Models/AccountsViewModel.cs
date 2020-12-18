@@ -1,9 +1,9 @@
 using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using ViiaSample.Models.Viia;
+using Aiia.Sample.Models.Aiia;
 
-namespace ViiaSample.Models
+namespace Aiia.Sample.Models
 {
     public class AccountsViewModel
     {
@@ -14,8 +14,8 @@ namespace ViiaSample.Models
         public JwtSecurityToken JwtToken { get; set; }
         public IImmutableList<BankProvider> Providers { get; set; }
         public JwtSecurityToken RefreshToken { get; set; }
-        public string ViiaConnectUrl { get; set; }
-        public string ViiaOneTimeConnectUrl { get; set; }
+        public string AiiaConnectUrl { get; set; }
+        public string AiiaOneTimeConnectUrl { get; set; }
         public bool? AllAccountsSelected { get; set; }
     }
 }

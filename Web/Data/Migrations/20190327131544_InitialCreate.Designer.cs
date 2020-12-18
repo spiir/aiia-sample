@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace ViiaSample.Data.Migrations
+namespace Aiia.Sample.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20190327131544_InitialCreate")]
@@ -128,7 +128,7 @@ namespace ViiaSample.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("ViiaSample.Data.ApplicationUser", b =>
+            modelBuilder.Entity("Aiia.Sample.Data.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
@@ -196,7 +196,7 @@ namespace ViiaSample.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ViiaSample.Data.ApplicationUser")
+                    b.HasOne("Aiia.Sample.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -204,7 +204,7 @@ namespace ViiaSample.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ViiaSample.Data.ApplicationUser")
+                    b.HasOne("Aiia.Sample.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -217,7 +217,7 @@ namespace ViiaSample.Data.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("ViiaSample.Data.ApplicationUser")
+                    b.HasOne("Aiia.Sample.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -225,7 +225,7 @@ namespace ViiaSample.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ViiaSample.Data.ApplicationUser")
+                    b.HasOne("Aiia.Sample.Data.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

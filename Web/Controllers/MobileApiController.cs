@@ -1,19 +1,19 @@
 using System.Threading.Tasks;
+using Aiia.Sample.Extensions;
+using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Mvc;
-using ViiaSample.Extensions;
-using ViiaSample.Services;
 
-namespace ViiaSample.Controllers
+namespace Aiia.Sample.Controllers
 {
     [Route("api/")]
     [ApiController]
     public class MobileApiController : ControllerBase
     {
-        private readonly IViiaService _viiaService;
+        private readonly IAiiaService _aiiaService;
 
-        public MobileApiController(IViiaService viiaService)
+        public MobileApiController(IAiiaService aiiaService)
         {
-            _viiaService = viiaService;
+            _aiiaService = aiiaService;
         }
 
         [HttpPost("token")]
@@ -30,15 +30,15 @@ namespace ViiaSample.Controllers
             }
 
             var result = input.Code.IsSet()
-                             ? await _viiaService.ExchangeCodeForAccessToken(input.Code)
-                             : await _viiaService.RefreshAccessToken(input.RefreshToken);
+                             ? await _aiiaService.ExchangeCodeForAccessToken(input.Code)
+                             : await _aiiaService.RefreshAccessToken(input.RefreshToken);
             return Ok(new { accessToken = result.AccessToken, refreshToken = result.RefreshToken });
         }
 
         [HttpGet("connect")]
         public IActionResult GetConnectUrl()
         {
-            return Redirect(_viiaService.GetAuthUri(null).ToString());
+            return Redirect(_aiiaService.GetAuthUri(null).ToString());
         }
 
         public class TokenInput

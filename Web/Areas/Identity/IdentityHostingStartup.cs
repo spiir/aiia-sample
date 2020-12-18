@@ -1,9 +1,9 @@
+using Aiia.Sample.Areas.Identity;
 using Microsoft.AspNetCore.Hosting;
-using ViiaSample.Areas.Identity;
 
 [assembly: HostingStartup(typeof(IdentityHostingStartup))]
 
-namespace ViiaSample.Areas.Identity
+namespace Aiia.Sample.Areas.Identity
 {
     public class IdentityHostingStartup : IHostingStartup
     {

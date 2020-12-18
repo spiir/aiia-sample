@@ -1,4 +1,4 @@
-namespace ViiaSample.Extensions
+namespace Aiia.Sample.Extensions
 {
     public static class StringExtensions
     {

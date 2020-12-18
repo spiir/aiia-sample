@@ -1,4 +1,4 @@
-@model CreatePaymentViewModel
+@model Aiia.Sample.Models.CreatePaymentViewModel
 
 @{
     ViewBag.Title = "Payments";
@@ -54,7 +54,7 @@ else
                 transactionText: $('#payment-transaction-text').val()
             };
             $.ajax({
-                url: '/viia/payments/create/inbound',
+                url: '/aiia/payments/create/inbound',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',

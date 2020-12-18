@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using SendGrid;
 using SendGrid.Helpers.Mail;
 
-namespace ViiaSample.Services
+namespace Aiia.Sample.Services
 {
     public interface IEmailService
     {
@@ -26,7 +26,7 @@ namespace ViiaSample.Services
         public async Task<bool> SendWebhookEmail(string destinationEmail, string fullJson)
         {
             var emailHtml =
-                $"<p>Here is the webhook we received from Viia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
+                $"<p>Here is the webhook we received from Aiia:</p><br /><pre><code>\n{FormatJson(fullJson)}\n</code></pre>";
             var result = await SendEmail(destinationEmail, "Your bank data got updated", emailHtml);
             _logger.LogInformation($"Send webhook email. Success: {result}");
             return result;

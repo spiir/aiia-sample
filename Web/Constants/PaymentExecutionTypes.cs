@@ -1,4 +1,4 @@
-namespace ViiaSample.Constants
+namespace Aiia.Sample.Constants
 {
     public static class PaymentExecutionTypes
     {
