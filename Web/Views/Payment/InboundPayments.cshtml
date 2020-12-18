@@ -1,4 +1,4 @@
-@model PaymentsViewModel
+@model Aiia.Sample.Models.PaymentsViewModel
 @{
     ViewBag.Title = "Payments";
     Layout = "_Layout";
@@ -26,7 +26,7 @@
         @if (Model?.PaymentsGroupedByAccountDisplayName == null || !Model.PaymentsGroupedByAccountDisplayName.Any())
         {
             <p class="text-center">
-                There are no payments made through viia for connected accounts. Try @Html.ActionLink("creating a payment", "CreateInboundPayment", "Payment", null, null)
+                There are no payments made through aiia for connected accounts. Try @Html.ActionLink("creating a payment", "CreateInboundPayment", "Payment", null, null)
             </p>
         }
         else

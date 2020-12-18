@@ -1,4 +1,4 @@
-namespace ViiaSample.Models
+namespace Aiia.Sample.Models
 {
     public class CreatePaymentRequestViewModel
     {

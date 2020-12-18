@@ -1,5 +1,5 @@
 @using Newtonsoft.Json
-@model AccountsViewModel
+@model Aiia.Sample.Models.AccountsViewModel
 
 @{
     ViewBag.Title = "Accounts";
@@ -277,7 +277,7 @@
 {
     <script>
         function getConnectUrl(oneTime) {
-            const baseConnectUrl = oneTime === true ? '@Model.ViiaOneTimeConnectUrl' : '@Model.ViiaConnectUrl';
+            const baseConnectUrl = oneTime === true ? '@Model.AiiaOneTimeConnectUrl' : '@Model.AiiaConnectUrl';
 
             let url = decodeURI(baseConnectUrl);
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
@@ -352,16 +352,16 @@
             bindEvent(window,
                 'message',
                 function(e) {
-                    if (e.data === 'viia-login-done') {
-                        $('#viiaModal').modal('hide');
-                        window.location.href = '/viia/accounts/';
+                    if (e.data === 'aiia-login-done') {
+                        $('#aiiaModal').modal('hide');
+                        window.location.href = '/aiia/accounts/';
                     }
                 });
         });
 
         function requestDataUpdateRedirect() {
             $.ajax({
-                url: '/viia/update',
+                url: '/aiia/update',
                 type: 'POST',
                 dataType: "json",
                 success: function(data) {
@@ -378,7 +378,7 @@
 
         function toggleEmail() {
             $.ajax({
-                url: '/viia/toggle-email',
+                url: '/aiia/toggle-email',
                 type: 'POST',
                 dataType: "json",
                 success: function(data) {

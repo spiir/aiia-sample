@@ -4,25 +4,25 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Aiia.Sample.Data;
+using Aiia.Sample.Models;
+using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ViiaSample.Data;
-using ViiaSample.Models;
-using ViiaSample.Services;
 
-namespace ViiaSample.Controllers
+namespace Aiia.Sample.Controllers
 {
-    [Route("viia/accounts")]
+    [Route("aiia/accounts")]
     [Authorize]
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly IViiaService _viiaService;
+        private readonly IAiiaService _aiiaService;
 
-        public AccountController(ApplicationDbContext dbContext, IViiaService viiaService)
+        public AccountController(ApplicationDbContext dbContext, IAiiaService aiiaService)
         {
             _dbContext = dbContext;
-            _viiaService = viiaService;
+            _aiiaService = aiiaService;
         }
 
         [HttpGet("")]
@@ -31,40 +31,40 @@ namespace ViiaSample.Controllers
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
 
-            var providers = await _viiaService.GetProviders();
+            var providers = await _aiiaService.GetProviders();
             providers = providers
                         .OrderBy(x => x.CountryCode)
                         .ThenBy(y => y.Name)
                         .ToImmutableList();
 
-            // If user hasn't connected to Viia or his access token is expired, show empty accounts page
-            if (user?.ViiaAccessToken == null || user.ViiaAccessTokenExpires < DateTimeOffset.UtcNow)
+            // If user hasn't connected to Aiia or his access token is expired, show empty accounts page
+            if (user?.AiiaAccessToken == null || user.AiiaAccessTokenExpires < DateTimeOffset.UtcNow)
             {
                 return View(new AccountsViewModel
                             {
                                 AccountsGroupedByProvider = null,
-                                ViiaConnectUrl = _viiaService.GetAuthUri(user?.Email).ToString(),
-                                ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
+                                AiiaConnectUrl = _aiiaService.GetAuthUri(user?.Email).ToString(),
+                                AiiaOneTimeConnectUrl = _aiiaService.GetAuthUri(null, true).ToString(),
                                 EmailEnabled = user?.EmailEnabled ?? false,
                                 Providers = providers,
                                 Email = user?.Email,
-                                ConsentId = user?.ViiaConsentId
+                                ConsentId = user?.AiiaConsentId
                             });
             }
 
-            var accounts = await _viiaService.GetUserAccounts(User);
+            var accounts = await _aiiaService.GetUserAccounts(User);
             var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
-            var allAccountsSelected = await _viiaService.AllAccountsSelected(User);
+            var allAccountsSelected = await _aiiaService.AllAccountsSelected(User);
             var model = new AccountsViewModel
                         {
                             AccountsGroupedByProvider = groupedAccounts,
-                            ViiaConnectUrl = _viiaService.GetAuthUri(user.Email).ToString(),
-                            ViiaOneTimeConnectUrl = _viiaService.GetAuthUri(null, true).ToString(),
-                            JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaAccessToken),
-                            RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.ViiaRefreshToken),
+                            AiiaConnectUrl = _aiiaService.GetAuthUri(user.Email).ToString(),
+                            AiiaOneTimeConnectUrl = _aiiaService.GetAuthUri(null, true).ToString(),
+                            JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaAccessToken),
+                            RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaRefreshToken),
                             EmailEnabled = user.EmailEnabled,
                             Providers = providers,
-                            ConsentId = user.ViiaConsentId,
+                            ConsentId = user.AiiaConsentId,
                             Email = user.Email,
                             AllAccountsSelected = allAccountsSelected
                         };
@@ -75,7 +75,7 @@ namespace ViiaSample.Controllers
         public async Task<IActionResult> FetchTransactions(string accountId,
                                                            [FromBody] TransactionQueryRequestViewModel body)
         {
-            var transactions = await _viiaService.GetAccountTransactions(User, accountId, body);
+            var transactions = await _aiiaService.GetAccountTransactions(User, accountId, body);
             return Ok(new TransactionsViewModel(transactions.Transactions,
                                                 transactions.PagingToken,
                                                 body.IncludeDeleted));
@@ -85,7 +85,7 @@ namespace ViiaSample.Controllers
         [HttpGet("{accountId}/transactions")]
         public async Task<IActionResult> Transactions(string accountId)
         {
-            var transactions = await _viiaService.GetAccountTransactions(User, accountId);
+            var transactions = await _aiiaService.GetAccountTransactions(User, accountId);
             return View(new TransactionsViewModel(transactions.Transactions, transactions.PagingToken, false));
         }
     }

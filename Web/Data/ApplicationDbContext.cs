@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace ViiaSample.Data
+namespace Aiia.Sample.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {

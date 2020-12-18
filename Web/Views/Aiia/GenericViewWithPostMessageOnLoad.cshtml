@@ -1,0 +1,51 @@
+@model Aiia.Sample.Models.CallbackViewModel
+
+@{
+    ViewBag.Title = "Complete";
+}
+
+@if (Model.IsError)
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Aiia flow error</h5>
+            <p>This is the configured callback url, that Aiia redirects to, after going through Aiia end-user flow, or if it fails.</p>
+            <p>
+                In this case, this is an error scenario, because
+                <b>
+                    <i>code</i>
+                </b> or
+                <b>
+                    <i>consentId</i>
+                </b> were not provided in the query of this callback url, which means that an error happened in the flow or it was cancelled by end-user
+            </p>
+            <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="finishFlowRedirect()">Finish Flow (Redirect Flow, redirects back to accounts page)</button>
+        </div>
+    </div>
+}
+@if (!Model.IsError && !Model.AutomaticallyFinish)
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Aiia flow complete</h5>
+            <p class="card-text">This is the configured callback url, that Aiia redirects to, after going through Aiia end-user flow, or if it fails.</p>
+            <p>In success scenario, there's a 'code' query parameter provided. e.g., current query: </p>
+            <pre>@Model.Query</pre>
+            <p>This code can be exchanged with Aiia API for an access token that is used for accessing end-user's data</p>
+            <p>In this Sample App's case, we exchanged the code for access token, while processing this request, before rendering the view.</p>
+            <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="finishFlowRedirect()">Finish Flow (Redirect Flow, redirects back to accounts page)</button>
+        </div>
+    </div>
+}
+
+
+@section Scripts
+{
+    <script>
+
+        function finishFlowRedirect() {
+            window.location.href = "/aiia/accounts";
+        }
+        
+    </script>
+}

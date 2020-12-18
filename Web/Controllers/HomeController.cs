@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
+using Aiia.Sample.Models;
 using Microsoft.AspNetCore.Mvc;
-using ViiaSample.Models;
 
-namespace ViiaSample.Controllers
+namespace Aiia.Sample.Controllers
 {
     public class HomeController : Controller
     {

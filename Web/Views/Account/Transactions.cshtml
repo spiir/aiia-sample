@@ -1,4 +1,4 @@
-@model TransactionsViewModel
+@model Aiia.Sample.Models.TransactionsViewModel
 
 @{
     ViewBag.Title = "Transactions";
@@ -50,7 +50,7 @@
     else
     {
         <div id="transaction-container" class="col">
-            <h3 class="text-center">No transactions found. <a href="https://docs.getviia.com/#/accounts/sync">Data synchronization</a> might still be in progress</h3>
+            <h3 class="text-center">No transactions found. <a href="https://docs.aiia.eu/#/accounts/sync">Data synchronization</a> might still be in progress</h3>
         </div>
     }
 
@@ -127,7 +127,7 @@
 
         function loadMore() {
             $.ajax({
-                url: `/viia/accounts/@(Model.Transactions == null || Model.Transactions.Count == 0 ? "" : Model.Transactions[0].AccountId)/transactions/query`,
+                url: `/aiia/accounts/@(Model.Transactions == null || Model.Transactions.Count == 0 ? "" : Model.Transactions[0].AccountId)/transactions/query`,
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',

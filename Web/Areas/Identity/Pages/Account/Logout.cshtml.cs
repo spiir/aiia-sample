@@ -1,12 +1,12 @@
 using System.Threading.Tasks;
+using Aiia.Sample.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using ViiaSample.Data;
 
-namespace ViiaSample.Areas.Identity.Pages.Account
+namespace Aiia.Sample.Areas.Identity.Pages.Account
 {
     [AllowAnonymous]
     public class LogoutModel : PageModel

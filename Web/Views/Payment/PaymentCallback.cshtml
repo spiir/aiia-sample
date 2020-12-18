@@ -1,4 +1,4 @@
-@model PaymentCallbackViewModel
+@model Aiia.Sample.Models.PaymentCallbackViewModel
 
 @{
     ViewBag.Title = "Complete";
@@ -8,8 +8,8 @@
 {
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Viia payment flow error</h5>
-            <p>This is the configured payment callback url, that Viia redirects to, after going through Viia payment flow, or if it fails..</p>
+            <h5 class="card-title">Aiia payment flow error</h5>
+            <p>This is the configured payment callback url, that Aiia redirects to, after going through Aiia payment flow, or if it fails..</p>
             <p>
                 In this case, this is an error scenario, because
                 <b>
@@ -26,8 +26,8 @@ else
 {
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Viia payment flow complete</h5>
-            <p class="card-text">This is the configured payment callback url, that Viia redirects to, after going through Viia payment flow, or if it fails.</p>
+            <h5 class="card-title">Aiia payment flow complete</h5>
+            <p class="card-text">This is the configured payment callback url, that Aiia redirects to, after going through Aiia payment flow, or if it fails.</p>
             <p>In success scenario, there's a 'paymentId' query parameter provided. e.g., current query: </p>
             <pre>@Model.Query</pre>
             <p>This paymentId can be later used to retrieve the payment to see its details and/or status.</p>
@@ -42,11 +42,11 @@ else
 {
     <script>
         function backToOutbound() {
-            window.location.href = "/viia/payments/outbound";
+            window.location.href = "/aiia/payments/outbound";
         }
         
         function backToInbound() {
-            window.location.href = "/viia/payments/inbound";
+            window.location.href = "/aiia/payments/inbound";
         }
     </script>
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace ViiaSample.Exceptions
+namespace Aiia.Sample.Exceptions
 {
     public class UserNotFoundException : Exception
     {
