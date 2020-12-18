@@ -11,7 +11,7 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.Elasticsearch;
 
-namespace ViiaSample.Extensions
+namespace Aiia.Sample.Extensions
 {
     public static class WebHostBuilderExtensions
     {
@@ -43,7 +43,7 @@ namespace ViiaSample.Extensions
                                       {
                                           configuration.Enrich.FromLogContext();
                                           configuration.Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName);
-                                          configuration.Enrich.WithProperty("Type", "viia-sample");
+                                          configuration.Enrich.WithProperty("Type", "aiia-sample");
                                           configuration.Enrich.WithProperty("Culture", Thread.CurrentThread.CurrentCulture);
                                           configuration.Enrich.WithProperty("Version",
                                                                             Assembly.GetEntryAssembly()

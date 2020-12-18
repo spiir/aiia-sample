@@ -2,26 +2,26 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Aiia.Sample.Models;
+using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using ViiaSample.Models;
-using ViiaSample.Models.Viia;
-using ViiaSample.Services;
 
-namespace ViiaSample.Controllers
+namespace Aiia.Sample.Controllers
 {
-    [Route("viia/")]
+    [Route("aiia/")]
     [Authorize]
     public class PaymentController : Controller
     {
         private readonly IWebHostEnvironment _environment;
-        private readonly IViiaService _viiaService;
+        private readonly IAiiaService _aiiaService;
 
-        public PaymentController(IViiaService viiaService, IWebHostEnvironment environment)
+        public PaymentController(IAiiaService aiiaService, IWebHostEnvironment environment)
         {
-            _viiaService = viiaService;
+            _aiiaService = aiiaService;
             _environment = environment;
         }
 
@@ -35,9 +35,9 @@ namespace ViiaSample.Controllers
             IImmutableList<Account> accounts = ImmutableList.Create<Account>();
             try
             {
-                accounts = await _viiaService.GetUserAccounts(User);
+                accounts = await _aiiaService.GetUserAccounts(User);
             }
-            catch (ViiaClientException e)
+            catch (AiiaClientException e)
             {
                 // TODO
             }
@@ -59,11 +59,11 @@ namespace ViiaSample.Controllers
             var result = new CreatePaymentResultViewModel();
             try
             {
-                var createPaymentResult = await _viiaService.CreateInboundPayment(User, body);
+                var createPaymentResult = await _aiiaService.CreateInboundPayment(User, body);
                 result.PaymentId = createPaymentResult.PaymentId;
                 result.AuthorizationUrl = createPaymentResult.AuthorizationUrl;
             }
-            catch (ViiaClientException e)
+            catch (AiiaClientException e)
             {
                 result.ErrorDescription = e.Message;
             }
@@ -81,9 +81,9 @@ namespace ViiaSample.Controllers
             IImmutableList<Account> accounts = ImmutableList.Create<Account>();
             try
             {
-                accounts = await _viiaService.GetUserAccounts(User);
+                accounts = await _aiiaService.GetUserAccounts(User);
             }
-            catch (ViiaClientException e)
+            catch (AiiaClientException e)
             {
                 // TODO
             }
@@ -105,11 +105,11 @@ namespace ViiaSample.Controllers
             var result = new CreatePaymentResultViewModel();
             try
             {
-                var createPaymentResult = await _viiaService.CreateOutboundPayment(User, body);
+                var createPaymentResult = await _aiiaService.CreateOutboundPayment(User, body);
                 result.PaymentId = createPaymentResult.PaymentId;
                 result.AuthorizationUrl = createPaymentResult.AuthorizationUrl;
             }
-            catch (ViiaClientException e)
+            catch (AiiaClientException e)
             {
                 result.ErrorDescription = e.Message;
             }
@@ -130,15 +130,15 @@ namespace ViiaSample.Controllers
                          };
             try
             {
-                var payments = await _viiaService.GetPayments(User);
-                var accounts = await _viiaService.GetUserAccounts(User);
+                var payments = await _aiiaService.GetPayments(User);
+                var accounts = await _aiiaService.GetUserAccounts(User);
                 foreach (var account in accounts)
                 {
                     var accountPayments = payments.Payments?.Where(payment => payment.AccountId == account.Id && payment.Type == PaymentType.Inbound).ToList();
                     result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
                 }
             }
-            catch (ViiaClientException e)
+            catch (AiiaClientException e)
             {
                 // TODO
             }
@@ -159,15 +159,15 @@ namespace ViiaSample.Controllers
                          };
             try
             {
-                var payments = await _viiaService.GetPayments(User);
-                var accounts = await _viiaService.GetUserAccounts(User);
+                var payments = await _aiiaService.GetPayments(User);
+                var accounts = await _aiiaService.GetUserAccounts(User);
                 foreach (var account in accounts)
                 {
                     var accountPayments = payments.Payments?.Where(payment => payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
                     result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
                 }
             }
-            catch (ViiaClientException e)
+            catch (AiiaClientException e)
             {
                 // TODO
             }
@@ -208,17 +208,17 @@ namespace ViiaSample.Controllers
             }
             try
             {
-                var payment = await _viiaService.GetOutboundPayment(User, accountId, paymentId);
+                var payment = await _aiiaService.GetOutboundPayment(User, accountId, paymentId);
                 return View("PaymentDetails", payment);
             }
-            catch (ViiaClientException)
+            catch (AiiaClientException)
             {
                 try
                 {
-                    var payment = await _viiaService.GetInboundPayment(User, accountId, paymentId);
+                    var payment = await _aiiaService.GetInboundPayment(User, accountId, paymentId);
                     return View("PaymentDetails", payment);
                 }
-                catch (ViiaClientException)
+                catch (AiiaClientException)
                 {
                     return View("PaymentDetails");
                 }

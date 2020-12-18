@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ViiaSample.Models
+namespace Aiia.Sample.Models
 {
     public class TransactionQueryRequestViewModel
     {

@@ -1,20 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace ViiaSample.Data.Migrations
+namespace Aiia.Sample.Data.Migrations
 {
-    public partial class AddViiaConsentId : Migration
+    public partial class AddAiiaConsentId : Migration
     {
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                                        "ViiaConsentId",
+                                        "AiiaConsentId",
                                         "AspNetUsers");
         }
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                                               "ViiaConsentId",
+                                               "AiiaConsentId",
                                                "AspNetUsers",
                                                nullable: true);
         }

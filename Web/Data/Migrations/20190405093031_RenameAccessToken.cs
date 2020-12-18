@@ -1,28 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace ViiaSample.Data.Migrations
+namespace Aiia.Sample.Data.Migrations
 {
     public partial class RenameAccessToken : Migration
     {
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameColumn(
-                                          "ViiaTokenType",
+                                          "AiiaTokenType",
                                           "AspNetUsers",
                                           "MyDataTokenType");
 
             migrationBuilder.RenameColumn(
-                                          "ViiaRefreshToken",
+                                          "AiiaRefreshToken",
                                           "AspNetUsers",
                                           "MyDataRefreshToken");
 
             migrationBuilder.RenameColumn(
-                                          "ViiaAccessTokenExpires",
+                                          "AiiaAccessTokenExpires",
                                           "AspNetUsers",
                                           "MyDataAccessTokenExpires");
 
             migrationBuilder.RenameColumn(
-                                          "ViiaAccessToken",
+                                          "AiiaAccessToken",
                                           "AspNetUsers",
                                           "MyDataAccessToken");
         }
@@ -32,22 +32,22 @@ namespace ViiaSample.Data.Migrations
             migrationBuilder.RenameColumn(
                                           "MyDataTokenType",
                                           "AspNetUsers",
-                                          "ViiaTokenType");
+                                          "AiiaTokenType");
 
             migrationBuilder.RenameColumn(
                                           "MyDataRefreshToken",
                                           "AspNetUsers",
-                                          "ViiaRefreshToken");
+                                          "AiiaRefreshToken");
 
             migrationBuilder.RenameColumn(
                                           "MyDataAccessTokenExpires",
                                           "AspNetUsers",
-                                          "ViiaAccessTokenExpires");
+                                          "AiiaAccessTokenExpires");
 
             migrationBuilder.RenameColumn(
                                           "MyDataAccessToken",
                                           "AspNetUsers",
-                                          "ViiaAccessToken");
+                                          "AiiaAccessToken");
         }
     }
 }

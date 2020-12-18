@@ -4,7 +4,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace ViiaSample.Data.Migrations
+namespace Aiia.Sample.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     internal class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -128,7 +128,7 @@ namespace ViiaSample.Data.Migrations
                                     b.ToTable("AspNetUserTokens");
                                 });
 
-            modelBuilder.Entity("ViiaSample.Data.ApplicationUser",
+            modelBuilder.Entity("Aiia.Sample.Data.ApplicationUser",
                                 b =>
                                 {
                                     b.Property<string>("Id")
@@ -169,15 +169,15 @@ namespace ViiaSample.Data.Migrations
                                     b.Property<string>("UserName")
                                      .HasMaxLength(256);
 
-                                    b.Property<string>("ViiaAccessToken");
+                                    b.Property<string>("AiiaAccessToken");
 
-                                    b.Property<DateTimeOffset>("ViiaAccessTokenExpires");
+                                    b.Property<DateTimeOffset>("AiiaAccessTokenExpires");
 
-                                    b.Property<string>("ViiaConsentId");
+                                    b.Property<string>("AiiaConsentId");
 
-                                    b.Property<string>("ViiaRefreshToken");
+                                    b.Property<string>("AiiaRefreshToken");
 
-                                    b.Property<string>("ViiaTokenType");
+                                    b.Property<string>("AiiaTokenType");
 
                                     b.HasKey("Id");
 
@@ -203,7 +203,7 @@ namespace ViiaSample.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>",
                                 b =>
                                 {
-                                    b.HasOne("ViiaSample.Data.ApplicationUser")
+                                    b.HasOne("Aiia.Sample.Data.ApplicationUser")
                                      .WithMany()
                                      .HasForeignKey("UserId")
                                      .OnDelete(DeleteBehavior.Cascade);
@@ -212,7 +212,7 @@ namespace ViiaSample.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>",
                                 b =>
                                 {
-                                    b.HasOne("ViiaSample.Data.ApplicationUser")
+                                    b.HasOne("Aiia.Sample.Data.ApplicationUser")
                                      .WithMany()
                                      .HasForeignKey("UserId")
                                      .OnDelete(DeleteBehavior.Cascade);
@@ -226,7 +226,7 @@ namespace ViiaSample.Data.Migrations
                                      .HasForeignKey("RoleId")
                                      .OnDelete(DeleteBehavior.Cascade);
 
-                                    b.HasOne("ViiaSample.Data.ApplicationUser")
+                                    b.HasOne("Aiia.Sample.Data.ApplicationUser")
                                      .WithMany()
                                      .HasForeignKey("UserId")
                                      .OnDelete(DeleteBehavior.Cascade);
@@ -235,7 +235,7 @@ namespace ViiaSample.Data.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>",
                                 b =>
                                 {
-                                    b.HasOne("ViiaSample.Data.ApplicationUser")
+                                    b.HasOne("Aiia.Sample.Data.ApplicationUser")
                                      .WithMany()
                                      .HasForeignKey("UserId")
                                      .OnDelete(DeleteBehavior.Cascade);

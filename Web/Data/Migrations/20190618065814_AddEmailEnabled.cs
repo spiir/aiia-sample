@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace ViiaSample.Data.Migrations
+namespace Aiia.Sample.Data.Migrations
 {
     public partial class AddEmailEnabled : Migration
     {

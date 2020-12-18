@@ -11,6 +11,11 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Aiia.Sample.Data;
+using Aiia.Sample.Exceptions;
+using Aiia.Sample.Extensions;
+using Aiia.Sample.Models;
+using Aiia.Sample.Models.Aiia;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,15 +23,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NodaTime;
 using NodaTime.Serialization.JsonNet;
-using ViiaSample.Data;
-using ViiaSample.Exceptions;
-using ViiaSample.Extensions;
-using ViiaSample.Models;
-using ViiaSample.Models.Viia;
 
-namespace ViiaSample.Services
+namespace Aiia.Sample.Services
 {
-    public interface IViiaService
+    public interface IAiiaService
     {
         Task<bool?> AllAccountsSelected(ClaimsPrincipal principal);
         Task<CreatePaymentResponse> CreateInboundPayment(ClaimsPrincipal user, CreatePaymentRequestViewModel body);
@@ -53,17 +53,17 @@ namespace ViiaSample.Services
         Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken);
     }
 
-    public class ViiaService : IViiaService
+    public class AiiaService : IAiiaService
     {
         private readonly ApplicationDbContext _dbContext;
         private readonly IEmailService _emailService;
         private readonly Lazy<HttpClient> _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<ViiaService> _logger;
+        private readonly ILogger<AiiaService> _logger;
         private readonly IOptionsMonitor<SiteOptions> _options;
 
-        public ViiaService(IOptionsMonitor<SiteOptions> options,
-                           ILogger<ViiaService> logger,
+        public AiiaService(IOptionsMonitor<SiteOptions> options,
+                           ILogger<AiiaService> logger,
                            ApplicationDbContext dbContext,
                            IHttpContextAccessor httpContextAccessor,
                            IEmailService emailService)
@@ -77,7 +77,7 @@ namespace ViiaSample.Services
                                                {
                                                    var client = new HttpClient
                                                                 {
-                                                                    BaseAddress = new Uri(options.CurrentValue.Viia.BaseApiUrl)
+                                                                    BaseAddress = new Uri(options.CurrentValue.Aiia.BaseApiUrl)
                                                                 };
                                                    return client;
                                                });
@@ -95,13 +95,13 @@ namespace ViiaSample.Services
             try
             {
                 var response = await HttpGet<AllAccountSelectedResponse>(
-                                                                         $"v1/consent/{user.ViiaConsentId}/all-accounts-selected",
-                                                                         user.ViiaTokenType,
-                                                                         user.ViiaAccessToken);
+                                                                         $"v1/consent/{user.AiiaConsentId}/all-accounts-selected",
+                                                                         user.AiiaTokenType,
+                                                                         user.AiiaAccessToken);
 
                 return response.AllAccountsSelected;
             }
-            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Forbidden)
+            catch (AiiaClientException e) when (e.StatusCode == HttpStatusCode.Forbidden)
             {
                 return null;
             }
@@ -134,8 +134,8 @@ namespace ViiaSample.Services
                 return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/inbound",
                                                             paymentRequest,
                                                             HttpMethod.Post,
-                                                            user.ViiaTokenType,
-                                                            user.ViiaAccessToken);
+                                                            user.AiiaTokenType,
+                                                            user.AiiaAccessToken);
             }
         }
 
@@ -183,8 +183,8 @@ namespace ViiaSample.Services
             return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/outbound",
                                                         paymentRequest,
                                                         HttpMethod.Post,
-                                                        user.ViiaTokenType,
-                                                        user.ViiaAccessToken);
+                                                        user.AiiaTokenType,
+                                                        user.AiiaAccessToken);
         }
 
         public async Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code)
@@ -242,20 +242,20 @@ namespace ViiaSample.Services
                                                                                     SystemClock.Instance.GetCurrentInstant()),
                                                             queryRequest?.PagingToken,
                                                             PageSize = 20,
-                                                            Patterns = queryRequest?.Filters.Select(MapQueryPartToViiaQueryPart).ToList(),
+                                                            Patterns = queryRequest?.Filters.Select(MapQueryPartToAiiaQueryPart).ToList(),
                                                             queryRequest?.AmountValueBetween,
                                                             queryRequest?.BalanceValueBetween
                                                         },
-                                                        user.ViiaTokenType,
-                                                        user.ViiaAccessToken,
+                                                        user.AiiaTokenType,
+                                                        user.AiiaAccessToken,
                                                         principal);
         }
 
         public Uri GetAuthUri(string email, bool oneTime = false)
         {
             var connectUrl =
-                $"{_options.CurrentValue.Viia.BaseApiUrl}/v1/oauth/connect" +
-                $"?client_id={_options.CurrentValue.Viia.ClientId}" +
+                $"{_options.CurrentValue.Aiia.BaseApiUrl}/v1/oauth/connect" +
+                $"?client_id={_options.CurrentValue.Aiia.ClientId}" +
                 "&response_type=code" +
                 $"&redirect_uri={GetRedirectUrl()}" +
                 $"&flow={(oneTime ? "OneTimeUser" : "PersistentUser")}";
@@ -277,8 +277,8 @@ namespace ViiaSample.Services
             return await CallApi<InboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/inbound",
                                                  null,
                                                  HttpMethod.Get,
-                                                 user.ViiaTokenType,
-                                                 user.ViiaAccessToken);
+                                                 user.AiiaTokenType,
+                                                 user.AiiaAccessToken);
         }
 
         public async Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal,
@@ -295,8 +295,8 @@ namespace ViiaSample.Services
             return await CallApi<OutboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
                                                   null,
                                                   HttpMethod.Get,
-                                                  user.ViiaTokenType,
-                                                  user.ViiaAccessToken);
+                                                  user.AiiaTokenType,
+                                                  user.AiiaAccessToken);
         }
 
         public async Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal)
@@ -317,8 +317,8 @@ namespace ViiaSample.Services
             return await CallApi<PaymentsResponse>("v1/payments/query",
                                                    request,
                                                    HttpMethod.Post,
-                                                   user.ViiaTokenType,
-                                                   user.ViiaAccessToken);
+                                                   user.AiiaTokenType,
+                                                   user.AiiaAccessToken);
         }
 
         public Task<ImmutableList<BankProvider>> GetProviders()
@@ -336,7 +336,7 @@ namespace ViiaSample.Services
             }
 
             var result =
-                await HttpGet<AccountsResponse>("/v1/accounts", user.ViiaTokenType, user.ViiaAccessToken, principal);
+                await HttpGet<AccountsResponse>("/v1/accounts", user.AiiaTokenType, user.AiiaAccessToken, principal);
             return result?.Accounts.ToImmutableList();
         }
 
@@ -349,13 +349,13 @@ namespace ViiaSample.Services
                 return null;
             }
 
-            var redirectUrl = $"{GetBaseUrl()}/viia/data/{currentUserId}/";
+            var redirectUrl = $"{GetBaseUrl()}/aiia/data/{currentUserId}/";
             var requestBody = new InitiateDataUpdateRequest { RedirectUrl = redirectUrl };
 
             return HttpPost<InitiateDataUpdateResponse>("v1/update",
                                                         requestBody,
-                                                        user.ViiaTokenType,
-                                                        user.ViiaAccessToken);
+                                                        user.AiiaTokenType,
+                                                        user.AiiaAccessToken);
         }
 
         public async Task ProcessWebHookPayload(HttpRequest request)
@@ -363,9 +363,9 @@ namespace ViiaSample.Services
             var payloadString = await ReadRequestBody(request.Body);
 
             _logger.LogInformation($"Received webhook: {payloadString}");
-            // `X-Viia-Signature` is provided optionally if client has configured `WebhookSecret` and is used to verify that webhook was sent by Viia
-            var viiaSignature = request.Headers["X-Viia-Signature"];
-            if (!VerifySignature(viiaSignature, payloadString))
+            // `X-Aiia-Signature` is provided optionally if client has configured `WebhookSecret` and is used to verify that webhook was sent by Aiia
+            var aiiaSignature = request.Headers["X-Aiia-Signature"];
+            if (!VerifySignature(aiiaSignature, payloadString))
             {
                 _logger.LogWarning("Failed to verify webhook signature");
                 return;
@@ -386,7 +386,7 @@ namespace ViiaSample.Services
                                 ? string.Empty
                                 : data["consentId"].Value<string>();
 
-            var user = _dbContext.Users.FirstOrDefault(x => x.ViiaConsentId == consentId);
+            var user = _dbContext.Users.FirstOrDefault(x => x.AiiaConsentId == consentId);
             if (user == null)
             {
                 _logger.LogInformation($"No user found with consent {consentId}");
@@ -473,7 +473,7 @@ namespace ViiaSample.Services
                 var duration = sw.Elapsed;
 
                 _logger.LogDebug(
-                                 "Viia request: {RequestUri} {StatusCode} {DurationMilliseconds}ms",
+                                 "Aiia request: {RequestUri} {StatusCode} {DurationMilliseconds}ms",
                                  result.RequestMessage.RequestUri,
                                  result.StatusCode,
                                  Math.Round(duration.TotalMilliseconds)
@@ -482,7 +482,7 @@ namespace ViiaSample.Services
                 if (!result.IsSuccessStatusCode)
                 {
                     responseContent = await result.Content.ReadAsStringAsync();
-                    throw new ViiaClientException(url, result.StatusCode, responseContent);
+                    throw new AiiaClientException(url, result.StatusCode, responseContent);
                 }
 
                 responseContent = await result.Content.ReadAsStringAsync();
@@ -490,34 +490,34 @@ namespace ViiaSample.Services
                                                         new JsonSerializerSettings().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
                                                                                     .WithIsoIntervalConverter());
             }
-            catch (ViiaClientException)
+            catch (AiiaClientException)
             {
                 throw;
             }
             catch (JsonSerializationException e)
             {
-                throw new ViiaClientException(url, method, responseContent, e);
+                throw new AiiaClientException(url, method, responseContent, e);
             }
             catch (Exception e)
             {
-                throw new ViiaClientException(url, method, result, e);
+                throw new AiiaClientException(url, method, result, e);
             }
         }
 
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
         // TL;DR:
-        // 1. Create string - `{your viia client id}:{your viia client secret}`
+        // 1. Create string - `{your aiia client id}:{your aiia client secret}`
         // 2. Convert that string to byte array using `iso-8859-1` encoding
         // 3. Convert that byte array to base 64
         private string GenerateBasicAuthorizationHeaderValue()
         {
-            var credentials = $"{_options.CurrentValue.Viia.ClientId}:{_options.CurrentValue.Viia.ClientSecret}";
+            var credentials = $"{_options.CurrentValue.Aiia.ClientId}:{_options.CurrentValue.Aiia.ClientSecret}";
             var credentialsByteData = Encoding.GetEncoding("iso-8859-1").GetBytes(credentials);
             var base64Credentials = Convert.ToBase64String(credentialsByteData);
             return $"{base64Credentials}";
         }
 
-        // Generate HMAC hash of webhook payload using secret shared with Viia
+        // Generate HMAC hash of webhook payload using secret shared with Aiia
         private string GenerateHmacSignature(string payload, string secret)
         {
             var encoding = new UTF8Encoding();
@@ -550,13 +550,13 @@ namespace ViiaSample.Services
         private string GetPaymentRedirectUrl()
         {
             var request = _httpContextAccessor.HttpContext.Request;
-            return $"{request.Scheme}://{request.Host}{request.PathBase}/viia/payments/callback";
+            return $"{request.Scheme}://{request.Host}{request.PathBase}/aiia/payments/callback";
         }
 
         private string GetRedirectUrl()
         {
             var request = _httpContextAccessor.HttpContext.Request;
-            return $"{request.Scheme}://{request.Host}{request.PathBase}/viia/callback";
+            return $"{request.Scheme}://{request.Host}{request.PathBase}/aiia/callback";
         }
 
         private async Task<Transaction> GetTransaction(ClaimsPrincipal principal,
@@ -569,8 +569,8 @@ namespace ViiaSample.Services
                 return null;
 
             return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}",
-                                              user.ViiaTokenType,
-                                              user.ViiaAccessToken,
+                                              user.AiiaTokenType,
+                                              user.AiiaAccessToken,
                                               principal);
         }
 
@@ -584,7 +584,7 @@ namespace ViiaSample.Services
             {
                 return await CallApi<T>(url, null, HttpMethod.Get, accessTokenType, accessToken);
             }
-            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
+            catch (AiiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
                                                 !isRetry)
             {
                 var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
@@ -603,7 +603,7 @@ namespace ViiaSample.Services
             {
                 return await CallApi<T>(url, body, HttpMethod.Post, accessTokenType, accessToken);
             }
-            catch (ViiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
+            catch (AiiaClientException e) when (e.StatusCode == HttpStatusCode.Unauthorized && accessToken.IsSet() &&
                                                 !isRetry)
             {
                 var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
@@ -616,9 +616,9 @@ namespace ViiaSample.Services
             }
         }
 
-        private ViiaQueryPart MapQueryPartToViiaQueryPart(QueryPart filter)
+        private AiiaQueryPart MapQueryPartToAiiaQueryPart(QueryPart filter)
         {
-            return new ViiaQueryPart
+            return new AiiaQueryPart
                    {
                        IncludedQueryProperties = new List<string> { filter.Property },
                        Pattern = filter.Value,
@@ -649,32 +649,32 @@ namespace ViiaSample.Services
                 return null;
             }
 
-            var result = await RefreshAccessToken(user.ViiaRefreshToken);
-            user.ViiaAccessToken = result.AccessToken;
-            user.ViiaRefreshToken = result.RefreshToken;
-            user.ViiaTokenType = result.TokenType;
+            var result = await RefreshAccessToken(user.AiiaRefreshToken);
+            user.AiiaAccessToken = result.AccessToken;
+            user.AiiaRefreshToken = result.RefreshToken;
+            user.AiiaTokenType = result.TokenType;
 
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
             return result;
         }
 
-        // Viia calculates same HMAC hash using the secret only known by the client and Viia
-        // If HMAC hashes doesn't mach, it means that the webhook was not sent by Viia
-        private bool VerifySignature(string viiaSignature, string payload)
+        // Aiia calculates same HMAC hash using the secret only known by the client and Aiia
+        // If HMAC hashes doesn't mach, it means that the webhook was not sent by Aiia
+        private bool VerifySignature(string aiiaSignature, string payload)
         {
-            if (string.IsNullOrWhiteSpace(viiaSignature))
+            if (string.IsNullOrWhiteSpace(aiiaSignature))
                 return true;
 
-            if (string.IsNullOrWhiteSpace(_options.CurrentValue.Viia.WebHookSecret))
+            if (string.IsNullOrWhiteSpace(_options.CurrentValue.Aiia.WebHookSecret))
                 return true;
 
-            var generatedSignature = GenerateHmacSignature(payload, _options.CurrentValue.Viia.WebHookSecret);
+            var generatedSignature = GenerateHmacSignature(payload, _options.CurrentValue.Aiia.WebHookSecret);
 
-            if (generatedSignature != viiaSignature)
+            if (generatedSignature != aiiaSignature)
             {
                 _logger.LogWarning(
-                                   $"Webhook signatures didn't match. Received:\n{viiaSignature}\nGenerated: {generatedSignature}");
+                                   $"Webhook signatures didn't match. Received:\n{aiiaSignature}\nGenerated: {generatedSignature}");
                 return false;
             }
 
