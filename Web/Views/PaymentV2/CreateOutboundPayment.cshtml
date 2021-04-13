@@ -1,0 +1,165 @@
+@model Aiia.Sample.Models.CreatePaymentViewModel
+
+@{
+    ViewBag.Title = "Payments V2";
+    Layout = "_Layout";
+}
+
+
+
+@if (Model?.Accounts?.Count != 0)
+{
+    <div class="row justify-content-md-center">
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-source">Source Account</label>
+            </div>
+            <select class="custom-select" id="payment-source">
+                @foreach (var account in Model.Accounts)
+                {
+                    <option value="@account.Id">@account.Name (@(account?.Number.Iban ?? account?.Number.Bban ?? "Unknown account number"))</option>
+                }
+            </select>
+        </div>
+
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-type">Destination type</label>
+            </div>
+            <select class="custom-select" id="payment-target-type">
+                <option value="iban">IBAN</option>
+                <option value="bban">BBAN</option>
+            </select>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="payment-iban-input-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-iban">Destination IBAN</label>
+            </div>
+            <input class="form-control" id="payment-target-iban" type="text" placeholder="DK5001234567890123"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="payment-bban-bank-input-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-bban-bank">Destination BBAN Bank identifier</label>
+            </div>
+            <input class="form-control" id="payment-target-bban-bank" type="text" placeholder="0040"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="payment-bban-account-input-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-bban-account">Destination BBAN Account identifier</label>
+            </div>
+            <input class="form-control" id="payment-target-bban-account" type="text" placeholder="012345678901"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-target-name">Destination account owner's name</label>
+            </div>
+            <input class="form-control" id="payment-target-name" type="text" placeholder="John Smith"/>
+        </div>
+
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-amount">Amount</label>
+            </div>
+            <input class="form-control" id="payment-amount" type="number" placeholder="100"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-message">Message</label>
+            </div>
+            <input class="form-control" id="payment-message" type="text" placeholder=""/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-transaction-text">Transaction text</label>
+            </div>
+            <input class="form-control" id="payment-transaction-text" type="text" placeholder=""/>
+        </div>
+        
+        <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="sendRequestToCreatePayment()">Create payment</button>
+    </div>
+}
+else
+{
+    <div class="row justify-content-md-center">
+        <h2>It is required to have non one-time account connected to be able to create payments.</h2>
+    </div>
+}
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function() {
+            toggleCorrectDestinationInput();
+        });
+
+        $('#payment-target-type').change(function() {
+            toggleCorrectDestinationInput();
+        });
+
+        $('#payment-type').change(function() {
+            const paymentType = $('#payment-type').val();
+            if (paymentType === 'scheduled') {
+                $('#payment-scheduled-input-container').show();
+            }
+        });
+
+        function toggleCorrectDestinationInput() {
+            const ibanInputContainer = $('#payment-iban-input-container');
+            const bbanBankInputeContainer = $('#payment-bban-bank-input-container');
+            const bbanAccountInputeContainer = $('#payment-bban-account-input-container');
+
+            ibanInputContainer.hide();
+            bbanBankInputeContainer.hide();
+            bbanAccountInputeContainer.hide();
+
+            const destinationType = $('#payment-target-type').val();
+
+            if (destinationType === 'iban') {
+                ibanInputContainer.show();
+            } else {
+                bbanBankInputeContainer.show();
+                bbanAccountInputeContainer.show();
+            }
+        }
+
+        function sendRequestToCreatePayment() {
+
+            const body = {
+                sourceAccountId: $('#payment-source').val(),
+                Iban: $('#payment-target-iban').val(),
+                BbanBankCode: $('#payment-target-bban-bank').val(),
+                bbanAccountNumber: $('#payment-target-bban-account').val(),
+                Amount: parseFloat($('#payment-amount').val()),
+                message: $('#payment-message').val(),
+                transactionText: $('#payment-transaction-text').val(),
+                RecipientFullname: $('#payment-target-name').val(),
+            };
+            $.ajax({
+                url: '/v2/aiia/payments/create/outbound',
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify(body),
+                success: function(data) {
+                    if (data.errorDescription) {
+                        alert(`Failed:\n${data.errorDescription}`);
+                    } else {
+                        alert(`Success! Payment Id: ${data.paymentId}`);
+                        window.location.href = "/v2/aiia/payments/outbound";
+                    }
+                },
+                error: function(data) {
+                    alert('Request failed');
+                }
+            });
+        }
+    </script>
+}
