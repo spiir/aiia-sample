@@ -204,7 +204,7 @@ namespace Aiia.Sample.Services
             {
                 Payment = new PaymentRequest
                 {
-                    Message = request.message,
+                    Message = request.Message,
                     TransactionText = request.TransactionText,
                     Amount = new PaymentAmountRequest
                     {
@@ -257,52 +257,6 @@ namespace Aiia.Sample.Services
                 HttpMethod.Post,
                 user.AiiaTokenType,
                 user.AiiaAccessToken);
-        }
-
-        public async Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal,
-                                                                       CreatePaymentRequestViewModel request)
-        {
-            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
-            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
-
-            var paymentRequest = new CreateOutboundPaymentRequest
-            {
-                Payment = new PaymentRequest
-                {
-                    Message = request.message,
-                    TransactionText = request.TransactionText,
-                    Amount = new PaymentAmountRequest
-                    {
-                        Value = request.Amount
-                    },
-                    Destination = new PaymentDestinationRequest()
-                },
-            };
-
-            paymentRequest.Payment.Destination.RecipientFullname = request.RecipientFullname;
-
-            if (!string.IsNullOrWhiteSpace(request.Iban))
-            {
-                paymentRequest.Payment.Destination.IBan = request.Iban;
-            }
-            else
-            {
-                paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
-                {
-                    BankCode = request.BbanBankCode,
-                    AccountNumber = request.BbanAccountNumber
-                };
-            }
-
-            return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments/outbound",
-                                                        paymentRequest,
-                                                        HttpMethod.Post,
-                                                        user.AiiaTokenType,
-                                                        user.AiiaAccessToken);
         }
 
         public async Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code)
