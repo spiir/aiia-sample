@@ -9,7 +9,7 @@
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Aiia payment flow error</h5>
-            <p>This is the configured payment callback url, that Aiia redirects to, after going through Aiia payment flow, or if it fails..</p>
+            <p>This is the configured payment authorization callback url that Aiia redirects to after going through the Aiia payment authorization flow.</p>
             <p>
                 In this case, this is an error scenario, because
                 <b>
@@ -26,10 +26,10 @@ else
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">Aiia payment flow complete</h5>
-            <p class="card-text">This is the configured payment callback url, that Aiia redirects to, after going through Aiia payment flow, or if it fails.</p>
-            <p>In success scenario, there's a 'paymentId' query parameter provided. e.g., current query: </p>
+            <p class="card-text">This is the configured payment authorization callback url that Aiia redirects to after going through the Aiia payment authorization flow.</p>
+            <p>In the success scenario, there's an 'authorizationId' query parameter provided. e.g., current query: </p>
             <pre>@Model.Query</pre>
-            <p>This paymentId can be later used to retrieve the payment to see its details and/or status.</p>
+            <p>This authorizationId can be used to retrieve the authorization later to see its details and/or status.</p>
             <button class="btn btn-primary" onclick="backToOutbound()">Back to outbound payments V2</button>
         </div>
     </div>
