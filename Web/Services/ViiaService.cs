@@ -249,7 +249,7 @@ namespace Aiia.Sample.Services
             {
                 Culture = request.Culture,
                 PaymentIds = request.PaymentIds.ToArray(),
-                RedirectUrl = GetPaymentRedirectUrl(),
+                RedirectUrl = GetPaymentAuthorizationRedirectUrl(),
             };
 
             return await CallApi<CreatePaymentAuthorizationResponse>($"v2/accounts/{request.SourceAccountId}/payments/outbound/authorizations",
@@ -633,6 +633,12 @@ namespace Aiia.Sample.Services
             var pathBase = request.PathBase.ToUriComponent();
 
             return $"{request.Scheme}://{host}{pathBase}";
+        }
+
+        private string GetPaymentAuthorizationRedirectUrl()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}{request.PathBase}/v2/aiia/payment-authorizations/callback";
         }
 
         private string GetPaymentRedirectUrl()

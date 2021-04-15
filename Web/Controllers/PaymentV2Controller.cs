@@ -142,13 +142,13 @@ namespace Aiia.Sample.Controllers
         }
 
         [HttpGet("payment-authorizations/callback")]
-        public IActionResult PaymentAuthorizationCallback([FromQuery] string paymentAuthorizationId)
+        public IActionResult PaymentAuthorizationCallback([FromQuery] string authorizationId)
         {
             if (_environment.IsProduction())
             {
                 return NotFound();
             }
-            if (string.IsNullOrWhiteSpace(paymentAuthorizationId))
+            if (string.IsNullOrWhiteSpace(authorizationId))
             {
                 return View("PaymentAuthorizationCallback",
                             new PaymentAuthorizationCallbackViewModel
@@ -161,7 +161,7 @@ namespace Aiia.Sample.Controllers
                         new PaymentAuthorizationCallbackViewModel
                         {
                             Query = Request.QueryString.Value,
-                            PaymentAuthorizationId = paymentAuthorizationId
+                            PaymentAuthorizationId = authorizationId
                         });
         }
 
