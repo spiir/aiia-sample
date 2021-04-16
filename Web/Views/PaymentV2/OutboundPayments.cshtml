@@ -45,10 +45,11 @@
                             @if (payment.Status.PaymentStatusCode == "Created")
                             {
                                 <input type="checkbox" value="@payment.Id" onchange="toggleSubmitEnabled('@group.Key.Id')" />
-                                <span class="mt-3">@payment.Id</span>
                             }
+
+                            <span class="mt-3">@payment.Id</span>
                             <span class="bg-light mb-2 w-100"
-                                 onclick="window.location.href = '@Url.Action("PaymentDetails", "PaymentV2", new {accountId = group.Key.Id, paymentId = payment.Id})'">
+                                  onclick="window.location.href = '@Url.Action("PaymentDetails", "PaymentV2", new {accountId = group.Key.Id, paymentId = payment.Id})'">
 
                                 <span id="payments" class="media-body ml-3" style="cursor: pointer">
 
