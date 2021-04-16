@@ -1,0 +1,194 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading.Tasks;
+using Aiia.Sample.Models;
+using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
+
+namespace Aiia.Sample.Controllers
+{
+    [Route("v2/aiia/")]
+    [Authorize]
+    public class PaymentV2Controller : Controller
+    {
+        private readonly IWebHostEnvironment _environment;
+        private readonly IAiiaService _aiiaService;
+
+        public PaymentV2Controller(IAiiaService aiiaService, IWebHostEnvironment environment)
+        {
+            _aiiaService = aiiaService;
+            _environment = environment;
+        }
+
+       
+        [HttpGet("payments/create/outbound")]
+        public async Task<IActionResult> GetOutboundPayment()
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            IImmutableList<Account> accounts = ImmutableList.Create<Account>();
+            try
+            {
+                accounts = await _aiiaService.GetUserAccounts(User);
+            }
+            catch (AiiaClientException e)
+            {
+                // TODO
+            }
+
+            return View(new CreatePaymentViewModel
+                        {
+                            Accounts = accounts
+                        });
+        }
+
+        [HttpPost("payments/create/outbound")]
+        public async Task<ActionResult<CreatePaymentResultViewModelV2>> CreateOutboundPayment(
+            [FromBody] CreatePaymentRequestViewModelV2 body)
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            var result = new CreatePaymentResultViewModelV2();
+            try
+            {
+                var createPaymentResult = await _aiiaService.CreateOutboundPaymentV2(User, body);
+                result.PaymentId = createPaymentResult.PaymentId;
+            }
+            catch (AiiaClientException e)
+            {
+                result.ErrorDescription = e.Message;
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("payments/outbound")]
+        public async Task<IActionResult> OutboundPayments()
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            var result = new PaymentsViewModel
+                         {
+                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
+                         };
+            try
+            {
+                var payments = await _aiiaService.GetPayments(User);
+                var accounts = await _aiiaService.GetUserAccounts(User);
+                foreach (var account in accounts)
+                {
+                    var accountPayments = payments.Payments?.Where(payment => payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
+                    result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
+                }
+            }
+            catch (AiiaClientException e)
+            {
+                // TODO
+            }
+
+            return View(result);
+        }
+
+        [HttpPost("payment-authorizations/create")]
+        public async Task<ActionResult<CreatePaymentAuthorizationResultViewModel>> CreatePaymentAuthorization(
+            [FromBody] CreatePaymentAuthorizationRequestViewModel body)
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            var result = new CreatePaymentAuthorizationResultViewModel();
+            try
+            {
+                var response = await _aiiaService.CreatePaymentAuthorization(User, body);
+                result.AuthorizationId = response.AuthorizationId;
+                result.AuthorizationUrl= response.AuthorizationUrl;
+            }
+            catch (AiiaClientException e)
+            {
+                result.ErrorDescription = e.Message;
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("payment-authorizations/{accountId}/{authorizationId}")]
+        public async Task<IActionResult> PaymentAuthorizations([FromRoute] string accountId, [FromRoute]string paymentAuthorizationId)
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            try
+            {
+                var authorization = await _aiiaService.GetPaymentAuthorization(User, accountId, paymentAuthorizationId);
+                return View("PaymentAuthorizationDetails", authorization);
+            }
+            catch (AiiaClientException)
+            {
+                return View("PaymentAuthorizationDetails");
+            }
+        }
+
+        [HttpGet("payment-authorizations/callback")]
+        public IActionResult PaymentAuthorizationCallback([FromQuery] string authorizationId)
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            if (string.IsNullOrWhiteSpace(authorizationId))
+            {
+                return View("PaymentAuthorizationCallback",
+                            new PaymentAuthorizationCallbackViewModel
+                            {
+                                IsError = true
+                            });
+            }
+
+            return View("PaymentAuthorizationCallback",
+                        new PaymentAuthorizationCallbackViewModel
+                        {
+                            Query = Request.QueryString.Value,
+                            PaymentAuthorizationId = authorizationId
+                        });
+        }
+
+        [HttpGet("accounts/{accountId}/payments/{paymentId}")]
+        public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
+        {
+            if (_environment.IsProduction())
+            {
+                return NotFound();
+            }
+            try
+            {
+                var payment = await _aiiaService.GetOutboundPayment(User, accountId, paymentId);
+                return View("PaymentDetails", payment);
+            }
+            catch (AiiaClientException)
+            {
+                try
+                {
+                    var payment = await _aiiaService.GetInboundPayment(User, accountId, paymentId);
+                    return View("PaymentDetails", payment);
+                }
+                catch (AiiaClientException)
+                {
+                    return View("PaymentDetails");
+                }
+            }
+        }
+    }
+}

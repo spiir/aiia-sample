@@ -4,6 +4,8 @@ pool:
 variables:
   buildConfiguration: "Release"
 
+name: $(Date:yy)$(DayOfYear)$(rev:.r)
+
 steps:
   - script: |
       dotnet build --configuration $(buildConfiguration)

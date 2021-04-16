@@ -33,6 +33,10 @@ namespace Aiia.Sample.Services
 
         Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
                                                           CreatePaymentRequestViewModel request);
+        Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal,
+            CreatePaymentRequestViewModelV2 requestViewModel);
+        Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,
+            CreatePaymentAuthorizationRequestViewModel requestViewModel);
 
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
 
@@ -43,7 +47,7 @@ namespace Aiia.Sample.Services
         Uri GetAuthUri(string userEmail, bool oneTime = false);
         Task<InboundPayment> GetInboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
         Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
-
+        Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId, string authorizationId);
         Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal);
         Task<ImmutableList<BankProvider>> GetProviders();
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
@@ -187,6 +191,74 @@ namespace Aiia.Sample.Services
                                                         user.AiiaAccessToken);
         }
 
+        public async Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal, CreatePaymentRequestViewModelV2 request)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            var paymentRequest = new CreateOutboundPaymentRequest
+            {
+                Payment = new PaymentRequest
+                {
+                    Message = request.Message,
+                    TransactionText = request.TransactionText,
+                    Amount = new PaymentAmountRequest
+                    {
+                        Value = request.Amount
+                    },
+                    Destination = new PaymentDestinationRequest()
+                },
+            };
+
+            paymentRequest.Payment.Destination.RecipientFullname = request.RecipientFullname;
+
+            if (!string.IsNullOrWhiteSpace(request.Iban))
+            {
+                paymentRequest.Payment.Destination.IBan = request.Iban;
+            }
+            else
+            {
+                paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
+                {
+                    BankCode = request.BbanBankCode,
+                    AccountNumber = request.BbanAccountNumber
+                };
+            }
+
+            return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments/outbound",
+                                                        paymentRequest,
+                                                        HttpMethod.Post,
+                                                        user.AiiaTokenType,
+                                                        user.AiiaAccessToken);
+        }
+
+        public async Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal, CreatePaymentAuthorizationRequestViewModel request)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            var paymentAuthorizationRequest = new CreatePaymentAuthorizationRequest()
+            {
+                Culture = request.Culture,
+                PaymentIds = request.PaymentIds.ToArray(),
+                RedirectUrl = GetPaymentAuthorizationRedirectUrl(),
+            };
+
+            return await CallApi<CreatePaymentAuthorizationResponse>($"v2/accounts/{request.SourceAccountId}/payments/outbound/authorizations",
+                paymentAuthorizationRequest,
+                HttpMethod.Post,
+                user.AiiaTokenType,
+                user.AiiaAccessToken);
+        }
+
         public async Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code)
         {
             using (var httpClient = _httpClient.Value)
@@ -297,6 +369,22 @@ namespace Aiia.Sample.Services
                                                   HttpMethod.Get,
                                                   user.AiiaTokenType,
                                                   user.AiiaAccessToken);
+        }
+
+        public async Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId, string authorizationId)
+        {
+            var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
+            if (user == null)
+            {
+                throw new UserNotFoundException();
+            }
+
+            return await CallApi<PaymentAuthorization>($"v2/accounts/{accountId}/payments/outbound/authorizations/{authorizationId}",
+                null,
+                HttpMethod.Get,
+                user.AiiaTokenType,
+                user.AiiaAccessToken);
         }
 
         public async Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal)
@@ -545,6 +633,12 @@ namespace Aiia.Sample.Services
             var pathBase = request.PathBase.ToUriComponent();
 
             return $"{request.Scheme}://{host}{pathBase}";
+        }
+
+        private string GetPaymentAuthorizationRedirectUrl()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+            return $"{request.Scheme}://{request.Host}{request.PathBase}/v2/aiia/payment-authorizations/callback";
         }
 
         private string GetPaymentRedirectUrl()
