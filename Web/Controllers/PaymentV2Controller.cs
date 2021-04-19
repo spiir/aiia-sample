@@ -27,7 +27,7 @@ namespace Aiia.Sample.Controllers
 
        
         [HttpGet("payments/create/outbound")]
-        public async Task<IActionResult> GetOutboundPayment()
+        public async Task<IActionResult> CreateOutboundPayment()
         {
             if (_environment.IsProduction())
             {
