@@ -9,5 +9,6 @@ namespace Aiia.Sample.Models.Aiia
         public PaymentReference SourceAccount { get; set; }
         public PaymentExecution Execution { get; set; }
         public PaymentStatus Status { get; set; }
+        public string PaymentMethod { get; set; }
     }
 }

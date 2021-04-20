@@ -6,5 +6,6 @@ namespace Aiia.Sample.Models.Aiia
         public PaymentDestinationRequest Destination { get; set; }
         public string Message { get; set; }
         public string TransactionText { get; set; }
+        public string PaymentMethod { get; set; }
     }
 }
