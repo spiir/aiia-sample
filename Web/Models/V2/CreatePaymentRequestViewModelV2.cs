@@ -10,5 +10,6 @@ namespace Aiia.Sample.Models
         public string Message { get; set; }
         public string SourceAccountId { get; set; }
         public string TransactionText { get; set; }
+        public string PaymentMethod { get; set; }
     }
 }

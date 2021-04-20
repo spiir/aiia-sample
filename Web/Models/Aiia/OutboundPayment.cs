@@ -9,5 +9,6 @@ namespace Aiia.Sample.Models.Aiia
         public PaymentIdentifiers Identifiers { get; set; }
         public PaymentStatus Status { get; set; }
         public string Type { get; set; }
+        public string PaymentMethod { get; set; }
     }
 }
