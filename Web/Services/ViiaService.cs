@@ -131,7 +131,8 @@ namespace Aiia.Sample.Services
                                                        Amount = new PaymentAmountRequest
                                                                 {
                                                                     Value = request.Amount
-                                                                }
+                                                                },
+                                                       PaymentMethod = request.PaymentMethod,
                                                    }
                                      };
 
@@ -165,7 +166,8 @@ namespace Aiia.Sample.Services
                                                             {
                                                                 Value = request.Amount
                                                             },
-                                                   Destination = new PaymentDestinationRequest()
+                                                   Destination = new PaymentDestinationRequest(),
+                                                   PaymentMethod = request.PaymentMethod,
                                                },
                                  };
 
@@ -210,7 +212,8 @@ namespace Aiia.Sample.Services
                     {
                         Value = request.Amount
                     },
-                    Destination = new PaymentDestinationRequest()
+                    Destination = new PaymentDestinationRequest(),
+                    PaymentMethod = request.PaymentMethod,
                 },
             };
 

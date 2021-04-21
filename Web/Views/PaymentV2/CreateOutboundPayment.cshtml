@@ -71,6 +71,16 @@
 
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-method">Payment Method</label>
+            </div>
+            <select class="custom-select" id="payment-method">
+                <option value="Domestic">Domestic</option>
+                <option value="SEPA">SEPA</option>
+            </select>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-message">Message</label>
             </div>
             <input class="form-control" id="payment-message" type="text" placeholder=""/>
@@ -141,6 +151,7 @@ else
                 message: $('#payment-message').val(),
                 transactionText: $('#payment-transaction-text').val(),
                 RecipientFullname: $('#payment-target-name').val(),
+                PaymentMethod: $('#payment-method').val(),
             };
             $.ajax({
                 url: '/v2/aiia/payments/create/outbound',
