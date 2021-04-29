@@ -1,0 +1,18 @@
+version: 2
+registries:
+  nuget-feed-pkgs-dev-azure-com-spiir-packaging-nag-lib-nuget-v3-i:
+    type: nuget-feed
+    url: https://pkgs.dev.azure.com/spiir/_packaging/nag_lib/nuget/v3/index.json
+    username: "${{secrets.NUGET_FEED_PKGS_DEV_AZURE_COM_SPIIR_PACKAGING_NAG_LIB_NUGET_V3_I_USERNAME}}"
+    password: "${{secrets.NUGET_FEED_PKGS_DEV_AZURE_COM_SPIIR_PACKAGING_NAG_LIB_NUGET_V3_I_PASSWORD}}"
+
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "00:00"
+    timezone: Europe/Copenhagen
+  open-pull-requests-limit: 99
+  registries:
+  - nuget-feed-pkgs-dev-azure-com-spiir-packaging-nag-lib-nuget-v3-i
