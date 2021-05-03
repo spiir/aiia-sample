@@ -171,18 +171,28 @@ namespace Aiia.Sample.Services
                                  };
 
             paymentRequest.Payment.Destination.RecipientFullname = request.RecipientFullname;
+            
+            
 
             if (!string.IsNullOrWhiteSpace(request.Iban))
             {
                 paymentRequest.Payment.Destination.IBan = request.Iban;
             }
-            else
+            else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
             {
                 paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
                                                           {
                                                               BankCode = request.BbanBankCode,
                                                               AccountNumber = request.BbanAccountNumber
                                                           };
+            }
+            else
+            {
+                paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
+                {
+                    Type = request.InpaymentFormType,
+                    CreditorNumber = request.InpaymentFormCreditorNumber
+                };
             }
 
             return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/outbound",
@@ -222,12 +232,20 @@ namespace Aiia.Sample.Services
             {
                 paymentRequest.Payment.Destination.IBan = request.Iban;
             }
-            else
+            else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
             {
                 paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
                 {
                     BankCode = request.BbanBankCode,
                     AccountNumber = request.BbanAccountNumber
+                };
+            }
+            else
+            {
+                paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
+                {
+                    Type = request.InpaymentFormType,
+                    CreditorNumber = request.InpaymentFormCreditorNumber
                 };
             }
 
