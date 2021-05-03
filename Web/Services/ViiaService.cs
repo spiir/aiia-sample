@@ -132,7 +132,6 @@ namespace Aiia.Sample.Services
                                                                 {
                                                                     Value = request.Amount
                                                                 },
-                                                       PaymentMethod = request.PaymentMethod,
                                                    }
                                      };
 
