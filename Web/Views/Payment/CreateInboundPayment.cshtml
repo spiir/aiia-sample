@@ -29,17 +29,6 @@
             <input class="form-control" id="payment-amount" type="number" placeholder="100"/>
         </div>
 
-        <div class="input-group mb-3 mt-4">
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="payment-method">Payment Method</label>
-            </div>
-            <select class="custom-select" id="payment-method">
-                <option value="Domestic">Domestic</option>
-                <option value="SEPA">SEPA</option>
-                <option value="InpaymentForm">InpaymentForm</option>
-            </select>
-        </div>
-
         <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="sendRequestToCreatePayment()">Create payment</button>
     </div>
 }
@@ -60,7 +49,6 @@ else
                 Iban: $('#payment-target-iban').val(),
                 BbanBankCode: $('#payment-target-bban-bank').val(),
                 bbanAccountNumber: $('#payment-target-bban-account').val(),
-                PaymentMethod: $('#payment-method').val(),
                 Amount: parseFloat($('#payment-amount').val()),
                 message: $('#payment-message').val(),
                 transactionText: $('#payment-transaction-text').val()
