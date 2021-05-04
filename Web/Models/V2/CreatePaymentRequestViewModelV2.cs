@@ -13,5 +13,6 @@ namespace Aiia.Sample.Models
         public string PaymentMethod { get; set; }
         public string InpaymentFormType { get; set; }
         public string InpaymentFormCreditorNumber { get; set; }
+        public string Ocr { get; set; }
     }
 }
