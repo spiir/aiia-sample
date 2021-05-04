@@ -194,6 +194,9 @@ namespace Aiia.Sample.Services
                     CreditorNumber = request.InpaymentFormCreditorNumber
                 };
             }
+            
+            if(!string.IsNullOrEmpty(request.Ocr))
+                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
 
             return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/outbound",
                                                         paymentRequest,
@@ -248,6 +251,9 @@ namespace Aiia.Sample.Services
                     CreditorNumber = request.InpaymentFormCreditorNumber
                 };
             }
+
+            if(!string.IsNullOrEmpty(request.Ocr))
+                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
 
             return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments/outbound",
                                                         paymentRequest,

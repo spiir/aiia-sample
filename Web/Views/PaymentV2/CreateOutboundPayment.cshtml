@@ -86,6 +86,13 @@
             </div>
             <input class="form-control" id="inpayment-form-creditor-number" type="text" placeholder="51965770"/>
         </div>
+
+        <div class="input-group mb-3 mt-4" id="inpayment-form-ocr-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inpayment-form-ocr">OCR</label>
+            </div>
+            <input class="form-control" id="inpayment-form-ocr" type="text" placeholder=""/>
+        </div>
         
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
@@ -154,6 +161,7 @@ else
             const bbanAccountInputeContainer = $('#payment-bban-account-input-container');
             const typeContainer = $('#in-payment-form-type-container');
             const creditorNumberContainer = $('#inpayment-form-creditor-number-container');
+            const ocrContainer = $('#inpayment-form-ocr-container');
             const destinationTypeContainer = $('#destination-type-container');
             
             destinationTypeContainer.hide();
@@ -162,6 +170,7 @@ else
             bbanAccountInputeContainer.hide();
             typeContainer.hide();
             creditorNumberContainer.hide();
+            ocrContainer.hide();
 
             const paymentMethod = $('#payment-method').val();
             const destinationType = $('#payment-target-type').val();
@@ -170,6 +179,7 @@ else
             if (paymentMethod === "InpaymentForm") {
                 typeContainer.show();
                 creditorNumberContainer.show();
+                ocrContainer.show();
             }
             else {
                 destinationTypeContainer.show();
@@ -196,6 +206,7 @@ else
                 PaymentMethod: $('#payment-method').val(),
                 InpaymentFormType: $('#inpayment-form-type').val(),
                 InpaymentFormCreditorNumber: $('#inpayment-form-creditor-number').val(),
+                Ocr: $('#inpayment-form-ocr').val(),                
             };
             $.ajax({
                 url: '/v2/aiia/payments/create/outbound',
