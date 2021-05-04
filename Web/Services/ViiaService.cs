@@ -198,6 +198,18 @@ namespace Aiia.Sample.Services
             if(!string.IsNullOrEmpty(request.Ocr))
                 paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
 
+            if (!string.IsNullOrEmpty(request.AddressStreet))
+            {
+                paymentRequest.Payment.Destination.Address = new PaymentAddressRequest
+                {
+                    Street = request.AddressStreet,
+                    BuildingNumber = request.AddressBuildingNumber,
+                    PostalCode = request.AddressPostalCode,
+                    City = request.AddressCity,
+                    Country = request.AddressCountry,
+                };
+            }
+
             return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/outbound",
                                                         paymentRequest,
                                                         HttpMethod.Post,
@@ -254,6 +266,18 @@ namespace Aiia.Sample.Services
 
             if(!string.IsNullOrEmpty(request.Ocr))
                 paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
+            
+            if (!string.IsNullOrEmpty(request.AddressStreet))
+            {
+                paymentRequest.Payment.Destination.Address = new PaymentAddressRequest
+                {
+                    Street = request.AddressStreet,
+                    BuildingNumber = request.AddressBuildingNumber,
+                    PostalCode = request.AddressPostalCode,
+                    City = request.AddressCity,
+                    Country = request.AddressCountry,
+                };
+            }
 
             return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments/outbound",
                                                         paymentRequest,

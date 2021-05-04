@@ -102,6 +102,39 @@
         </div>
 
 
+        <div class="input-group" id="address-fields-container">
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="payment-address-street">Destination address street</label>
+                </div>
+                <input class="form-control" id="payment-address-street" type="text" placeholder="Street Name"/>
+            </div>
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="payment-address-building">Destination address building number</label>
+                </div>
+                <input class="form-control" id="payment-address-building" type="text" placeholder="Building Number"/>
+            </div>
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="payment-address-postal">Destination address postal code</label>
+                </div>
+                <input class="form-control" id="payment-address-postal" type="text" placeholder="Postal Code"/>
+            </div>
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="payment-address-city">Destination address city</label>
+                </div>
+                <input class="form-control" id="payment-address-city" type="text" placeholder="City"/>
+            </div>
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <label class="input-group-text" for="payment-address-country">Destination address country code</label>
+                </div>
+                <input class="form-control" id="payment-address-country" type="text" placeholder="Country"/>
+            </div>
+        </div>
+        
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-amount">Amount</label>
@@ -163,6 +196,7 @@ else
             const creditorNumberContainer = $('#inpayment-form-creditor-number-container');
             const ocrContainer = $('#inpayment-form-ocr-container');
             const destinationTypeContainer = $('#destination-type-container');
+            const addressContainer = $('#address-fields-container');
             
             destinationTypeContainer.hide();
             ibanInputContainer.hide();
@@ -171,10 +205,13 @@ else
             typeContainer.hide();
             creditorNumberContainer.hide();
             ocrContainer.hide();
+            addressContainer.hide();
 
             const paymentMethod = $('#payment-method').val();
             const destinationType = $('#payment-target-type').val();
 
+            if (paymentMethod === "SEPA")
+                addressContainer.show();
 
             if (paymentMethod === "InpaymentForm") {
                 typeContainer.show();
@@ -207,6 +244,11 @@ else
                 InpaymentFormType: $('#inpayment-form-type').val(),
                 InpaymentFormCreditorNumber: $('#inpayment-form-creditor-number').val(),
                 Ocr: $('#inpayment-form-ocr').val(),
+                AddressStreet: $('#payment-address-street').val(),
+                AddressBuildingNumber: $('#payment-address-building').val(),
+                AddressPostalCode: $('#payment-address-postal').val(),
+                AddressCity: $('#payment-address-city').val(),
+                AddressCountry: $('#payment-address-country').val(),
             };
             $.ajax({
                 url: '/aiia/payments/create/outbound',
