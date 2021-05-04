@@ -6,5 +6,6 @@ namespace Aiia.Sample.Models.Aiia
         public string Iban { get; set; }
         public string Name { get; set; }
         public InpaymentFormDestinationParsed InpaymentForm { get; set; }
+        public PaymentAddressRequest Address { get; set; }
     }
 }
