@@ -132,7 +132,6 @@ namespace Aiia.Sample.Services
                                                                 {
                                                                     Value = request.Amount
                                                                 },
-                                                       PaymentMethod = request.PaymentMethod,
                                                    }
                                      };
 
@@ -172,12 +171,14 @@ namespace Aiia.Sample.Services
                                  };
 
             paymentRequest.Payment.Destination.RecipientFullname = request.RecipientFullname;
+            
+            
 
             if (!string.IsNullOrWhiteSpace(request.Iban))
             {
                 paymentRequest.Payment.Destination.IBan = request.Iban;
             }
-            else
+            else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
             {
                 paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
                                                           {
@@ -185,6 +186,17 @@ namespace Aiia.Sample.Services
                                                               AccountNumber = request.BbanAccountNumber
                                                           };
             }
+            else
+            {
+                paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
+                {
+                    Type = request.InpaymentFormType,
+                    CreditorNumber = request.InpaymentFormCreditorNumber
+                };
+            }
+            
+            if(!string.IsNullOrEmpty(request.Ocr))
+                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
 
             return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/outbound",
                                                         paymentRequest,
@@ -223,7 +235,7 @@ namespace Aiia.Sample.Services
             {
                 paymentRequest.Payment.Destination.IBan = request.Iban;
             }
-            else
+            else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
             {
                 paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
                 {
@@ -231,6 +243,17 @@ namespace Aiia.Sample.Services
                     AccountNumber = request.BbanAccountNumber
                 };
             }
+            else
+            {
+                paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
+                {
+                    Type = request.InpaymentFormType,
+                    CreditorNumber = request.InpaymentFormCreditorNumber
+                };
+            }
+
+            if(!string.IsNullOrEmpty(request.Ocr))
+                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
 
             return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments/outbound",
                                                         paymentRequest,
