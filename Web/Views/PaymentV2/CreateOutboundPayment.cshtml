@@ -21,9 +21,19 @@
                 }
             </select>
         </div>
-
-
+        
         <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-method">Payment Method</label>
+            </div>
+            <select class="custom-select" id="payment-method">
+                <option value="Domestic">Domestic</option>
+                <option value="SEPA">SEPA</option>
+                <option value="InpaymentForm">InpaymentForm</option>
+            </select>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="destination-type-container">
             <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-target-type">Destination type</label>
             </div>
@@ -53,7 +63,37 @@
             </div>
             <input class="form-control" id="payment-target-bban-account" type="text" placeholder="012345678901"/>
         </div>
+        
+        <div class="input-group mb-3 mt-4" id="in-payment-form-type-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inpayment-form-type">InpaymentFormType</label>
+            </div>
+            <select class="custom-select" id="inpayment-form-type">
+                <option value="SE_PGNR">SE_PGNR</option>
+                <option value="SE_BGNR">SE_BGNR</option>
+                <option value="DK_G01">DK_G01</option>
+                <option value="DK_G04">DK_G04</option>
+                <option value="DK_G15">DK_G15</option>
+                <option value="DK_FI71">DK_FI71</option>
+                <option value="DK_FI73">DK_FI73</option>
+                <option value="DK_FI75">DK_FI75</option>
+            </select>
+        </div>
 
+        <div class="input-group mb-3 mt-4" id="inpayment-form-creditor-number-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inpayment-form-creditor-number">Creditor Number</label>
+            </div>
+            <input class="form-control" id="inpayment-form-creditor-number" type="text" placeholder="51965770"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4" id="inpayment-form-ocr-container">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inpayment-form-ocr">OCR</label>
+            </div>
+            <input class="form-control" id="inpayment-form-ocr" type="text" placeholder=""/>
+        </div>
+        
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-target-name">Destination account owner's name</label>
@@ -67,16 +107,6 @@
                 <label class="input-group-text" for="payment-amount">Amount</label>
             </div>
             <input class="form-control" id="payment-amount" type="number" placeholder="100"/>
-        </div>
-
-        <div class="input-group mb-3 mt-4">
-            <div class="input-group-prepend">
-                <label class="input-group-text" for="payment-method">Payment Method</label>
-            </div>
-            <select class="custom-select" id="payment-method">
-                <option value="Domestic">Domestic</option>
-                <option value="SEPA">SEPA</option>
-            </select>
         </div>
 
         <div class="input-group mb-3 mt-4">
@@ -114,6 +144,10 @@ else
             toggleCorrectDestinationInput();
         });
 
+        $('#payment-method').change(function() {
+            toggleCorrectDestinationInput();
+        });
+        
         $('#payment-type').change(function() {
             const paymentType = $('#payment-type').val();
             if (paymentType === 'scheduled') {
@@ -125,21 +159,39 @@ else
             const ibanInputContainer = $('#payment-iban-input-container');
             const bbanBankInputeContainer = $('#payment-bban-bank-input-container');
             const bbanAccountInputeContainer = $('#payment-bban-account-input-container');
-
+            const typeContainer = $('#in-payment-form-type-container');
+            const creditorNumberContainer = $('#inpayment-form-creditor-number-container');
+            const ocrContainer = $('#inpayment-form-ocr-container');
+            const destinationTypeContainer = $('#destination-type-container');
+            
+            destinationTypeContainer.hide();
             ibanInputContainer.hide();
             bbanBankInputeContainer.hide();
             bbanAccountInputeContainer.hide();
+            typeContainer.hide();
+            creditorNumberContainer.hide();
+            ocrContainer.hide();
 
+            const paymentMethod = $('#payment-method').val();
             const destinationType = $('#payment-target-type').val();
 
-            if (destinationType === 'iban') {
-                ibanInputContainer.show();
-            } else {
-                bbanBankInputeContainer.show();
-                bbanAccountInputeContainer.show();
+
+            if (paymentMethod === "InpaymentForm") {
+                typeContainer.show();
+                creditorNumberContainer.show();
+                ocrContainer.show();
+            }
+            else {
+                destinationTypeContainer.show();
+                if (destinationType === 'iban') {
+                    ibanInputContainer.show();
+                } else {
+                    bbanBankInputeContainer.show();
+                    bbanAccountInputeContainer.show();
+                }
             }
         }
-
+        
         function sendRequestToCreatePayment() {
 
             const body = {
@@ -152,6 +204,9 @@ else
                 transactionText: $('#payment-transaction-text').val(),
                 RecipientFullname: $('#payment-target-name').val(),
                 PaymentMethod: $('#payment-method').val(),
+                InpaymentFormType: $('#inpayment-form-type').val(),
+                InpaymentFormCreditorNumber: $('#inpayment-form-creditor-number').val(),
+                Ocr: $('#inpayment-form-ocr').val(),                
             };
             $.ajax({
                 url: '/v2/aiia/payments/create/outbound',
