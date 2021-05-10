@@ -15,5 +15,10 @@ namespace Aiia.Sample.Models
         public string InpaymentFormType { get; set; }
         public string InpaymentFormCreditorNumber { get; set; }
         public string Ocr { get; set; }
+        public string AddressStreet { get; set; }
+        public string AddressBuildingNumber { get; set; }
+        public string AddressPostalCode { get; set; }
+        public string AddressCity { get; set; }
+        public string AddressCountry { get; set; }
     }
 }
