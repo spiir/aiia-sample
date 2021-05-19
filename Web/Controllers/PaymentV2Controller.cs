@@ -26,8 +26,8 @@ namespace Aiia.Sample.Controllers
         }
 
        
-        [HttpGet("payments/create/outbound")]
-        public async Task<IActionResult> CreateOutboundPayment()
+        [HttpGet("payments/create")]
+        public async Task<IActionResult> CreatePayment()
         {
             if (_environment.IsProduction())
             {
@@ -49,8 +49,8 @@ namespace Aiia.Sample.Controllers
                         });
         }
 
-        [HttpPost("payments/create/outbound")]
-        public async Task<ActionResult<CreatePaymentResultViewModelV2>> CreateOutboundPayment(
+        [HttpPost("payments/create")]
+        public async Task<ActionResult<CreatePaymentResultViewModelV2>> CreatePayment(
             [FromBody] CreatePaymentRequestViewModelV2 body)
         {
             if (_environment.IsProduction())
@@ -60,7 +60,7 @@ namespace Aiia.Sample.Controllers
             var result = new CreatePaymentResultViewModelV2();
             try
             {
-                var createPaymentResult = await _aiiaService.CreateOutboundPaymentV2(User, body);
+                var createPaymentResult = await _aiiaService.CreatePaymentV2(User, body);
                 result.PaymentId = createPaymentResult.PaymentId;
             }
             catch (AiiaClientException e)
@@ -71,8 +71,8 @@ namespace Aiia.Sample.Controllers
             return Ok(result);
         }
 
-        [HttpGet("payments/outbound")]
-        public async Task<IActionResult> OutboundPayments()
+        [HttpGet("payments")]
+        public async Task<IActionResult> Payments()
         {
             if (_environment.IsProduction())
             {

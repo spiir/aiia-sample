@@ -33,7 +33,7 @@ namespace Aiia.Sample.Services
 
         Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
                                                           CreatePaymentRequestViewModel request);
-        Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal,
+        Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal,
             CreatePaymentRequestViewModelV2 requestViewModel);
         Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,
             CreatePaymentAuthorizationRequestViewModel requestViewModel);
@@ -217,7 +217,7 @@ namespace Aiia.Sample.Services
                                                         user.AiiaAccessToken);
         }
 
-        public async Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal, CreatePaymentRequestViewModelV2 request)
+        public async Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal, CreatePaymentRequestViewModelV2 request)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -279,7 +279,7 @@ namespace Aiia.Sample.Services
                 };
             }
 
-            return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments/outbound",
+            return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments",
                                                         paymentRequest,
                                                         HttpMethod.Post,
                                                         user.AiiaTokenType,
@@ -302,7 +302,7 @@ namespace Aiia.Sample.Services
                 RedirectUrl = GetPaymentAuthorizationRedirectUrl(),
             };
 
-            return await CallApi<CreatePaymentAuthorizationResponse>($"v2/accounts/{request.SourceAccountId}/payments/outbound/authorizations",
+            return await CallApi<CreatePaymentAuthorizationResponse>($"v2/accounts/{request.SourceAccountId}/payment-authorizations",
                 paymentAuthorizationRequest,
                 HttpMethod.Post,
                 user.AiiaTokenType,
@@ -430,7 +430,7 @@ namespace Aiia.Sample.Services
                 throw new UserNotFoundException();
             }
 
-            return await CallApi<PaymentAuthorization>($"v2/accounts/{accountId}/payments/outbound/authorizations/{authorizationId}",
+            return await CallApi<PaymentAuthorization>($"v2/accounts/{accountId}/payment-authorizations/{authorizationId}",
                 null,
                 HttpMethod.Get,
                 user.AiiaTokenType,
