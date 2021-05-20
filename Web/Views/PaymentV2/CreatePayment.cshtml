@@ -250,7 +250,7 @@ else
                 AddressCountry: $('#payment-address-country').val(),                
             };
             $.ajax({
-                url: '/v2/aiia/payments/create/outbound',
+                url: '/v2/aiia/payments/create',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -260,7 +260,7 @@ else
                         alert(`Failed:\n${data.errorDescription}`);
                     } else {
                         alert(`Success! Payment Id: ${data.paymentId}`);
-                        window.location.href = "/v2/aiia/payments/outbound";
+                        window.location.href = "/v2/aiia/payments";
                     }
                 },
                 error: function(data) {
