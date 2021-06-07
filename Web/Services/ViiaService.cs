@@ -33,7 +33,7 @@ namespace Aiia.Sample.Services
 
         Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
                                                           CreatePaymentRequestViewModel request);
-        Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal,
+        Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal,
             CreatePaymentRequestViewModelV2 requestViewModel);
         Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,
             CreatePaymentAuthorizationRequestViewModel requestViewModel);
@@ -132,7 +132,6 @@ namespace Aiia.Sample.Services
                                                                 {
                                                                     Value = request.Amount
                                                                 },
-                                                       PaymentMethod = request.PaymentMethod,
                                                    }
                                      };
 
@@ -172,18 +171,43 @@ namespace Aiia.Sample.Services
                                  };
 
             paymentRequest.Payment.Destination.RecipientFullname = request.RecipientFullname;
+            
+            
 
             if (!string.IsNullOrWhiteSpace(request.Iban))
             {
                 paymentRequest.Payment.Destination.IBan = request.Iban;
             }
-            else
+            else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
             {
                 paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
                                                           {
                                                               BankCode = request.BbanBankCode,
                                                               AccountNumber = request.BbanAccountNumber
                                                           };
+            }
+            else
+            {
+                paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
+                {
+                    Type = request.InpaymentFormType,
+                    CreditorNumber = request.InpaymentFormCreditorNumber
+                };
+            }
+            
+            if(!string.IsNullOrEmpty(request.Ocr))
+                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
+
+            if (!string.IsNullOrEmpty(request.AddressStreet))
+            {
+                paymentRequest.Payment.Destination.Address = new PaymentAddressRequest
+                {
+                    Street = request.AddressStreet,
+                    BuildingNumber = request.AddressBuildingNumber,
+                    PostalCode = request.AddressPostalCode,
+                    City = request.AddressCity,
+                    Country = request.AddressCountry,
+                };
             }
 
             return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/outbound",
@@ -193,7 +217,7 @@ namespace Aiia.Sample.Services
                                                         user.AiiaAccessToken);
         }
 
-        public async Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal, CreatePaymentRequestViewModelV2 request)
+        public async Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal, CreatePaymentRequestViewModelV2 request)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -223,7 +247,7 @@ namespace Aiia.Sample.Services
             {
                 paymentRequest.Payment.Destination.IBan = request.Iban;
             }
-            else
+            else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
             {
                 paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
                 {
@@ -231,8 +255,31 @@ namespace Aiia.Sample.Services
                     AccountNumber = request.BbanAccountNumber
                 };
             }
+            else
+            {
+                paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
+                {
+                    Type = request.InpaymentFormType,
+                    CreditorNumber = request.InpaymentFormCreditorNumber
+                };
+            }
 
-            return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments/outbound",
+            if(!string.IsNullOrEmpty(request.Ocr))
+                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
+            
+            if (!string.IsNullOrEmpty(request.AddressStreet))
+            {
+                paymentRequest.Payment.Destination.Address = new PaymentAddressRequest
+                {
+                    Street = request.AddressStreet,
+                    BuildingNumber = request.AddressBuildingNumber,
+                    PostalCode = request.AddressPostalCode,
+                    City = request.AddressCity,
+                    Country = request.AddressCountry,
+                };
+            }
+
+            return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments",
                                                         paymentRequest,
                                                         HttpMethod.Post,
                                                         user.AiiaTokenType,
@@ -255,7 +302,7 @@ namespace Aiia.Sample.Services
                 RedirectUrl = GetPaymentAuthorizationRedirectUrl(),
             };
 
-            return await CallApi<CreatePaymentAuthorizationResponse>($"v2/accounts/{request.SourceAccountId}/payments/outbound/authorizations",
+            return await CallApi<CreatePaymentAuthorizationResponse>($"v2/accounts/{request.SourceAccountId}/payment-authorizations",
                 paymentAuthorizationRequest,
                 HttpMethod.Post,
                 user.AiiaTokenType,
@@ -383,7 +430,7 @@ namespace Aiia.Sample.Services
                 throw new UserNotFoundException();
             }
 
-            return await CallApi<PaymentAuthorization>($"v2/accounts/{accountId}/payments/outbound/authorizations/{authorizationId}",
+            return await CallApi<PaymentAuthorization>($"v2/accounts/{accountId}/payment-authorizations/{authorizationId}",
                 null,
                 HttpMethod.Get,
                 user.AiiaTokenType,

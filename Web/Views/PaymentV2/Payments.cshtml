@@ -12,10 +12,10 @@
             <li class="nav-item">
                 <a class="nav-link"
                    role="button"
-                   href="@Url.Action("CreateOutboundPayment", "PaymentV2")"
+                   href="@Url.Action("CreatePayment", "PaymentV2")"
                    id="create-payment-button"
                    style="cursor: pointer;">
-                    Create outbound Payment V2
+                    Create Payment V2
                 </a>
             </li>
         </ul>
@@ -27,7 +27,7 @@
         @if (Model?.PaymentsGroupedByAccountDisplayName == null || !Model.PaymentsGroupedByAccountDisplayName.Any())
         {
             <p class="text-center">
-                There are no payments made through Aiia for connected accounts. Try @Html.ActionLink("creating a payment", "CreateOutboundPayment", "PaymentV2", null, null)
+                There are no payments made through Aiia for connected accounts. Try @Html.ActionLink("creating a payment", "CreatePayment", "PaymentV2", null, null)
             </p>
         }
         else

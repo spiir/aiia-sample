@@ -1,7 +1,7 @@
 @model Aiia.Sample.Models.CreatePaymentViewModel
 
 @{
-    ViewBag.Title = "Payments";
+    ViewBag.Title = "Payments V2";
     Layout = "_Layout";
 }
 
@@ -21,7 +21,7 @@
                 }
             </select>
         </div>
-
+        
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-method">Payment Method</label>
@@ -63,7 +63,7 @@
             </div>
             <input class="form-control" id="payment-target-bban-account" type="text" placeholder="012345678901"/>
         </div>
-
+        
         <div class="input-group mb-3 mt-4" id="in-payment-form-type-container">
             <div class="input-group-prepend">
                 <label class="input-group-text" for="inpayment-form-type">InpaymentFormType</label>
@@ -86,7 +86,7 @@
             </div>
             <input class="form-control" id="inpayment-form-creditor-number" type="text" placeholder="51965770"/>
         </div>
-        
+
         <div class="input-group mb-3 mt-4" id="inpayment-form-ocr-container">
             <div class="input-group-prepend">
                 <label class="input-group-text" for="inpayment-form-ocr">OCR</label>
@@ -100,7 +100,6 @@
             </div>
             <input class="form-control" id="payment-target-name" type="text" placeholder="John Smith"/>
         </div>
-
 
         <div class="input-group" id="address-fields-container">
             <div class="input-group mb-3 mt-4">
@@ -134,7 +133,7 @@
                 <input class="form-control" id="payment-address-country" type="text" placeholder="Country"/>
             </div>
         </div>
-        
+
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-amount">Amount</label>
@@ -176,11 +175,11 @@ else
         $('#payment-target-type').change(function() {
             toggleCorrectDestinationInput();
         });
-        
+
         $('#payment-method').change(function() {
             toggleCorrectDestinationInput();
         });
-
+        
         $('#payment-type').change(function() {
             const paymentType = $('#payment-type').val();
             if (paymentType === 'scheduled') {
@@ -228,7 +227,7 @@ else
                 }
             }
         }
-
+        
         function sendRequestToCreatePayment() {
 
             const body = {
@@ -237,21 +236,21 @@ else
                 BbanBankCode: $('#payment-target-bban-bank').val(),
                 bbanAccountNumber: $('#payment-target-bban-account').val(),
                 Amount: parseFloat($('#payment-amount').val()),
-                PaymentMethod: $('#payment-method').val(),
                 message: $('#payment-message').val(),
                 transactionText: $('#payment-transaction-text').val(),
                 RecipientFullname: $('#payment-target-name').val(),
+                PaymentMethod: $('#payment-method').val(),
                 InpaymentFormType: $('#inpayment-form-type').val(),
                 InpaymentFormCreditorNumber: $('#inpayment-form-creditor-number').val(),
-                Ocr: $('#inpayment-form-ocr').val(),
+                Ocr: $('#inpayment-form-ocr').val(),                
                 AddressStreet: $('#payment-address-street').val(),
                 AddressBuildingNumber: $('#payment-address-building').val(),
                 AddressPostalCode: $('#payment-address-postal').val(),
                 AddressCity: $('#payment-address-city').val(),
-                AddressCountry: $('#payment-address-country').val(),
+                AddressCountry: $('#payment-address-country').val(),                
             };
             $.ajax({
-                url: '/aiia/payments/create/outbound',
+                url: '/v2/aiia/payments/create',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -259,10 +258,9 @@ else
                 success: function(data) {
                     if (data.errorDescription) {
                         alert(`Failed:\n${data.errorDescription}`);
-                    } else if (data.authorizationUrl) {
-                        window.location.href = data.authorizationUrl;
                     } else {
                         alert(`Success! Payment Id: ${data.paymentId}`);
+                        window.location.href = "/v2/aiia/payments";
                     }
                 },
                 error: function(data) {
