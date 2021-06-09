@@ -226,26 +226,27 @@ namespace Aiia.Sample.Services
                 throw new UserNotFoundException();
             }
 
-            var paymentRequest = new CreateOutboundPaymentRequest
+            var paymentRequest = new CreateOutboundPaymentRequestV2
             {
-                Payment = new PaymentRequest
+                Payment = new PaymentRequestV2
                 {
                     Message = request.Message,
                     TransactionText = request.TransactionText,
-                    Amount = new PaymentAmountRequest
+                    Amount = new PaymentAmountRequestV2
                     {
-                        Value = request.Amount
+                        Value = request.Amount,
+                        Currency = request.Currency
                     },
-                    Destination = new PaymentDestinationRequest(),
+                    Destination = new PaymentDestinationRequestV2(),
                     PaymentMethod = request.PaymentMethod,
                 },
             };
 
-            paymentRequest.Payment.Destination.RecipientFullname = request.RecipientFullname;
+            paymentRequest.Payment.Destination.Name = request.RecipientFullname;
 
             if (!string.IsNullOrWhiteSpace(request.Iban))
             {
-                paymentRequest.Payment.Destination.IBan = request.Iban;
+                paymentRequest.Payment.Destination.IBan = new PaymentIbanRequestV2 { IbanNumber = request.Iban };
             }
             else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
             {
