@@ -3,6 +3,7 @@ namespace Aiia.Sample.Models
     public class CreatePaymentRequestViewModelV2
     {
         public double Amount { get; set; }
+        public string Currency { get; set; }
         public string BbanAccountNumber { get; set; }
         public string BbanBankCode { get; set; }
         public string Iban { get; set; }
