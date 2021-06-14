@@ -15,7 +15,6 @@ namespace Aiia.Sample.Models
         public IImmutableList<BankProvider> Providers { get; set; }
         public JwtSecurityToken RefreshToken { get; set; }
         public string AiiaConnectUrl { get; set; }
-        public string AiiaOneTimeConnectUrl { get; set; }
         public bool? AllAccountsSelected { get; set; }
     }
 }
