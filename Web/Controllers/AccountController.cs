@@ -44,7 +44,6 @@ namespace Aiia.Sample.Controllers
                             {
                                 AccountsGroupedByProvider = null,
                                 AiiaConnectUrl = _aiiaService.GetAuthUri(user?.Email).ToString(),
-                                AiiaOneTimeConnectUrl = _aiiaService.GetAuthUri(null, true).ToString(),
                                 EmailEnabled = user?.EmailEnabled ?? false,
                                 Providers = providers,
                                 Email = user?.Email,
@@ -59,7 +58,6 @@ namespace Aiia.Sample.Controllers
                         {
                             AccountsGroupedByProvider = groupedAccounts,
                             AiiaConnectUrl = _aiiaService.GetAuthUri(user.Email).ToString(),
-                            AiiaOneTimeConnectUrl = _aiiaService.GetAuthUri(null, true).ToString(),
                             JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaAccessToken),
                             RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaRefreshToken),
                             EmailEnabled = user.EmailEnabled,
