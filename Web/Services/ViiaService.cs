@@ -44,7 +44,7 @@ namespace Aiia.Sample.Services
                                                           string accountId,
                                                           TransactionQueryRequestViewModel queryRequest = null);
 
-        Uri GetAuthUri(string userEmail, bool oneTime = false);
+        Uri GetAuthUri(string userEmail);
         Task<InboundPayment> GetInboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
         Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
         Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId, string authorizationId);
@@ -374,14 +374,13 @@ namespace Aiia.Sample.Services
                                                         principal);
         }
 
-        public Uri GetAuthUri(string email, bool oneTime = false)
+        public Uri GetAuthUri(string email)
         {
             var connectUrl =
                 $"{_options.CurrentValue.Aiia.BaseApiUrl}/v1/oauth/connect" +
                 $"?client_id={_options.CurrentValue.Aiia.ClientId}" +
                 "&response_type=code" +
-                $"&redirect_uri={GetRedirectUrl()}" +
-                $"&flow={(oneTime ? "OneTimeUser" : "PersistentUser")}";
+                $"&redirect_uri={GetRedirectUrl()}";
 
             return new Uri(connectUrl);
         }
