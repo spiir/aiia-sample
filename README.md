@@ -1,6 +1,6 @@
 # aiia-sample
 
-Sample ASP.NET Core web app and mobile Flutter apps showcasing a basic usage and feature of Aiia.
+Sample ASP.NET Core web app apps showcasing a basic usage and feature of Aiia.
 
 ## Introduction
 
@@ -45,20 +45,6 @@ At this point you should be good to go as long as you have [.NET Core](https://d
 8. You'll be navigated back to the Accounts page, which will be not empty anymore
 9. Press on one of the accounts in the list
 10. You'll be navigated to transactions page (if transaction page is empty, that's fine, we fetch transaction data asynchronously so it's not always there at the beginning, but we notify clients when that's done via [webhook](https://api.aiia.eu/docs/index.html#section/Webhooks)
-
-## Mobile
-
-### Running locally
-
-Having Web app configured correctly, mobile apps don't require additional configuration to run locally. For running Flutter locally, please refer to [Flutter's get started guide](https://flutter.dev/docs/get-started/install).
-
-### Basic Flow to go through:
-
-1. Open the app, you'll be presented with minimal welcome page
-2. Press `Login via Aiia`, this will open a webview with Aiia web app inside
-3. Go through Aiia flow
-4. When finished you'll be navigated to Accounts page, where you can see a list of accounts you just consented in the Aiia flow
-5. Click on one of the accounts and you'll be navigated to transaction page with a list of transactions within the account (if transaction page is empty, that's fine, we fetch transaction data asynchronously so it's not always there at the beginning, but we notify clients when that's done via [webhook](https://api.aiia.eu/docs/index.html#section/Webhooks)
 
 ## License
 
