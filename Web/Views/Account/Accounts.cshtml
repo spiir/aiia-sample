@@ -24,11 +24,10 @@
         <ul class="nav nav-pills mb-4">
             <li class="nav-item dropdown">
                 <a class="nav-link"
-                    href="#"
-                    role="button"
-                    style="cursor: pointer;"
-                    onclick="window.location.href = getConnectUrl()"
-                   >
+                   href="#"
+                   role="button"
+                   style="cursor: pointer;"
+                   onclick="window.location.href = getConnectUrl()">
                     Connect Accounts
                 </a>
             </li>
@@ -79,24 +78,24 @@
     <div class="row justify-content-md-center">
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
-                <label class="input-group-text" >(Optional) Scopes</label>
+                <label class="input-group-text">(Optional) Scopes</label>
             </div>
             <div class="input-group-prepend">
                 <label class="input-group-text" for="custom-scope-offlineAccess">offline_access</label>
             </div>
-            <input type="checkbox" class="custom-checkbox" id="custom-scope-offlineAccess" />
+            <input type="checkbox" class="custom-checkbox" id="custom-scope-offlineAccess"/>
             <div class="input-group-prepend">
                 <label class="input-group-text" for="custom-scope-accounts">accounts</label>
             </div>
-            <input type="checkbox" class="custom-checkbox" id="custom-scope-accounts" />
+            <input type="checkbox" class="custom-checkbox" id="custom-scope-accounts"/>
             <div class="input-group-prepend">
                 <label class="input-group-text" for="custom-scope-paymentsInbound">payments:inbound</label>
             </div>
-            <input type="checkbox" class="custom-checkbox" id="custom-scope-paymentsInbound" />
+            <input type="checkbox" class="custom-checkbox" id="custom-scope-paymentsInbound"/>
             <div class="input-group-prepend">
                 <label class="input-group-text" for="custom-scope-paymentsOutbound">payments:outbound</label>
             </div>
-            <input type="checkbox" class="custom-checkbox" id="custom-scope-paymentsOutbound" />
+            <input type="checkbox" class="custom-checkbox" id="custom-scope-paymentsOutbound"/>
         </div>
         @if (Model.Providers != null && Model.Providers.Any())
         {
@@ -116,9 +115,20 @@
 
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
-                <label class="input-group-text" for="custom-locale">(Optional) Pre-selected bank accounts</label>
+                <label class="input-group-text" for="bank-account-ids">(Optional) Pre-selected bank accounts</label>
             </div>
             <input class="form-control" id="bank-account-ids" type="text" placeholder="Comma separated BBAN or IBAN accounts. Requires Pre-selected bank provider."/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="accounts-group-id">(Optional) Group ID</label>
+            </div>
+            <input class="form-control" id="accounts-group-id" type="text" placeholder="Identifier of the accounts group."/>
+            <div class="input-group-append">
+                <label class="input-group-text" for="accounts-group-name">(Optional) Group name</label>
+            </div>
+            <input class="form-control" id="accounts-group-name" type="text" placeholder="Name of the accounts group."/>
         </div>
 
         <div class="input-group mb-3 mt-4">
@@ -254,10 +264,10 @@
         dynamic parsedPayloadJson = JsonConvert.DeserializeObject(payloadJson);
 
         dynamic niceJsonObj = new
-                              {
-                                  algorithm = parsedAlgJson,
-                                  payload = parsedPayloadJson
-                              };
+        {
+            algorithm = parsedAlgJson,
+            payload = parsedPayloadJson
+        };
 
         return JsonConvert.SerializeObject(niceJsonObj, Formatting.Indented);
     }
@@ -273,6 +283,8 @@
             url = addQueryParamToUrl(url, 'culture', $("#custom-locale").val());
             url = addQueryParamToUrl(url, 'providerId', $('#bank-provider').val());
             url = addQueryParamToUrl(url, 'bank_account_numbers', $('#bank-account-ids').val());
+            url = addQueryParamToUrl(url, 'accountsGroupId', $('#accounts-group-id').val());
+            url = addQueryParamToUrl(url, 'accountsGroupName', $('#accounts-group-name').val());
             
             if ($('#custom-selectAllAccounts').is(':checked')) {
                 url = addQueryParamToUrl(url, 'select_all_accounts', 'true');
