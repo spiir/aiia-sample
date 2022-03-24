@@ -26,9 +26,23 @@
             <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-amount">Amount</label>
             </div>
-            <input class="form-control" id="payment-amount" type="number" placeholder="100"/>
-        </div>
+            <input class="form-control" id="payment-amount" type="number" placeholder="(Enter a value)" value="100" />
+         </div>
 
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="issue-payer-token">(Optional) Issue payer token</label>
+            </div>
+            <input type="checkbox" class="custom-checkbox" id="issue-payer-token"/>
+        </div>
+        
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="payer-token">(Optional) Payer token</label>
+            </div>
+            <input class="form-control" type="text" id="payer-token" value="@Context.Request.Query["payerToken"]">
+        </div>
+        
         <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="sendRequestToCreatePayment()">Create payment</button>
     </div>
 }
@@ -51,7 +65,9 @@ else
                 bbanAccountNumber: $('#payment-target-bban-account').val(),
                 Amount: parseFloat($('#payment-amount').val()),
                 message: $('#payment-message').val(),
-                transactionText: $('#payment-transaction-text').val()
+                transactionText: $('#payment-transaction-text').val(),
+                IssuePayerToken: $('#issue-payer-token').is(':checked'),
+                PayerToken: $('#payer-token').val()
             };
             $.ajax({
                 url: '/aiia/payments/create/inbound',

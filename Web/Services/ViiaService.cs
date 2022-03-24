@@ -126,6 +126,8 @@ namespace Aiia.Sample.Services
                                      {
                                          Culture = request.Culture,
                                          RedirectUrl = GetPaymentRedirectUrl(),
+                                         IssuePayerToken = request.IssuePayerToken,
+                                         PayerToken = request.PayerToken,
                                          Payment = new InboundPaymentRequest
                                                    {
                                                        Amount = new PaymentAmountRequest

@@ -13,8 +13,14 @@
         else
         {
             <h1>Payment @Model.Id</h1>
+            @if (Model.PayerToken != null)
+            {
+                <button class="btn btn-primary" style="margin: 1rem 0;"
+                        onclick="location.href='@Url.Action("CreateInboundPayment", "Payment", new {payerToken = Model.PayerToken.Token})'">
+                    Create payment with payer token
+                </button>
+            }
             <table id="payment-details-table"></table>
-
         }
     </div>
 </div>
