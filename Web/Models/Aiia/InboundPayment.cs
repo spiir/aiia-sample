@@ -10,5 +10,6 @@ namespace Aiia.Sample.Models.Aiia
         public PaymentExecution Execution { get; set; }
         public PaymentStatus Status { get; set; }
         public string PaymentMethod { get; set; }
+        public PayerToken PayerToken { get; set; }
     }
 }
