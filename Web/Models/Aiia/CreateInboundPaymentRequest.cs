@@ -9,3 +9,4 @@ namespace Aiia.Sample.Models.Aiia
         public string PayerToken { get; set; }
     }
 }
+
