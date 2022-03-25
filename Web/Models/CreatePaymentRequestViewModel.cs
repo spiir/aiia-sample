@@ -20,5 +20,7 @@ namespace Aiia.Sample.Models
         public string AddressPostalCode { get; set; }
         public string AddressCity { get; set; }
         public string AddressCountry { get; set; }
+        public bool IssuePayerToken { get; set; }
+        public string PayerToken { get; set; }
     }
 }

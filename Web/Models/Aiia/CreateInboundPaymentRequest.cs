@@ -5,5 +5,8 @@ namespace Aiia.Sample.Models.Aiia
         public InboundPaymentRequest Payment { get; set; }
         public string Culture { get; set; }
         public string RedirectUrl { get; set; }
+        public bool IssuePayerToken { get; set; }
+        public string PayerToken { get; set; }
     }
 }
+
