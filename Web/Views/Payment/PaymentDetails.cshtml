@@ -16,7 +16,7 @@
             @if (Model.PayerToken != null)
             {
                 <button class="btn btn-primary" style="margin: 1rem 0;"
-                        onclick="location.href='@Url.Action("CreateInboundPayment", "Payment", new {payerToken = Model.PayerToken.Token})'">
+                        onclick="location.href='@Url.Action("CreateInboundPayment", "Payment", new {payerToken = Model.PayerToken.PayerToken})'">
                     Create payment with payer token
                 </button>
             }

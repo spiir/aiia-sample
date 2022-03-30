@@ -398,11 +398,26 @@ namespace Aiia.Sample.Services
                 throw new UserNotFoundException();
             }
 
-            return await CallApi<InboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/inbound",
+            var inboundPayment = await CallApi<InboundPayment>($"v1/accounts/{accountId}/payments/inbound/{paymentId}",
                                                  null,
                                                  HttpMethod.Get,
                                                  user.AiiaTokenType,
                                                  user.AiiaAccessToken);
+
+            try
+            {
+                var payerToken = await CallApi<PayerTokenModel>(
+                    $"v1/accounts/{accountId}/payments/inbound/{paymentId}/payer-token",
+                    "", HttpMethod.Post, user.AiiaTokenType, user.AiiaAccessToken);
+
+                inboundPayment.PayerToken = payerToken;
+            }
+            catch (AiiaClientException)
+            {
+                // Ignore if there is no token available
+            }
+
+            return inboundPayment;
         }
 
         public async Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal,
