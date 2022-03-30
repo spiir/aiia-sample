@@ -717,8 +717,7 @@ namespace Aiia.Sample.Services
         private string GetRedirectUrl()
         {
             var request = _httpContextAccessor.HttpContext.Request;
-            //return $"{request.Scheme}://{request.Host}{request.PathBase}/aiia/callback";
-            return "https://httpbin.org/anything";
+            return $"{request.Scheme}://{request.Host}{request.PathBase}/aiia/callback";
         }
 
         private async Task<Transaction> GetTransaction(ClaimsPrincipal principal,
