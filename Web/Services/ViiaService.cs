@@ -128,6 +128,7 @@ namespace Aiia.Sample.Services
                                          RedirectUrl = GetPaymentRedirectUrl(),
                                          IssuePayerToken = request.IssuePayerToken,
                                          PayerToken = request.PayerToken,
+                                         ProviderId = request.ProviderId,
                                          Payment = new InboundPaymentRequest
                                                    {
                                                        Amount = new PaymentAmountRequest

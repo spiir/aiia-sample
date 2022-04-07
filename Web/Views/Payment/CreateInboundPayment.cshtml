@@ -43,6 +43,13 @@
             <input class="form-control" type="text" id="payer-token" value="@Context.Request.Query["payerToken"]">
         </div>
         
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="provider-id">(Optional) Provider ID</label>
+            </div>
+            <input class="form-control" type="text" id="provider-id">
+        </div>
+
         <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="sendRequestToCreatePayment()">Create payment</button>
     </div>
 }
@@ -67,7 +74,8 @@ else
                 message: $('#payment-message').val(),
                 transactionText: $('#payment-transaction-text').val(),
                 IssuePayerToken: $('#issue-payer-token').is(':checked'),
-                PayerToken: $('#payer-token').val()
+                PayerToken: $('#payer-token').val(),
+                ProviderId: $('#provider-id').val()
             };
             $.ajax({
                 url: '/aiia/payments/create/inbound',
