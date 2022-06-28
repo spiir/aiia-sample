@@ -20,18 +20,14 @@ namespace Aiia.Sample.Controllers
         public async Task<IActionResult> GetAccessToken([FromBody] TokenInput input)
         {
             if (!string.IsNullOrWhiteSpace(input.Code) && !string.IsNullOrWhiteSpace(input.RefreshToken))
-            {
                 return BadRequest($"Only {nameof(input.Code)} or {nameof(input.RefreshToken)} can be specified");
-            }
 
             if (string.IsNullOrWhiteSpace(input.Code) && string.IsNullOrWhiteSpace(input.RefreshToken))
-            {
                 return BadRequest($"Either {nameof(input.Code)} or {nameof(input.RefreshToken)} has be specified");
-            }
 
             var result = input.Code.IsSet()
-                             ? await _aiiaService.ExchangeCodeForAccessToken(input.Code)
-                             : await _aiiaService.RefreshAccessToken(input.RefreshToken);
+                ? await _aiiaService.ExchangeCodeForAccessToken(input.Code)
+                : await _aiiaService.RefreshAccessToken(input.RefreshToken);
             return Ok(new { accessToken = result.AccessToken, refreshToken = result.RefreshToken });
         }
 

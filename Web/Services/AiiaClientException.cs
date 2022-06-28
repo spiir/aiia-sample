@@ -6,30 +6,32 @@ namespace Aiia.Sample.Services
 {
     public class AiiaClientException : Exception
     {
-        public HttpMethod Method { get; }
-        public HttpStatusCode StatusCode { get; }
-
         public AiiaClientException(string url, HttpStatusCode statusCode) : base(FormatMessage(url, statusCode))
         {
             StatusCode = statusCode;
         }
 
-        public AiiaClientException(string url, HttpStatusCode statusCode, string response) : base(FormatMessage(url, statusCode, response))
+        public AiiaClientException(string url, HttpStatusCode statusCode, string response) : base(FormatMessage(url,
+            statusCode, response))
         {
             StatusCode = statusCode;
         }
 
-        public AiiaClientException(string url, HttpMethod method, HttpResponseMessage message, Exception innerException) :
+        public AiiaClientException(string url, HttpMethod method, HttpResponseMessage message,
+            Exception innerException) :
             base(FormatMessage(url, method, message), innerException)
         {
             Method = method;
         }
 
         public AiiaClientException(string url, HttpMethod method, string response, Exception innerException) : base(
-                                                                                                                    FormatMessage(url, method, response))
+            FormatMessage(url, method, response))
         {
             Method = method;
         }
+
+        public HttpMethod Method { get; }
+        public HttpStatusCode StatusCode { get; }
 
         private static string FormatMessage(string url, HttpStatusCode code)
         {
@@ -48,10 +50,7 @@ namespace Aiia.Sample.Services
 
         private static string FormatMessage(string url, HttpMethod method, HttpResponseMessage response)
         {
-            if (response == null)
-            {
-                return $"Request {method} - {url} Failed.";
-            }
+            if (response == null) return $"Request {method} - {url} Failed.";
 
             try
             {

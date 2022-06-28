@@ -35,15 +35,15 @@ namespace Aiia.Sample.Services
         private Task<bool> SendConsoleEmail(string destination, string subject, string emailHtml)
         {
             _logger.LogInformation(
-                                   $"\n\n========= EMAIL =========\n\nTO:<{destination}\nSUBJECT: {subject}\n\n{emailHtml}");
+                $"\n\n========= EMAIL =========\n\nTO:<{destination}\nSUBJECT: {subject}\n\n{emailHtml}");
             return Task.FromResult(true);
         }
 
         private Task<bool> SendEmail(string destination, string subject, string emailHtml)
         {
             return _optionsMonitor.CurrentValue.SendGrid?.ApiKey != null
-                       ? SendSendgridEmail(destination, subject, emailHtml)
-                       : SendConsoleEmail(destination, subject, emailHtml);
+                ? SendSendgridEmail(destination, subject, emailHtml)
+                : SendConsoleEmail(destination, subject, emailHtml);
         }
 
         private async Task<bool> SendSendgridEmail(string destination, string subject, string emailHtml)
@@ -56,12 +56,12 @@ namespace Aiia.Sample.Services
             var msg = MailHelper.CreateSingleEmail(from, to, subject, null, emailHtml);
 
             var res = await client.SendEmailAsync(msg);
-            var success = ( int ) res.StatusCode >= 200 && ( int ) res.StatusCode <= 299;
+            var success = (int)res.StatusCode >= 200 && (int)res.StatusCode <= 299;
 
             if (!success)
                 _logger.LogError($"failed to send email via send grid, status code is: {res.StatusCode}",
-                                 res.DeserializeResponseHeaders(res.Headers),
-                                 res.DeserializeResponseBodyAsync(res.Body));
+                    res.DeserializeResponseHeaders(res.Headers),
+                    res.DeserializeResponseBodyAsync(res.Body));
 
             return success;
         }

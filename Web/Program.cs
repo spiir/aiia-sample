@@ -11,17 +11,17 @@ namespace Aiia.Sample
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(options =>
-                                                                            {
-                                                                                options.UseStartup<Startup>().UseKeyVault()
-                                                                                       .UseSentry(config =>
-                                                                                                  {
-                                                                                                      var environmentName =
-                                                                                                          Environment
-                                                                                                              .GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                                                                                                      config.Environment = environmentName;
-                                                                                                  })
-                                                                                       .UseSerilogHumio();
-                                                                            });
+            {
+                options.UseStartup<Startup>().UseKeyVault()
+                    .UseSentry(config =>
+                    {
+                        var environmentName =
+                            Environment
+                                .GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                        config.Environment = environmentName;
+                    })
+                    .UseSerilogHumio();
+            });
         }
 
         public static async Task Main(string[] args)

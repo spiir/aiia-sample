@@ -10,4 +10,3 @@ namespace Aiia.Sample.Models.Aiia
         public string ProviderId { get; set; }
     }
 }
-
