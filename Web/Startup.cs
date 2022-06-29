@@ -111,7 +111,7 @@ namespace Aiia.Sample
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IEmailService, EmailService>();
-            services.AddScoped<IAiiaService, AiiaService>();
+            services.AddHttpClient<IAiiaService, AiiaService>();
             services.AddRazorPages();
             services.AddControllers();
         }

@@ -1,10 +1,9 @@
-using NodaTime;
 
 namespace Aiia.Sample.Models.Aiia
 {
-    public class Payment
+    public class PaymentAuthorization
     {
-        public Instant CreatedAt { get; set; }
+        public string CreatedAt { get; set; }
         public PaymentExecution Execution { get; set; }
 
         public string Id { get; set; }

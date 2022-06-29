@@ -13,14 +13,7 @@ namespace Aiia.Sample
             return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(options =>
             {
                 options.UseStartup<Startup>().UseKeyVault()
-                    .UseSentry(config =>
-                    {
-                        var environmentName =
-                            Environment
-                                .GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                        config.Environment = environmentName;
-                    })
-                    .UseSerilogHumio();
+                    .UseSerilogElasticSearchIngest();
             });
         }
 

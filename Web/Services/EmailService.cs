@@ -2,8 +2,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using SendGrid;
-using SendGrid.Helpers.Mail;
 
 namespace Aiia.Sample.Services
 {
@@ -48,7 +46,12 @@ namespace Aiia.Sample.Services
 
         private async Task<bool> SendSendgridEmail(string destination, string subject, string emailHtml)
         {
+            return false;
+            // TODO: Disabled for now
+            
+            /*
             var sendGrid = _optionsMonitor.CurrentValue.SendGrid;
+            
             var client = new SendGridClient(sendGrid.ApiKey);
             var from = new EmailAddress(sendGrid.EmailFrom, sendGrid.NameFrom);
             var to = new EmailAddress(destination);
@@ -64,6 +67,7 @@ namespace Aiia.Sample.Services
                     res.DeserializeResponseBodyAsync(res.Body));
 
             return success;
+            */
         }
 
         private static string FormatJson(string json)

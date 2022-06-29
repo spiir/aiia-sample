@@ -1,4 +1,3 @@
-using NodaTime;
 
 namespace Aiia.Sample.Models.Aiia
 {
@@ -6,12 +5,12 @@ namespace Aiia.Sample.Models.Aiia
     {
         public CurrencyConversionViewModel CurrencyConversion { get; set; }
         public TransactionPartyViewModel Destination { get; set; }
-        public LocalDate? ExecutionDate { get; set; }
+        public string? ExecutionDate { get; set; }
         public TransactionIdentifiersViewModel Identifiers { get; set; }
         public string Message { get; set; }
         public RewardViewModel Reward { get; set; }
         public TransactionPartyViewModel Source { get; set; }
-        public LocalDate? ValueDate { get; set; }
+        public string? ValueDate { get; set; }
     }
 
     public class CurrencyConversionViewModel

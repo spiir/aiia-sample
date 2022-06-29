@@ -6,6 +6,7 @@ namespace Aiia.Sample.Models
     {
         public QueryFieldBetween AmountValueBetween { get; set; }
         public QueryFieldBetween BalanceValueBetween { get; set; }
+        // TODO: remove filters
         public List<QueryPart> Filters { get; set; }
         public bool IncludeDeleted { get; set; }
         public string PagingToken { get; set; }

@@ -37,7 +37,7 @@ namespace Aiia.Sample.Extensions
             });
         }
 
-        public static IWebHostBuilder UseSerilogHumio(this IWebHostBuilder builder)
+        public static IWebHostBuilder UseSerilogElasticSearchIngest(this IWebHostBuilder builder)
         {
             return builder.UseSerilog((context, configuration) =>
             {

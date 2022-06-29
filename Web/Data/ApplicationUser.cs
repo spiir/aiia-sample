@@ -1,4 +1,5 @@
 using System;
+using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Identity;
 
 namespace Aiia.Sample.Data
@@ -11,5 +12,10 @@ namespace Aiia.Sample.Data
         public string AiiaConsentId { get; set; }
         public string AiiaRefreshToken { get; set; }
         public string AiiaTokenType { get; set; }
+
+        public AiiaAccessTokens GetAiiaAccessTokens()
+        {
+            return new AiiaAccessTokens(AiiaTokenType, AiiaAccessToken);
+        }
     }
 }
