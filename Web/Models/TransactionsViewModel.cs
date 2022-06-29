@@ -5,16 +5,16 @@ namespace Aiia.Sample.Models
 {
     public class TransactionsViewModel
     {
-        public bool IncludeDeleted { get; }
-        public string PagingToken { get; }
-
-        public List<Transaction> Transactions { get; }
-
         public TransactionsViewModel(List<Transaction> transactions, string pagingToken, bool includeDeleted)
         {
             Transactions = transactions;
             PagingToken = pagingToken;
             IncludeDeleted = includeDeleted;
         }
+
+        public bool IncludeDeleted { get; }
+        public string PagingToken { get; }
+
+        public List<Transaction> Transactions { get; }
     }
 }

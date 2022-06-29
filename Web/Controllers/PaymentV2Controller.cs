@@ -16,8 +16,8 @@ namespace Aiia.Sample.Controllers
     [Authorize]
     public class PaymentV2Controller : Controller
     {
-        private readonly IWebHostEnvironment _environment;
         private readonly IAiiaService _aiiaService;
+        private readonly IWebHostEnvironment _environment;
 
         public PaymentV2Controller(IAiiaService aiiaService, IWebHostEnvironment environment)
         {
@@ -25,14 +25,11 @@ namespace Aiia.Sample.Controllers
             _environment = environment;
         }
 
-       
+
         [HttpGet("payments/create")]
         public async Task<IActionResult> CreatePayment()
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             IImmutableList<Account> accounts = ImmutableList.Create<Account>();
             try
             {
@@ -44,19 +41,16 @@ namespace Aiia.Sample.Controllers
             }
 
             return View(new CreatePaymentViewModel
-                        {
-                            Accounts = accounts
-                        });
+            {
+                Accounts = accounts
+            });
         }
 
         [HttpPost("payments/create")]
         public async Task<ActionResult<CreatePaymentResultViewModelV2>> CreatePayment(
             [FromBody] CreatePaymentRequestViewModelV2 body)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             var result = new CreatePaymentResultViewModelV2();
             try
             {
@@ -74,21 +68,19 @@ namespace Aiia.Sample.Controllers
         [HttpGet("payments")]
         public async Task<IActionResult> Payments()
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             var result = new PaymentsViewModel
-                         {
-                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
-                         };
+            {
+                PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
+            };
             try
             {
                 var payments = await _aiiaService.GetPayments(User);
                 var accounts = await _aiiaService.GetUserAccounts(User);
                 foreach (var account in accounts)
                 {
-                    var accountPayments = payments.Payments?.Where(payment => payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
+                    var accountPayments = payments.Payments?.Where(payment =>
+                        payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
                     result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
                 }
             }
@@ -104,16 +96,13 @@ namespace Aiia.Sample.Controllers
         public async Task<ActionResult<CreatePaymentAuthorizationResultViewModel>> CreatePaymentAuthorization(
             [FromBody] CreatePaymentAuthorizationRequestViewModel body)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             var result = new CreatePaymentAuthorizationResultViewModel();
             try
             {
                 var response = await _aiiaService.CreatePaymentAuthorization(User, body);
                 result.AuthorizationId = response.AuthorizationId;
-                result.AuthorizationUrl= response.AuthorizationUrl;
+                result.AuthorizationUrl = response.AuthorizationUrl;
             }
             catch (AiiaClientException e)
             {
@@ -124,12 +113,10 @@ namespace Aiia.Sample.Controllers
         }
 
         [HttpGet("payment-authorizations/{accountId}/{authorizationId}")]
-        public async Task<IActionResult> PaymentAuthorizations([FromRoute] string accountId, [FromRoute]string paymentAuthorizationId)
+        public async Task<IActionResult> PaymentAuthorizations([FromRoute] string accountId,
+            [FromRoute] string paymentAuthorizationId)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             try
             {
                 var authorization = await _aiiaService.GetPaymentAuthorization(User, accountId, paymentAuthorizationId);
@@ -144,34 +131,26 @@ namespace Aiia.Sample.Controllers
         [HttpGet("payment-authorizations/callback")]
         public IActionResult PaymentAuthorizationCallback([FromQuery] string authorizationId)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             if (string.IsNullOrWhiteSpace(authorizationId))
-            {
                 return View("PaymentAuthorizationCallback",
-                            new PaymentAuthorizationCallbackViewModel
-                            {
-                                IsError = true
-                            });
-            }
+                    new PaymentAuthorizationCallbackViewModel
+                    {
+                        IsError = true
+                    });
 
             return View("PaymentAuthorizationCallback",
-                        new PaymentAuthorizationCallbackViewModel
-                        {
-                            Query = Request.QueryString.Value,
-                            PaymentAuthorizationId = authorizationId
-                        });
+                new PaymentAuthorizationCallbackViewModel
+                {
+                    Query = Request.QueryString.Value,
+                    PaymentAuthorizationId = authorizationId
+                });
         }
 
         [HttpGet("accounts/{accountId}/payments/{paymentId}")]
         public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             try
             {
                 var payment = await _aiiaService.GetOutboundPayment(User, accountId, paymentId);

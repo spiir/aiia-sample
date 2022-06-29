@@ -15,8 +15,8 @@ namespace Aiia.Sample.Controllers
     [Authorize]
     public class AiiaController : Controller
     {
-        private readonly ApplicationDbContext _dbContext;
         private readonly IAiiaService _aiiaService;
+        private readonly ApplicationDbContext _dbContext;
 
         public AiiaController(IAiiaService aiiaService, ApplicationDbContext dbContext)
         {
@@ -46,10 +46,7 @@ namespace Aiia.Sample.Controllers
         {
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                return Ok(new { });
-            }
+            if (user == null) return Ok(new { });
 
             user.EmailEnabled = !user.EmailEnabled;
             _dbContext.Users.Update(user);
@@ -77,10 +74,7 @@ namespace Aiia.Sample.Controllers
             var tokenResponse = await _aiiaService.ExchangeCodeForAccessToken(code);
             var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            if (user == null) return Unauthorized();
 
             user.AiiaAccessToken = tokenResponse.AccessToken;
             user.AiiaTokenType = tokenResponse.TokenType;
@@ -92,8 +86,8 @@ namespace Aiia.Sample.Controllers
             await _dbContext.SaveChangesAsync();
 
             return View("GenericViewWithPostMessageOnLoad",
-                        new CallbackViewModel
-                        { Query = Request.QueryString.Value, AutomaticallyFinish = false, IsError = false });
+                new CallbackViewModel
+                    { Query = Request.QueryString.Value, AutomaticallyFinish = false, IsError = false });
         }
 
         [HttpPost("update")]
@@ -104,11 +98,11 @@ namespace Aiia.Sample.Controllers
             // If status is `AllQueued`, it means that all connections didn't need a supervised login and were queued successfully
             // Otherwise, a supervised login is needed by the user using the `AuthUrl` received in the response
             return Ok(new
-                      {
-                          authUrl = dataUpdateResponse.Status == InitiateDataUpdateResponse.UpdateStatus.AllQueued
-                                        ? string.Empty
-                                        : dataUpdateResponse.AuthUrl
-                      });
+            {
+                authUrl = dataUpdateResponse.Status == InitiateDataUpdateResponse.UpdateStatus.AllQueued
+                    ? string.Empty
+                    : dataUpdateResponse.AuthUrl
+            });
         }
     }
 }

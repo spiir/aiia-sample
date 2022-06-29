@@ -32,22 +32,27 @@ namespace Aiia.Sample.Services
         Task<CreatePaymentResponse> CreateInboundPayment(ClaimsPrincipal user, CreatePaymentRequestViewModel body);
 
         Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
-                                                          CreatePaymentRequestViewModel request);
+            CreatePaymentRequestViewModel request);
+
         Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal,
             CreatePaymentRequestViewModelV2 requestViewModel);
+
         Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,
             CreatePaymentAuthorizationRequestViewModel requestViewModel);
 
         Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
 
         Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal,
-                                                          string accountId,
-                                                          TransactionQueryRequestViewModel queryRequest = null);
+            string accountId,
+            TransactionQueryRequestViewModel queryRequest = null);
 
         Uri GetAuthUri(string userEmail);
         Task<InboundPayment> GetInboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
         Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
-        Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId, string authorizationId);
+
+        Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId,
+            string authorizationId);
+
         Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal);
         Task<ImmutableList<BankProvider>> GetProviders();
         Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
@@ -67,10 +72,10 @@ namespace Aiia.Sample.Services
         private readonly IOptionsMonitor<SiteOptions> _options;
 
         public AiiaService(IOptionsMonitor<SiteOptions> options,
-                           ILogger<AiiaService> logger,
-                           ApplicationDbContext dbContext,
-                           IHttpContextAccessor httpContextAccessor,
-                           IEmailService emailService)
+            ILogger<AiiaService> logger,
+            ApplicationDbContext dbContext,
+            IHttpContextAccessor httpContextAccessor,
+            IEmailService emailService)
         {
             _options = options;
             _logger = logger;
@@ -78,30 +83,27 @@ namespace Aiia.Sample.Services
             _httpContextAccessor = httpContextAccessor;
             _emailService = emailService;
             _httpClient = new Lazy<HttpClient>(() =>
-                                               {
-                                                   var client = new HttpClient
-                                                                {
-                                                                    BaseAddress = new Uri(options.CurrentValue.Aiia.BaseApiUrl)
-                                                                };
-                                                   return client;
-                                               });
+            {
+                var client = new HttpClient
+                {
+                    BaseAddress = new Uri(options.CurrentValue.Aiia.BaseApiUrl)
+                };
+                return client;
+            });
         }
 
         public async Task<bool?> AllAccountsSelected(ClaimsPrincipal principal)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                return false;
-            }
+            if (user == null) return false;
 
             try
             {
                 var response = await HttpGet<AllAccountSelectedResponse>(
-                                                                         $"v1/consent/{user.AiiaConsentId}/all-accounts-selected",
-                                                                         user.AiiaTokenType,
-                                                                         user.AiiaAccessToken);
+                    $"v1/consent/{user.AiiaConsentId}/all-accounts-selected",
+                    user.AiiaTokenType,
+                    user.AiiaAccessToken);
 
                 return response.AllAccountsSelected;
             }
@@ -112,122 +114,105 @@ namespace Aiia.Sample.Services
         }
 
         public async Task<CreatePaymentResponse> CreateInboundPayment(ClaimsPrincipal principal,
-                                                                      CreatePaymentRequestViewModel request)
+            CreatePaymentRequestViewModel request)
         {
             {
                 var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
                 var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-                if (user == null)
-                {
-                    throw new UserNotFoundException();
-                }
+                if (user == null) throw new UserNotFoundException();
 
                 var paymentRequest = new CreateInboundPaymentRequest
-                                     {
-                                         Culture = request.Culture,
-                                         RedirectUrl = GetPaymentRedirectUrl(),
-                                         IssuePayerToken = request.IssuePayerToken,
-                                         PayerToken = request.PayerToken,
-                                         ProviderId = request.ProviderId,
-                                         Payment = new InboundPaymentRequest
-                                                   {
-                                                       Amount = new PaymentAmountRequest
-                                                                {
-                                                                    Value = request.Amount
-                                                                },
-                                                   }
-                                     };
+                {
+                    Culture = request.Culture,
+                    RedirectUrl = GetPaymentRedirectUrl(),
+                    IssuePayerToken = request.IssuePayerToken,
+                    PayerToken = request.PayerToken,
+                    ProviderId = request.ProviderId,
+                    Payment = new InboundPaymentRequest
+                    {
+                        Amount = new PaymentAmountRequest
+                        {
+                            Value = request.Amount
+                        }
+                    }
+                };
 
                 return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/inbound",
-                                                            paymentRequest,
-                                                            HttpMethod.Post,
-                                                            user.AiiaTokenType,
-                                                            user.AiiaAccessToken);
+                    paymentRequest,
+                    HttpMethod.Post,
+                    user.AiiaTokenType,
+                    user.AiiaAccessToken);
             }
         }
 
         public async Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
-                                                                       CreatePaymentRequestViewModel request)
+            CreatePaymentRequestViewModel request)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
+            if (user == null) throw new UserNotFoundException();
 
             var paymentRequest = new CreateOutboundPaymentRequest
-                                 {
-                                     Culture = request.Culture,
-                                     RedirectUrl = GetPaymentRedirectUrl(),
-                                     Payment = new PaymentRequest
-                                               {
-                                                   Message = request.message,
-                                                   TransactionText = request.TransactionText,
-                                                   Amount = new PaymentAmountRequest
-                                                            {
-                                                                Value = request.Amount
-                                                            },
-                                                   Destination = new PaymentDestinationRequest(),
-                                                   PaymentMethod = request.PaymentMethod,
-                                               },
-                                 };
+            {
+                Culture = request.Culture,
+                RedirectUrl = GetPaymentRedirectUrl(),
+                Payment = new PaymentRequest
+                {
+                    Message = request.message,
+                    TransactionText = request.TransactionText,
+                    Amount = new PaymentAmountRequest
+                    {
+                        Value = request.Amount
+                    },
+                    Destination = new PaymentDestinationRequest(),
+                    PaymentMethod = request.PaymentMethod
+                }
+            };
 
             paymentRequest.Payment.Destination.RecipientFullname = request.RecipientFullname;
-            
-            
+
 
             if (!string.IsNullOrWhiteSpace(request.Iban))
-            {
                 paymentRequest.Payment.Destination.IBan = request.Iban;
-            }
-            else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
-            {
+            else if (!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
                 paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
-                                                          {
-                                                              BankCode = request.BbanBankCode,
-                                                              AccountNumber = request.BbanAccountNumber
-                                                          };
-            }
+                {
+                    BankCode = request.BbanBankCode,
+                    AccountNumber = request.BbanAccountNumber
+                };
             else
-            {
                 paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
                 {
                     Type = request.InpaymentFormType,
                     CreditorNumber = request.InpaymentFormCreditorNumber
                 };
-            }
-            
-            if(!string.IsNullOrEmpty(request.Ocr))
-                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
+
+            if (!string.IsNullOrEmpty(request.Ocr))
+                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest { Ocr = request.Ocr };
 
             if (!string.IsNullOrEmpty(request.AddressStreet))
-            {
                 paymentRequest.Payment.Destination.Address = new PaymentAddressRequest
                 {
                     Street = request.AddressStreet,
                     BuildingNumber = request.AddressBuildingNumber,
                     PostalCode = request.AddressPostalCode,
                     City = request.AddressCity,
-                    Country = request.AddressCountry,
+                    Country = request.AddressCountry
                 };
-            }
 
             return await CallApi<CreatePaymentResponse>($"v1/accounts/{request.SourceAccountId}/payments/outbound",
-                                                        paymentRequest,
-                                                        HttpMethod.Post,
-                                                        user.AiiaTokenType,
-                                                        user.AiiaAccessToken);
+                paymentRequest,
+                HttpMethod.Post,
+                user.AiiaTokenType,
+                user.AiiaAccessToken);
         }
 
-        public async Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal, CreatePaymentRequestViewModelV2 request)
+        public async Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal,
+            CreatePaymentRequestViewModelV2 request)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
+            if (user == null) throw new UserNotFoundException();
 
             var paymentRequest = new CreateOutboundPaymentRequestV2
             {
@@ -241,72 +226,63 @@ namespace Aiia.Sample.Services
                         Currency = request.Currency
                     },
                     Destination = new PaymentDestinationRequestV2(),
-                    PaymentMethod = request.PaymentMethod,
-                },
+                    PaymentMethod = request.PaymentMethod
+                }
             };
 
             paymentRequest.Payment.Destination.Name = request.RecipientFullname;
 
             if (!string.IsNullOrWhiteSpace(request.Iban))
-            {
                 paymentRequest.Payment.Destination.IBan = new PaymentIbanRequestV2 { IbanNumber = request.Iban };
-            }
-            else if(!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
-            {
+            else if (!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
                 paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
                 {
                     BankCode = request.BbanBankCode,
                     AccountNumber = request.BbanAccountNumber
                 };
-            }
             else
-            {
                 paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
                 {
                     Type = request.InpaymentFormType,
                     CreditorNumber = request.InpaymentFormCreditorNumber
                 };
-            }
 
-            if(!string.IsNullOrEmpty(request.Ocr))
-                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest {Ocr = request.Ocr};
-            
+            if (!string.IsNullOrEmpty(request.Ocr))
+                paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest { Ocr = request.Ocr };
+
             if (!string.IsNullOrEmpty(request.AddressStreet))
-            {
                 paymentRequest.Payment.Destination.Address = new PaymentAddressRequest
                 {
                     Street = request.AddressStreet,
                     BuildingNumber = request.AddressBuildingNumber,
                     PostalCode = request.AddressPostalCode,
                     City = request.AddressCity,
-                    Country = request.AddressCountry,
+                    Country = request.AddressCountry
                 };
-            }
 
             return await CallApi<CreatePaymentResponseV2>($"v2/accounts/{request.SourceAccountId}/payments",
-                                                        paymentRequest,
-                                                        HttpMethod.Post,
-                                                        user.AiiaTokenType,
-                                                        user.AiiaAccessToken);
+                paymentRequest,
+                HttpMethod.Post,
+                user.AiiaTokenType,
+                user.AiiaAccessToken);
         }
 
-        public async Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal, CreatePaymentAuthorizationRequestViewModel request)
+        public async Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,
+            CreatePaymentAuthorizationRequestViewModel request)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
+            if (user == null) throw new UserNotFoundException();
 
-            var paymentAuthorizationRequest = new CreatePaymentAuthorizationRequest()
+            var paymentAuthorizationRequest = new CreatePaymentAuthorizationRequest
             {
                 Culture = request.Culture,
                 PaymentIds = request.PaymentIds.ToArray(),
-                RedirectUrl = GetPaymentAuthorizationRedirectUrl(),
+                RedirectUrl = GetPaymentAuthorizationRedirectUrl()
             };
 
-            return await CallApi<CreatePaymentAuthorizationResponse>($"v2/accounts/{request.SourceAccountId}/payment-authorizations",
+            return await CallApi<CreatePaymentAuthorizationResponse>(
+                $"v2/accounts/{request.SourceAccountId}/payment-authorizations",
                 paymentAuthorizationRequest,
                 HttpMethod.Post,
                 user.AiiaTokenType,
@@ -321,29 +297,26 @@ namespace Aiia.Sample.Services
 
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
-                
+
                 var tokenBody = new
-                                {
-                                    grant_type = "authorization_code",
-                                    code,
-                                    scope = "read",
-                                    redirect_uri = GetRedirectUrl()
+                {
+                    grant_type = "authorization_code",
+                    code,
+                    scope = "read",
+                    redirect_uri = GetRedirectUrl()
                 };
 
                 var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
-                              {
-                                  Content = new StringContent(JsonConvert.SerializeObject(tokenBody),
-                                                              Encoding.UTF8,
-                                                              "application/json")
-                              };
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(tokenBody),
+                        Encoding.UTF8,
+                        "application/json")
+                };
 
                 var response = await httpClient.SendAsync(request);
                 var content = await response.Content.ReadAsStringAsync();
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception("Failed to exchange code for tokens");
-                }
+                if (!response.IsSuccessStatusCode) throw new Exception("Failed to exchange code for tokens");
 
                 var tokenResponse =
                     JsonConvert.DeserializeObject<CodeExchangeResponse>(content);
@@ -352,8 +325,8 @@ namespace Aiia.Sample.Services
         }
 
         public async Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal,
-                                                                       string accountId,
-                                                                       TransactionQueryRequestViewModel queryRequest = null)
+            string accountId,
+            TransactionQueryRequestViewModel queryRequest = null)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -361,20 +334,20 @@ namespace Aiia.Sample.Services
                 return null;
 
             return await HttpPost<TransactionsResponse>(
-                                                        $"/v1/accounts/{accountId}/transactions/query?includeDeleted={queryRequest?.IncludeDeleted.ToString() ?? "false"}",
-                                                        new
-                                                        {
-                                                            Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
-                                                                                    SystemClock.Instance.GetCurrentInstant()),
-                                                            queryRequest?.PagingToken,
-                                                            PageSize = 20,
-                                                            Patterns = queryRequest?.Filters.Select(MapQueryPartToAiiaQueryPart).ToList(),
-                                                            queryRequest?.AmountValueBetween,
-                                                            queryRequest?.BalanceValueBetween
-                                                        },
-                                                        user.AiiaTokenType,
-                                                        user.AiiaAccessToken,
-                                                        principal);
+                $"/v1/accounts/{accountId}/transactions/query?includeDeleted={queryRequest?.IncludeDeleted.ToString() ?? "false"}",
+                new
+                {
+                    Interval = new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)),
+                        SystemClock.Instance.GetCurrentInstant()),
+                    queryRequest?.PagingToken,
+                    PageSize = 20,
+                    Patterns = queryRequest?.Filters.Select(MapQueryPartToAiiaQueryPart).ToList(),
+                    queryRequest?.AmountValueBetween,
+                    queryRequest?.BalanceValueBetween
+                },
+                user.AiiaTokenType,
+                user.AiiaAccessToken,
+                principal);
         }
 
         public Uri GetAuthUri(string email)
@@ -389,21 +362,18 @@ namespace Aiia.Sample.Services
         }
 
         public async Task<InboundPayment> GetInboundPayment(ClaimsPrincipal principal,
-                                                            string accountId,
-                                                            string paymentId)
+            string accountId,
+            string paymentId)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
+            if (user == null) throw new UserNotFoundException();
 
             var inboundPayment = await CallApi<InboundPayment>($"v1/accounts/{accountId}/payments/inbound/{paymentId}",
-                                                 null,
-                                                 HttpMethod.Get,
-                                                 user.AiiaTokenType,
-                                                 user.AiiaAccessToken);
+                null,
+                HttpMethod.Get,
+                user.AiiaTokenType,
+                user.AiiaAccessToken);
 
             try
             {
@@ -422,33 +392,29 @@ namespace Aiia.Sample.Services
         }
 
         public async Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal,
-                                                              string accountId,
-                                                              string paymentId)
+            string accountId,
+            string paymentId)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
+            if (user == null) throw new UserNotFoundException();
 
             return await CallApi<OutboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
-                                                  null,
-                                                  HttpMethod.Get,
-                                                  user.AiiaTokenType,
-                                                  user.AiiaAccessToken);
+                null,
+                HttpMethod.Get,
+                user.AiiaTokenType,
+                user.AiiaAccessToken);
         }
 
-        public async Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId, string authorizationId)
+        public async Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId,
+            string authorizationId)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
+            if (user == null) throw new UserNotFoundException();
 
-            return await CallApi<PaymentAuthorization>($"v2/accounts/{accountId}/payment-authorizations/{authorizationId}",
+            return await CallApi<PaymentAuthorization>(
+                $"v2/accounts/{accountId}/payment-authorizations/{authorizationId}",
                 null,
                 HttpMethod.Get,
                 user.AiiaTokenType,
@@ -459,22 +425,19 @@ namespace Aiia.Sample.Services
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                throw new UserNotFoundException();
-            }
+            if (user == null) throw new UserNotFoundException();
 
             var request = new PaymentsQueryRequest
-                          {
-                              PageSize = 100,
-                              PagingToken = null
-                          };
+            {
+                PageSize = 100,
+                PagingToken = null
+            };
 
             return await CallApi<PaymentsResponse>("v1/payments/query",
-                                                   request,
-                                                   HttpMethod.Post,
-                                                   user.AiiaTokenType,
-                                                   user.AiiaAccessToken);
+                request,
+                HttpMethod.Post,
+                user.AiiaTokenType,
+                user.AiiaAccessToken);
         }
 
         public Task<ImmutableList<BankProvider>> GetProviders()
@@ -486,10 +449,7 @@ namespace Aiia.Sample.Services
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             var result =
                 await HttpGet<AccountsResponse>("/v1/accounts", user.AiiaTokenType, user.AiiaAccessToken, principal);
@@ -500,18 +460,15 @@ namespace Aiia.Sample.Services
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             var redirectUrl = $"{GetBaseUrl()}/aiia/data/{currentUserId}/";
             var requestBody = new InitiateDataUpdateRequest { RedirectUrl = redirectUrl };
 
             return HttpPost<InitiateDataUpdateResponse>("v1/update",
-                                                        requestBody,
-                                                        user.AiiaTokenType,
-                                                        user.AiiaAccessToken);
+                requestBody,
+                user.AiiaTokenType,
+                user.AiiaAccessToken);
         }
 
         public async Task ProcessWebHookPayload(HttpRequest request)
@@ -539,8 +496,8 @@ namespace Aiia.Sample.Services
             }
 
             var consentId = string.IsNullOrEmpty(data["consentId"].Value<string>())
-                                ? string.Empty
-                                : data["consentId"].Value<string>();
+                ? string.Empty
+                : data["consentId"].Value<string>();
 
             var user = _dbContext.Users.FirstOrDefault(x => x.AiiaConsentId == consentId);
             if (user == null)
@@ -567,29 +524,26 @@ namespace Aiia.Sample.Services
 
                 httpClient.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Basic", GenerateBasicAuthorizationHeaderValue());
-                
+
                 var tokenBody = new
-                                {
-                                    grant_type = "refresh_token",
-                                    refresh_token = refreshToken,
-                                    scope = "read",
-                                    redirect_uri = GetRedirectUrl()
+                {
+                    grant_type = "refresh_token",
+                    refresh_token = refreshToken,
+                    scope = "read",
+                    redirect_uri = GetRedirectUrl()
                 };
 
                 var request = new HttpRequestMessage(HttpMethod.Post, requestUrl)
-                              {
-                                  Content = new StringContent(JsonConvert.SerializeObject(tokenBody),
-                                                              Encoding.UTF8,
-                                                              "application/json")
-                              };
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(tokenBody),
+                        Encoding.UTF8,
+                        "application/json")
+                };
 
                 var response = await httpClient.SendAsync(request);
                 var content = await response.Content.ReadAsStringAsync();
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new Exception("Failed to exchange code for tokens");
-                }
+                if (!response.IsSuccessStatusCode) throw new Exception("Failed to exchange code for tokens");
 
                 var tokenResponse =
                     JsonConvert.DeserializeObject<CodeExchangeResponse>(content);
@@ -598,42 +552,40 @@ namespace Aiia.Sample.Services
         }
 
         private async Task<T> CallApi<T>(string url,
-                                         object body,
-                                         HttpMethod method,
-                                         string accessTokenType = null,
-                                         string accessToken = null)
+            object body,
+            HttpMethod method,
+            string accessTokenType = null,
+            string accessToken = null)
         {
             HttpResponseMessage result = null;
             string responseContent = null;
             try
             {
                 var httpRequestMessage = new HttpRequestMessage(method, url)
-                                         {
-                                             Content = new StringContent(
-                                                                         JsonConvert.SerializeObject(body,
-                                                                                                     new JsonSerializerSettings()
-                                                                                                         .ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
-                                                                                                         .WithIsoIntervalConverter()),
-                                                                         Encoding.UTF8,
-                                                                         "application/json")
-                                         };
+                {
+                    Content = new StringContent(
+                        JsonConvert.SerializeObject(body,
+                            new JsonSerializerSettings()
+                                .ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
+                                .WithIsoIntervalConverter()),
+                        Encoding.UTF8,
+                        "application/json")
+                };
 
                 if (accessTokenType != null && accessToken != null)
-                {
                     httpRequestMessage.Headers.Authorization =
                         new AuthenticationHeaderValue(accessTokenType, accessToken);
-                }
 
                 var sw = Stopwatch.StartNew();
                 result = await _httpClient.Value.SendAsync(httpRequestMessage);
                 var duration = sw.Elapsed;
 
                 _logger.LogDebug(
-                                 "Aiia request: {RequestUri} {StatusCode} {DurationMilliseconds}ms",
-                                 result.RequestMessage.RequestUri,
-                                 result.StatusCode,
-                                 Math.Round(duration.TotalMilliseconds)
-                                );
+                    "Aiia request: {RequestUri} {StatusCode} {DurationMilliseconds}ms",
+                    result.RequestMessage.RequestUri,
+                    result.StatusCode,
+                    Math.Round(duration.TotalMilliseconds)
+                );
 
                 if (!result.IsSuccessStatusCode)
                 {
@@ -643,8 +595,8 @@ namespace Aiia.Sample.Services
 
                 responseContent = await result.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<T>(responseContent,
-                                                        new JsonSerializerSettings().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
-                                                                                    .WithIsoIntervalConverter());
+                    new JsonSerializerSettings().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
+                        .WithIsoIntervalConverter());
             }
             catch (AiiaClientException)
             {
@@ -722,8 +674,8 @@ namespace Aiia.Sample.Services
         }
 
         private async Task<Transaction> GetTransaction(ClaimsPrincipal principal,
-                                                       string accountId,
-                                                       string transactionId)
+            string accountId,
+            string transactionId)
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
@@ -731,16 +683,16 @@ namespace Aiia.Sample.Services
                 return null;
 
             return await HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}",
-                                              user.AiiaTokenType,
-                                              user.AiiaAccessToken,
-                                              principal);
+                user.AiiaTokenType,
+                user.AiiaAccessToken,
+                principal);
         }
 
         private async Task<T> HttpGet<T>(string url,
-                                         string accessTokenType = null,
-                                         string accessToken = null,
-                                         ClaimsPrincipal principal = null,
-                                         bool isRetry = false)
+            string accessTokenType = null,
+            string accessToken = null,
+            ClaimsPrincipal principal = null,
+            bool isRetry = false)
         {
             try
             {
@@ -755,11 +707,11 @@ namespace Aiia.Sample.Services
         }
 
         private async Task<T> HttpPost<T>(string url,
-                                          object body,
-                                          string accessTokenType = null,
-                                          string accessToken = null,
-                                          ClaimsPrincipal principal = null,
-                                          bool isRetry = false)
+            object body,
+            string accessTokenType = null,
+            string accessToken = null,
+            ClaimsPrincipal principal = null,
+            bool isRetry = false)
         {
             try
             {
@@ -770,22 +722,22 @@ namespace Aiia.Sample.Services
             {
                 var updatedTokens = await RefreshAccessTokenAndSaveToUser(principal);
                 return await HttpPost<T>(url,
-                                         body,
-                                         updatedTokens.TokenType,
-                                         updatedTokens.AccessToken,
-                                         principal,
-                                         true);
+                    body,
+                    updatedTokens.TokenType,
+                    updatedTokens.AccessToken,
+                    principal,
+                    true);
             }
         }
 
         private AiiaQueryPart MapQueryPartToAiiaQueryPart(QueryPart filter)
         {
             return new AiiaQueryPart
-                   {
-                       IncludedQueryProperties = new List<string> { filter.Property },
-                       Pattern = filter.Value,
-                       Operator = filter.Operator,
-                   };
+            {
+                IncludedQueryProperties = new List<string> { filter.Property },
+                Pattern = filter.Value,
+                Operator = filter.Operator
+            };
         }
 
         private async Task<string> ReadRequestBody(Stream bodyStream)
@@ -806,10 +758,7 @@ namespace Aiia.Sample.Services
         {
             var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
             var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-            if (user == null)
-            {
-                return null;
-            }
+            if (user == null) return null;
 
             var result = await RefreshAccessToken(user.AiiaRefreshToken);
             user.AiiaAccessToken = result.AccessToken;
@@ -836,7 +785,7 @@ namespace Aiia.Sample.Services
             if (generatedSignature != aiiaSignature)
             {
                 _logger.LogWarning(
-                                   $"Webhook signatures didn't match. Received:\n{aiiaSignature}\nGenerated: {generatedSignature}");
+                    $"Webhook signatures didn't match. Received:\n{aiiaSignature}\nGenerated: {generatedSignature}");
                 return false;
             }
 

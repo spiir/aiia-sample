@@ -16,8 +16,8 @@ namespace Aiia.Sample.Controllers
     [Authorize]
     public class PaymentController : Controller
     {
-        private readonly IWebHostEnvironment _environment;
         private readonly IAiiaService _aiiaService;
+        private readonly IWebHostEnvironment _environment;
 
         public PaymentController(IAiiaService aiiaService, IWebHostEnvironment environment)
         {
@@ -28,10 +28,7 @@ namespace Aiia.Sample.Controllers
         [HttpGet("payments/create/inbound")]
         public async Task<IActionResult> CreateInboundPayment()
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             IImmutableList<Account> accounts = ImmutableList.Create<Account>();
             try
             {
@@ -43,19 +40,16 @@ namespace Aiia.Sample.Controllers
             }
 
             return View(new CreatePaymentViewModel
-                        {
-                            Accounts = accounts
-                        });
+            {
+                Accounts = accounts
+            });
         }
 
         [HttpPost("payments/create/inbound")]
         public async Task<ActionResult<CreatePaymentResultViewModel>> CreateInboundPayment(
             [FromBody] CreatePaymentRequestViewModel body)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             var result = new CreatePaymentResultViewModel();
             try
             {
@@ -74,10 +68,7 @@ namespace Aiia.Sample.Controllers
         [HttpGet("payments/create/outbound")]
         public async Task<IActionResult> CreateOutboundPayment()
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             IImmutableList<Account> accounts = ImmutableList.Create<Account>();
             try
             {
@@ -89,19 +80,16 @@ namespace Aiia.Sample.Controllers
             }
 
             return View(new CreatePaymentViewModel
-                        {
-                            Accounts = accounts
-                        });
+            {
+                Accounts = accounts
+            });
         }
 
         [HttpPost("payments/create/outbound")]
         public async Task<ActionResult<CreatePaymentResultViewModel>> CreateOutboundPayment(
             [FromBody] CreatePaymentRequestViewModel body)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             var result = new CreatePaymentResultViewModel();
             try
             {
@@ -120,21 +108,19 @@ namespace Aiia.Sample.Controllers
         [HttpGet("payments/inbound")]
         public async Task<IActionResult> InboundPayments()
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             var result = new PaymentsViewModel
-                         {
-                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
-                         };
+            {
+                PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
+            };
             try
             {
                 var payments = await _aiiaService.GetPayments(User);
                 var accounts = await _aiiaService.GetUserAccounts(User);
                 foreach (var account in accounts)
                 {
-                    var accountPayments = payments.Payments?.Where(payment => payment.AccountId == account.Id && payment.Type == PaymentType.Inbound).ToList();
+                    var accountPayments = payments.Payments?.Where(payment =>
+                        payment.AccountId == account.Id && payment.Type == PaymentType.Inbound).ToList();
                     result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
                 }
             }
@@ -149,21 +135,19 @@ namespace Aiia.Sample.Controllers
         [HttpGet("payments/outbound")]
         public async Task<IActionResult> OutboundPayments()
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             var result = new PaymentsViewModel
-                         {
-                             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
-                         };
+            {
+                PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
+            };
             try
             {
                 var payments = await _aiiaService.GetPayments(User);
                 var accounts = await _aiiaService.GetUserAccounts(User);
                 foreach (var account in accounts)
                 {
-                    var accountPayments = payments.Payments?.Where(payment => payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
+                    var accountPayments = payments.Payments?.Where(payment =>
+                        payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
                     result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
                 }
             }
@@ -178,34 +162,26 @@ namespace Aiia.Sample.Controllers
         [HttpGet("payments/callback")]
         public IActionResult PaymentCallback([FromQuery] string paymentId)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             if (string.IsNullOrWhiteSpace(paymentId))
-            {
                 return View("PaymentCallback",
-                            new PaymentCallbackViewModel
-                            {
-                                IsError = true
-                            });
-            }
+                    new PaymentCallbackViewModel
+                    {
+                        IsError = true
+                    });
 
             return View("PaymentCallback",
-                        new PaymentCallbackViewModel
-                        {
-                            Query = Request.QueryString.Value,
-                            PaymentId = paymentId
-                        });
+                new PaymentCallbackViewModel
+                {
+                    Query = Request.QueryString.Value,
+                    PaymentId = paymentId
+                });
         }
 
         [HttpGet("accounts/{accountId}/payments/{paymentId}")]
         public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
         {
-            if (_environment.IsProduction())
-            {
-                return NotFound();
-            }
+            if (_environment.IsProduction()) return NotFound();
             try
             {
                 var payment = await _aiiaService.GetOutboundPayment(User, accountId, paymentId);
