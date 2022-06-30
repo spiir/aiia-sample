@@ -2,9 +2,7 @@ namespace Aiia.Sample;
 
 public class SiteOptions
 {
-    public HumioOptions Humio { get; set; }
-    public bool LogToConsole { get; set; } = false;
-    public SendGridOptions SendGrid { get; set; }
+    public ElasticSearchOptions ElasticSearch { get; set; }
     public AiiaOptions Aiia { get; set; }
 }
 
@@ -23,7 +21,7 @@ public class SendGridOptions
     public string NameFrom { get; set; }
 }
 
-public class HumioOptions
+public class ElasticSearchOptions
 {
     public string IngestToken { get; set; }
     public string IngestUrl { get; set; }
