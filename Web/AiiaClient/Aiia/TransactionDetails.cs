@@ -5,12 +5,12 @@ namespace Aiia.Sample.Models.Aiia
     {
         public CurrencyConversionViewModel CurrencyConversion { get; set; }
         public TransactionPartyViewModel Destination { get; set; }
-        public string? ExecutionDate { get; set; }
+        public string? ExecutionDate { get; set; } // TODO: This was LocalDate?
         public TransactionIdentifiersViewModel Identifiers { get; set; }
         public string Message { get; set; }
         public RewardViewModel Reward { get; set; }
         public TransactionPartyViewModel Source { get; set; }
-        public string? ValueDate { get; set; }
+        public string? ValueDate { get; set; } // TODO: This was LocalDate?
     }
 
     public class CurrencyConversionViewModel

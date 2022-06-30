@@ -3,7 +3,7 @@ namespace Aiia.Sample.Models.Aiia
 {
     public class PaymentAuthorization
     {
-        public string CreatedAt { get; set; }
+        public string CreatedAt { get; set; } // TODO: This was Instant
         public PaymentExecution Execution { get; set; }
 
         public string Id { get; set; }
