@@ -16,10 +16,15 @@ You can find Aiia documentation at <https://docs.aiia.eu/>
 
 For starters, you'll need to create an account at <https://portal.aiia.eu/> and generate a `ClientId` and `ClientSecret`.
 
-Then run the `initialize.sh` or `initialize.ps1` scripts to setup the project. The script will ask you the `ClientId` and `ClientSecret` you previously configured.
-The webhook secret is optional and can be left empty.
+1) Download and install [.NET Core](https://dotnet.microsoft.com/download) 6.
 
-At this point you should be good to go as long as you have [.NET Core](https://dotnet.microsoft.com/download) installed.
+1) Run the `initialize.sh` or `initialize.ps1` scripts in the repository root to setup the project. 
+
+   The script will ask you the `ClientId` and `ClientSecret` you previously configured.
+   The webhook secret is optional and can be left empty.
+
+1) Open the .sln project file in your favorite C# development environment and start the project, or run the following
+   `cd Web; dotnet run`
 
 ### Basic Flow to go through:
 
