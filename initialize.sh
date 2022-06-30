@@ -2,7 +2,7 @@
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$ROOT/Web"
 
-echo "Envirnoment configuration script."
+echo "Environment configuration script."
 
 cp aiia.db.template aiia.db
 echo "Reinitialized the Sqlite database 'aiia.db' from the template"
