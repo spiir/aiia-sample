@@ -14,14 +14,14 @@ namespace Aiia.Sample.Services
             _aiiaHttpClient = aiiaHttpClient;
         }
 
-        public async Task<AllAccountSelectedResponse> AllAccountsSelected(AiiaAccessTokens accessTokens, string consentId)
+        public async Task<AllAccountSelectedResponse> AllAccountsSelected(AiiaAccessToken accessToken, string consentId)
         {
             return await _aiiaHttpClient.HttpGet<AllAccountSelectedResponse>(
                 $"v1/consent/{consentId}/all-accounts-selected",
-                accessTokens);
+                accessToken);
         }
 
-        public async Task<CodeExchangeResponse> AuthenticationCodeExchange(AiiaClientSecrets clientSecrets, string code, string redirectUri)
+        public async Task<CodeExchangeResponse> AuthenticationCodeExchange(AiiaClientSecret clientSecret, string code, string redirectUri)
         {
             CodeExchangeRequest tokenBody = new()
             {
@@ -31,10 +31,10 @@ namespace Aiia.Sample.Services
                 redirect_uri = redirectUri
             };
 
-            return await _aiiaHttpClient.HttpPost<CodeExchangeRequest, CodeExchangeResponse>("v1/oauth/token", tokenBody, clientSecrets);
+            return await _aiiaHttpClient.HttpPost<CodeExchangeRequest, CodeExchangeResponse>("v1/oauth/token", tokenBody, clientSecret);
 
         }
-        public async Task<CodeExchangeResponse> AuthenticationRefreshToken(AiiaClientSecrets clientSecrets, string refreshToken, string redirectUri)
+        public async Task<CodeExchangeResponse> AuthenticationRefreshToken(AiiaClientSecret clientSecret, string refreshToken, string redirectUri)
         {
             CodeExchangeRequest tokenBody = new()
             {
@@ -44,78 +44,78 @@ namespace Aiia.Sample.Services
                 redirect_uri = redirectUri
             };
 
-            return await _aiiaHttpClient.HttpPost<CodeExchangeRequest, CodeExchangeResponse>("v1/oauth/token", tokenBody, clientSecrets);
+            return await _aiiaHttpClient.HttpPost<CodeExchangeRequest, CodeExchangeResponse>("v1/oauth/token", tokenBody, clientSecret);
 
         }
 
-        public async Task<CreatePaymentResponse> CreateInboundPaymentV1(AiiaAccessTokens accessTokens,
+        public async Task<CreatePaymentResponse> CreateInboundPaymentV1(AiiaAccessToken accessToken,
             string targetAccountId,
             CreateInboundPaymentRequest paymentRequest)
         {
             return await _aiiaHttpClient.HttpPost<CreateInboundPaymentRequest, CreatePaymentResponse>(
                 $"v1/accounts/{targetAccountId}/payments/inbound",
-                paymentRequest,accessTokens);
+                paymentRequest,accessToken);
         }
 
-        public async Task<CreatePaymentResponse> CreateOutboundPaymentV1(AiiaAccessTokens accessTokens, string sourceAccountId, CreateOutboundPaymentRequest paymentRequest)
+        public async Task<CreatePaymentResponse> CreateOutboundPaymentV1(AiiaAccessToken accessToken, string sourceAccountId, CreateOutboundPaymentRequest paymentRequest)
         {
             return await _aiiaHttpClient.HttpPost<CreateOutboundPaymentRequest, CreatePaymentResponse>(
                 $"v1/accounts/{sourceAccountId}/payments/outbound",
-                paymentRequest,accessTokens);
+                paymentRequest,accessToken);
         }
         
-        public async Task<CreatePaymentResponseV2> CreatePaymentV2(AiiaAccessTokens accessTokens, string accountId, CreateOutboundPaymentRequestV2 paymentRequest)
+        public async Task<CreatePaymentResponseV2> CreatePaymentV2(AiiaAccessToken accessToken, string accountId, CreateOutboundPaymentRequestV2 paymentRequest)
         {
             
             return await _aiiaHttpClient.HttpPost<CreateOutboundPaymentRequestV2, CreatePaymentResponseV2>(
                 $"v2/accounts/{accountId}/payments",
-                paymentRequest,accessTokens);
+                paymentRequest,accessToken);
         }
 
-        public async Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(AiiaAccessTokens accessTokens, string accountId, CreatePaymentAuthorizationRequest authorizationRequest)
+        public async Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(AiiaAccessToken accessToken, string accountId, CreatePaymentAuthorizationRequest authorizationRequest)
         {
             return await _aiiaHttpClient.HttpPost<CreatePaymentAuthorizationRequest, CreatePaymentAuthorizationResponse>(
-                $"v2/accounts/{accountId}/payment-authorizations",authorizationRequest, accessTokens);
+                $"v2/accounts/{accountId}/payment-authorizations",authorizationRequest, accessToken);
         }
 
-        public async Task<TransactionsResponse> GetAccountTransactions(AiiaAccessTokens accessTokens, string accountId, bool includeDeleted, TransactionQueryRequest request)
+        public async Task<TransactionsResponse> GetAccountTransactions(AiiaAccessToken accessToken, string accountId, bool includeDeleted, TransactionQueryRequest request)
         {
             return await _aiiaHttpClient.HttpPost<TransactionQueryRequest, TransactionsResponse>(
                 $"/v1/accounts/{accountId}/transactions/query?includeDeleted={includeDeleted.ToString()}",
-                request,accessTokens);
+                request,accessToken);
         }
 
-        public async Task< InboundPayment> GetInboundPayment(AiiaAccessTokens accessTokens, string accountId, string paymentId)
+        public async Task< InboundPayment> GetInboundPayment(AiiaAccessToken accessToken, string accountId, string paymentId)
         {
-            return await _aiiaHttpClient.HttpGet<InboundPayment>($"v1/accounts/{accountId}/payments/inbound/{paymentId}",accessTokens);
+            return await _aiiaHttpClient.HttpGet<InboundPayment>($"v1/accounts/{accountId}/payments/inbound/{paymentId}",accessToken);
         }
 
-        public async Task<PayerTokenModel> GetInboundPaymentPayerToken(AiiaAccessTokens accessTokens, string accountId,
+        public async Task<PayerTokenModel> GetInboundPaymentPayerToken(AiiaAccessToken accessToken, string accountId,
             string paymentId)
         {
             return await _aiiaHttpClient.HttpPost<object, PayerTokenModel>(
-                $"v1/accounts/{accountId}/payments/inbound/{paymentId}/payer-token", new object(), accessTokens);
+                $"v1/accounts/{accountId}/payments/inbound/{paymentId}/payer-token", new object(), accessToken);
 
         }
 
-        public async Task<OutboundPayment> GetOutboundPayment(AiiaAccessTokens accessTokens, string accountId, string paymentId)
+        public async Task<OutboundPayment> GetOutboundPayment(AiiaAccessToken accessToken, string accountId, string paymentId)
         {
             return await _aiiaHttpClient.HttpGet<OutboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
-                accessTokens);
+                accessToken);
         }
 
-        public async Task<PaymentAuthorization> GetPaymentAuthorization(AiiaAccessTokens accessTokens, string accountId, string authorizationId)
+        public async Task<PaymentAuthorization> GetPaymentAuthorization(AiiaAccessToken accessToken, string accountId, string authorizationId)
         {
             
             return await _aiiaHttpClient.HttpGet<PaymentAuthorization>(
                 $"v2/accounts/{accountId}/payment-authorizations/{authorizationId}",
-                accessTokens);
+                accessToken);
         }
 
-        public async Task<PaymentsResponse> QueryPayments(AiiaAccessTokens accessTokens, PaymentsQueryRequest request)
+        public async Task<PaymentsResponse> QueryPayments(AiiaAccessToken accessToken, PaymentsQueryRequest request)
         {
             return await _aiiaHttpClient.HttpPost<PaymentsQueryRequest, PaymentsResponse>("v1/payments/query",
-                request,accessTokens);
+                request,accessToken);
         }
 
         public Task<ImmutableList<BankProvider>> GetProviders()
@@ -123,22 +123,22 @@ namespace Aiia.Sample.Services
             return _aiiaHttpClient.HttpGet<ImmutableList<BankProvider>>("/v1/providers");
         }
 
-        public async Task<AccountsResponse> GetUserAccounts(AiiaAccessTokens accessTokens)
+        public async Task<AccountsResponse> GetUserAccounts(AiiaAccessToken accessToken)
         {
-            return await _aiiaHttpClient.HttpGet<AccountsResponse>("/v1/accounts",accessTokens);
+            return await _aiiaHttpClient.HttpGet<AccountsResponse>("/v1/accounts",accessToken);
         }
 
-        public async Task<InitiateDataUpdateResponse> InitiateDataUpdate(AiiaAccessTokens accessTokens, InitiateDataUpdateRequest requestBody)
+        public async Task<InitiateDataUpdateResponse> InitiateDataUpdate(AiiaAccessToken accessToken, InitiateDataUpdateRequest requestBody)
         {
             return await _aiiaHttpClient.HttpPost<InitiateDataUpdateRequest, InitiateDataUpdateResponse>("v1/update",
                 requestBody,
-                accessTokens);
+                accessToken);
         }
 
-        public async Task<Transaction> GetTransaction(AiiaAccessTokens accessTokens, string accountId, string transactionId)
+        public async Task<Transaction> GetTransaction(AiiaAccessToken accessToken, string accountId, string transactionId)
         {
             return await _aiiaHttpClient.HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}",
-                accessTokens);
+                accessToken);
         }
     }
 }

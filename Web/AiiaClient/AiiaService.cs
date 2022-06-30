@@ -57,7 +57,7 @@ namespace Aiia.Sample.Services
             return user;
         }
 
-        public AiiaClientSecrets ClientSecret => new()
+        public AiiaClientSecret ClientSecret => new()
         {
             ClientId = _options.CurrentValue.Aiia.ClientId,
             Secret = _options.CurrentValue.Aiia.ClientSecret

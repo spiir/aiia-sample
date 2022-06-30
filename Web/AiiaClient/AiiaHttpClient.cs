@@ -57,34 +57,34 @@ namespace Aiia.Sample.Services
         }
 
         public Task<T> HttpGet<T>(string url,
-            AiiaAccessTokens? accessTokens = null)
+            AiiaAccessToken? accessTokens = null)
         {
-            return CallApi<object, T>(url, null, HttpMethod.Get, accessTokens?.TokenType, accessTokens?.AccessToken);
+            return CallApi<object, T>(url, null, HttpMethod.Get, accessTokens?.TokenScheme, accessTokens?.Token);
         }
 
         public Task<TResponse> HttpPost<TRequest, TResponse>(string url,
             TRequest body,
-            AiiaAccessTokens? accessTokens = null)
+            AiiaAccessToken? accessTokens = null)
         {
-            return CallApi<TRequest, TResponse>(url, body, HttpMethod.Post, accessTokens?.TokenType, accessTokens?.AccessToken);
+            return CallApi<TRequest, TResponse>(url, body, HttpMethod.Post, accessTokens?.TokenScheme, accessTokens?.Token);
         }
 
         public Task<T> HttpGet<T>(string url,
-            AiiaClientSecrets clientSecrets)
+            AiiaClientSecret clientSecret)
         {
-            return CallApi<object, T>(url, null, HttpMethod.Get, "Basic", GenerateBasicAuthorizationHeaderValue(clientSecrets));
+            return CallApi<object, T>(url, null, HttpMethod.Get, "Basic", GenerateBasicAuthorizationHeaderValue(clientSecret));
         }
 
         public Task<TResponse> HttpPost<TRequest, TResponse>(string url,
             TRequest body,
-            AiiaClientSecrets clientSecrets)
+            AiiaClientSecret clientSecret)
         {
-            return CallApi<TRequest, TResponse>(url, body, HttpMethod.Post, "Basic", GenerateBasicAuthorizationHeaderValue(clientSecrets));
+            return CallApi<TRequest, TResponse>(url, body, HttpMethod.Post, "Basic", GenerateBasicAuthorizationHeaderValue(clientSecret));
         }
 
-        private string GenerateBasicAuthorizationHeaderValue(AiiaClientSecrets secrets)
+        private string GenerateBasicAuthorizationHeaderValue(AiiaClientSecret secret)
         {
-            var credentials = $"{secrets.ClientId}:{secrets.Secret}";
+            var credentials = $"{secret.ClientId}:{secret.Secret}";
             var credentialsByteData = Encoding.GetEncoding("iso-8859-1").GetBytes(credentials);
             var base64Credentials = Convert.ToBase64String(credentialsByteData);
             return $"{base64Credentials}";

@@ -13,9 +13,9 @@ namespace Aiia.Sample.Data
         public string AiiaRefreshToken { get; set; }
         public string AiiaTokenType { get; set; }
 
-        public AiiaAccessTokens GetAiiaAccessTokens()
+        public AiiaAccessToken GetAiiaAccessTokens()
         {
-            return new AiiaAccessTokens(AiiaTokenType, AiiaAccessToken);
+            return new AiiaAccessToken(AiiaTokenType, AiiaAccessToken);
         }
     }
 }
