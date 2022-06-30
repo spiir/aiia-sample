@@ -87,6 +87,7 @@ public class Startup
             settings.Converters.Add(new StringEnumConverter());
             return settings;
         };
+        
         services.Configure<CookiePolicyOptions>(options =>
         {
             // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -114,8 +115,8 @@ public class Startup
         services.AddScoped<IAiiaService, AiiaService>();
         services.AddHttpClient<IAiiaHttpClient, AiiaHttpClient>();
         services.AddSingleton<AiiaApi, AiiaApi>();
-        services.AddRazorPages();
-        services.AddControllers();
+        services.AddRazorPages().AddNewtonsoftJson();
+        services.AddControllers().AddNewtonsoftJson();
     }
 
     private static void UpdateDatabase(IApplicationBuilder app)

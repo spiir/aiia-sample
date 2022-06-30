@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -53,8 +54,20 @@ public class AiiaService : IAiiaService
     public async Task<bool?> AllAccountsSelected(ClaimsPrincipal principal)
     {
         var user = GetCurrentUser(principal);
-        var response = await _api.AllAccountsSelected(user.GetAiiaAccessTokens(), user.AiiaConsentId);
-        return response.AllAccountsSelected;
+        await RefreshAccessTokenIfNeeded(user);
+        
+        try
+        {
+            var response = await _api.AllAccountsSelected(user.GetAiiaAccessTokens(), user.AiiaConsentId);
+            return response.AllAccountsSelected;
+        }
+        catch (AiiaClientException ex) when (ex.StatusCode == HttpStatusCode.Forbidden)
+        {
+            // we are not allowed to check if all the accounts were selected for this type of user.
+            // convert it into a null.
+            return null;
+        }
+
     }
 
 
@@ -63,16 +76,13 @@ public class AiiaService : IAiiaService
         return await _api.AuthenticationCodeExchange(ClientSecret, code, GetRedirectUrl());
     }
 
-    public async Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken)
-    {
-        return await _api.AuthenticationRefreshToken(ClientSecret, refreshToken, GetRedirectUrl());
-    }
 
 
     public async Task<CreatePaymentResponse> CreateInboundPayment(ClaimsPrincipal principal,
         CreatePaymentRequestViewModel request)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         var paymentRequest = new CreateInboundPaymentRequest
         {
@@ -97,6 +107,7 @@ public class AiiaService : IAiiaService
         CreatePaymentRequestViewModel request)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         var paymentRequest = new CreateOutboundPaymentRequest
         {
@@ -153,6 +164,7 @@ public class AiiaService : IAiiaService
         CreatePaymentRequestViewModelV2 request)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         var paymentRequest = new CreateOutboundPaymentRequestV2
         {
@@ -207,6 +219,7 @@ public class AiiaService : IAiiaService
         CreatePaymentAuthorizationRequestViewModel request)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         var paymentAuthorizationRequest = new CreatePaymentAuthorizationRequest
         {
@@ -225,6 +238,7 @@ public class AiiaService : IAiiaService
         TransactionQueryRequestViewModel queryRequest = null)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         var request = new TransactionQueryRequest
         {
@@ -235,7 +249,7 @@ public class AiiaService : IAiiaService
             BalanceValueBetween = queryRequest?.BalanceValueBetween
         };
 
-        return await _api.GetAccountTransactions(user.GetAiiaAccessTokens(), accountId, queryRequest.IncludeDeleted,
+        return await _api.GetAccountTransactions(user.GetAiiaAccessTokens(), accountId, queryRequest?.IncludeDeleted ?? false,
             request);
     }
 
@@ -244,6 +258,7 @@ public class AiiaService : IAiiaService
         string paymentId)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         var payment = await _api.GetInboundPayment(user.GetAiiaAccessTokens(), accountId, paymentId);
 
@@ -267,6 +282,8 @@ public class AiiaService : IAiiaService
         string paymentId)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
+        
         return await _api.GetOutboundPayment(user.GetAiiaAccessTokens(), accountId, paymentId);
     }
 
@@ -274,12 +291,15 @@ public class AiiaService : IAiiaService
         string authorizationId)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
+        
         return await _api.GetPaymentAuthorization(user.GetAiiaAccessTokens(), accountId, authorizationId);
     }
 
     public async Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         var request = new PaymentsQueryRequest
         {
@@ -298,22 +318,22 @@ public class AiiaService : IAiiaService
     public async Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         var result = await _api.GetUserAccounts(user.GetAiiaAccessTokens());
 
         return result?.Accounts.ToImmutableList();
     }
 
-    public Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal)
+    public async Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal)
     {
-        var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-        if (user == null) return null;
+        var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
-        var redirectUrl = $"{GetBaseUrl()}/aiia/data/{currentUserId}/";
+        var redirectUrl = $"{GetBaseUrl()}/aiia/data/{user.Id}/";
         var requestBody = new InitiateDataUpdateRequest { RedirectUrl = redirectUrl };
 
-        return _api.InitiateDataUpdate(user.GetAiiaAccessTokens(), requestBody);
+        return await _api.InitiateDataUpdate(user.GetAiiaAccessTokens(), requestBody);
     }
 
     public async Task ProcessWebHookPayload(HttpRequest request)
@@ -352,12 +372,6 @@ public class AiiaService : IAiiaService
             return;
         }
 
-        if (!user.EmailEnabled)
-        {
-            _logger.LogInformation("User has disabled email notifications.");
-            return;
-        }
-
         await _emailService.SendWebhookEmail(user.Email, payloadString);
     }
 
@@ -381,18 +395,31 @@ public class AiiaService : IAiiaService
         return user;
     }
 
-    private async Task<CodeExchangeResponse> RefreshAccessTokenAndSaveToUser(ClaimsPrincipal principal)
+    private async Task RefreshAccessTokenIfNeeded(ApplicationUser user)
     {
-        var user = GetCurrentUser(principal);
+        if (user.AiiaAccessTokenExpires > DateTimeOffset.UtcNow.AddMinutes(1))
+        {
+            // less than 1 minute remaining, so we just continue using the existing access token
+            return;
+        }
 
-        var result = await RefreshAccessToken(user.AiiaRefreshToken);
+        await RefreshAccessToken(user);
+    }
+
+    private async Task RefreshAccessToken(ApplicationUser user)
+    {
+        // refresh token
+        var startTime = DateTimeOffset.Now;
+        var result = await _api.AuthenticationRefreshToken(ClientSecret, user.AiiaRefreshToken, GetRedirectUrl());
+        
+        // update the database (and the passed object by reference)
         user.AiiaAccessToken = result.AccessToken;
         user.AiiaRefreshToken = result.RefreshToken;
         user.AiiaTokenType = result.TokenType;
-
+        user.AiiaAccessTokenExpires = startTime.AddSeconds(result.ExpiresIn);
+        
         _dbContext.Users.Update(user);
         await _dbContext.SaveChangesAsync();
-        return result;
     }
 
 
@@ -433,6 +460,7 @@ public class AiiaService : IAiiaService
         string transactionId)
     {
         var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
 
         return await _api.GetTransaction(user.GetAiiaAccessTokens(), accountId, transactionId);
     }

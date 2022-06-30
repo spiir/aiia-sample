@@ -40,20 +40,6 @@ public class AiiaController : Controller
         return View("GenericViewWithPostMessageOnLoad", new CallbackViewModel { AutomaticallyFinish = true });
     }
 
-    // Toggles email notifications for webhook, might be interesting to check how/when/what Aiia sends in webhooks, but gets a bit annoying in the long run
-    [HttpPost("toggle-email")]
-    public async Task<IActionResult> DisconnectFromAiia()
-    {
-        var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-        if (user == null) return Ok(new { });
-
-        user.EmailEnabled = !user.EmailEnabled;
-        _dbContext.Users.Update(user);
-        await _dbContext.SaveChangesAsync();
-        return Ok(new { updatedStatus = user.EmailEnabled });
-    }
-
     [HttpGet("login")]
     public IActionResult Login()
     {
