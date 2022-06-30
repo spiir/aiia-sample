@@ -1,9 +1,8 @@
-namespace Aiia.Sample.Models
+namespace Aiia.Sample.Models;
+
+public class CreatePaymentAuthorizationResultViewModel
 {
-    public class CreatePaymentAuthorizationResultViewModel
-    {
-        public string ErrorDescription { get; set; }
-        public string AuthorizationId { get; set; }
-        public string AuthorizationUrl { get; set; }
-    }
+    public string ErrorDescription { get; set; }
+    public string AuthorizationId { get; set; }
+    public string AuthorizationUrl { get; set; }
 }

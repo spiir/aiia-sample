@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <UserSecretsId>aspnet-ViiaSample-2BE93523-A276-4765-8375-77EDBE586E64</UserSecretsId>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -20,10 +21,6 @@
         </PackageReference>
         <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.4"/>
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2"/>
-        <PackageReference Include="NodaTime" Version="2.4.8"/>
-        <PackageReference Include="NodaTime.Serialization.JsonNet" Version="2.3.0"/>
-        <PackageReference Include="Sendgrid" Version="9.14.1"/>
-        <PackageReference Include="Sentry.AspNetCore" Version="2.1.1"/>
         <PackageReference Include="Serilog.AspNetCore" Version="3.2.0"/>
         <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1"/>
         <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="8.1.0"/>
