@@ -6,15 +6,13 @@ namespace Aiia.Sample.Data.Migrations
     {
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                                        "EmailEnabled",
+            migrationBuilder.DropColumn("EmailEnabled",
                                         "AspNetUsers");
         }
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                                             "EmailEnabled",
+            migrationBuilder.AddColumn<bool>("EmailEnabled",
                                              "AspNetUsers",
                                              nullable: false,
                                              defaultValue: true);

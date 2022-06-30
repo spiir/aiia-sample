@@ -57,7 +57,7 @@ public static class WebHostBuilderExtensions
             var options = new SiteOptions();
             context.Configuration.Bind(options);
 
-            if (options.ElasticSearch.IngestToken.IsSet() && options.ElasticSearch.IngestUrl.IsSet())
+            if (!string.IsNullOrEmpty(options.ElasticSearch?.IngestToken))
                 configuration.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(options.ElasticSearch.IngestUrl))
                 {
                     MinimumLogEventLevel =

@@ -231,7 +231,6 @@ public class AiiaService : IAiiaService
             Interval = "", // TODO: new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)), SystemClock.Instance.GetCurrentInstant()),
             PagingToken = queryRequest?.PagingToken,
             PageSize = 20,
-            Patterns = queryRequest?.Filters.Select(MapQueryPartToAiiaQueryPart).ToList(),
             AmountValueBetween = queryRequest?.AmountValueBetween,
             BalanceValueBetween = queryRequest?.BalanceValueBetween
         };
@@ -438,15 +437,6 @@ public class AiiaService : IAiiaService
         return await _api.GetTransaction(user.GetAiiaAccessTokens(), accountId, transactionId);
     }
 
-    private AiiaQueryPart MapQueryPartToAiiaQueryPart(QueryPart filter)
-    {
-        return new AiiaQueryPart
-        {
-            IncludedQueryProperties = new List<string> { filter.Property },
-            Pattern = filter.Value,
-            Operator = filter.Operator
-        };
-    }
 
     private async Task<string> ReadRequestBody(Stream bodyStream)
     {

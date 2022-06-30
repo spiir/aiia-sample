@@ -6,15 +6,13 @@ namespace Aiia.Sample.Data.Migrations
     {
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                                        "AiiaConsentId",
+            migrationBuilder.DropColumn("AiiaConsentId",
                                         "AspNetUsers");
         }
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                                               "AiiaConsentId",
+            migrationBuilder.AddColumn<string>("AiiaConsentId",
                                                "AspNetUsers",
                                                nullable: true);
         }
