@@ -1,6 +1,6 @@
 cd Web
 
-echo "Envirnoment configuration script."
+echo "Environment configuration script."
 
 cp aiia.db.template aiia.db
 echo "Reinitialized the Sqlite database 'aiia.db' from the template"
