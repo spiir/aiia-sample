@@ -39,36 +39,9 @@ public class EmailService : IEmailService
 
     private Task<bool> SendEmail(string destination, string subject, string emailHtml)
     {
-        return _optionsMonitor.CurrentValue.SendGrid?.ApiKey != null
-            ? SendSendgridEmail(destination, subject, emailHtml)
-            : SendConsoleEmail(destination, subject, emailHtml);
+        return SendConsoleEmail(destination, subject, emailHtml);
     }
 
-    private async Task<bool> SendSendgridEmail(string destination, string subject, string emailHtml)
-    {
-        return false;
-        // TODO: Disabled for now
-
-        /*
-        var sendGrid = _optionsMonitor.CurrentValue.SendGrid;
-        
-        var client = new SendGridClient(sendGrid.ApiKey);
-        var from = new EmailAddress(sendGrid.EmailFrom, sendGrid.NameFrom);
-        var to = new EmailAddress(destination);
-
-        var msg = MailHelper.CreateSingleEmail(from, to, subject, null, emailHtml);
-
-        var res = await client.SendEmailAsync(msg);
-        var success = (int)res.StatusCode >= 200 && (int)res.StatusCode <= 299;
-
-        if (!success)
-            _logger.LogError($"failed to send email via send grid, status code is: {res.StatusCode}",
-                res.DeserializeResponseHeaders(res.Headers),
-                res.DeserializeResponseBodyAsync(res.Body));
-
-        return success;
-        */
-    }
 
     private static string FormatJson(string json)
     {

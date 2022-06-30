@@ -57,15 +57,15 @@ public static class WebHostBuilderExtensions
             var options = new SiteOptions();
             context.Configuration.Bind(options);
 
-            if (options.Humio.IngestToken.IsSet() && options.Humio.IngestUrl.IsSet())
-                configuration.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(options.Humio.IngestUrl))
+            if (options.ElasticSearch.IngestToken.IsSet() && options.ElasticSearch.IngestUrl.IsSet())
+                configuration.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(options.ElasticSearch.IngestUrl))
                 {
                     MinimumLogEventLevel =
                         LogEventLevel
                             .Debug,
                     ModifyConnectionSettings =
                         c =>
-                            c.BasicAuthentication(options.Humio
+                            c.BasicAuthentication(options.ElasticSearch
                                     .IngestToken,
                                 ""),
                     Period = TimeSpan
