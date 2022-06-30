@@ -1,16 +1,14 @@
+namespace Aiia.Sample.Models.Aiia;
 
-namespace Aiia.Sample.Models.Aiia
+public class PaymentAuthorization
 {
-    public class PaymentAuthorization
-    {
-        public string CreatedAt { get; set; } // TODO: This was Instant
-        public PaymentExecution Execution { get; set; }
+    public string CreatedAt { get; set; } // TODO: This was Instant
+    public PaymentExecution Execution { get; set; }
 
-        public string Id { get; set; }
-        public string AccountId { get; set; }
+    public string Id { get; set; }
+    public string AccountId { get; set; }
 
-        public PaymentStatus Status { get; set; }
+    public PaymentStatus Status { get; set; }
 
-        public PaymentType Type { get; set; }
-    }
+    public PaymentType Type { get; set; }
 }

@@ -1,7 +1,6 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class AllAccountSelectedResponse
 {
-    public class AllAccountSelectedResponse
-    {
-        public bool AllAccountsSelected { get; set; }
-    }
+    public bool AllAccountsSelected { get; set; }
 }

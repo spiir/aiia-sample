@@ -1,8 +1,7 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class BbanParsed
 {
-    public class BbanParsed
-    {
-        public string AccountNumber { get; set; }
-        public string BankCode { get; set; }
-    }
+    public string AccountNumber { get; set; }
+    public string BankCode { get; set; }
 }

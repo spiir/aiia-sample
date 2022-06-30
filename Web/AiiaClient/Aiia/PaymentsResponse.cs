@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class PaymentsResponse
 {
-    public class PaymentsResponse
-    {
-        public string PagingToken { get; set; }
-        public List<Payment> Payments { get; set; }
-    }
+    public string PagingToken { get; set; }
+    public List<Payment> Payments { get; set; }
 }

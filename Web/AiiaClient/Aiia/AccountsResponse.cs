@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class AccountsResponse
 {
-    public class AccountsResponse
-    {
-        public List<Account> Accounts { get; set; }
-    }
+    public List<Account> Accounts { get; set; }
 }

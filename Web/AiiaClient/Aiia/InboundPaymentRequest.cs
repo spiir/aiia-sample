@@ -1,7 +1,6 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class InboundPaymentRequest
 {
-    public class InboundPaymentRequest
-    {
-        public PaymentAmountRequest Amount { get; set; }
-    }
+    public PaymentAmountRequest Amount { get; set; }
 }

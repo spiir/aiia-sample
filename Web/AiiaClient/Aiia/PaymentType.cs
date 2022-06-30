@@ -1,8 +1,7 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public enum PaymentType
 {
-    public enum PaymentType
-    {
-        Outbound,
-        Inbound
-    }
+    Outbound,
+    Inbound
 }

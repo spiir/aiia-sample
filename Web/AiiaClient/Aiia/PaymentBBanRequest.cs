@@ -1,8 +1,7 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class PaymentBBanRequest
 {
-    public class PaymentBBanRequest
-    {
-        public string AccountNumber { get; set; }
-        public string BankCode { get; set; }
-    }
+    public string AccountNumber { get; set; }
+    public string BankCode { get; set; }
 }

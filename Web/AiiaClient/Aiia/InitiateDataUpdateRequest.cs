@@ -1,7 +1,6 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class InitiateDataUpdateRequest
 {
-    public class InitiateDataUpdateRequest
-    {
-        public string RedirectUrl { get; set; }
-    }
+    public string RedirectUrl { get; set; }
 }

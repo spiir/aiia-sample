@@ -1,8 +1,7 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class PaymentExecution
 {
-    public class PaymentExecution
-    {
-        public Amount Amount { get; set; }
-        public string Fee { get; set; }
-    }
+    public Amount Amount { get; set; }
+    public string Fee { get; set; }
 }

@@ -1,7 +1,6 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class IbanParsed
 {
-    public class IbanParsed
-    {
-        public string IbanNumber { get; set; }
-    }
+    public string IbanNumber { get; set; }
 }

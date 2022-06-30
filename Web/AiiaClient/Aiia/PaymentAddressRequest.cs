@@ -1,11 +1,10 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class PaymentAddressRequest
 {
-    public class PaymentAddressRequest
-    {
-        public string Street { get; set; }
-        public string BuildingNumber { get; set; }
-        public string PostalCode { get; set; }
-        public string City { get; set; }
-        public string Country { get; set; }
-    }
+    public string Street { get; set; }
+    public string BuildingNumber { get; set; }
+    public string PostalCode { get; set; }
+    public string City { get; set; }
+    public string Country { get; set; }
 }

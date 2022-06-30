@@ -1,7 +1,6 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class AccountProvider
 {
-    public class AccountProvider
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

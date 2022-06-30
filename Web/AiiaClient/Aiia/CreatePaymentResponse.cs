@@ -1,8 +1,7 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class CreatePaymentResponse
 {
-    public class CreatePaymentResponse
-    {
-        public string PaymentId { get; set; }
-        public string AuthorizationUrl { get; set; }
-    }
+    public string PaymentId { get; set; }
+    public string AuthorizationUrl { get; set; }
 }

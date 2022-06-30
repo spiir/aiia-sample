@@ -1,8 +1,7 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class PaymentAmountRequestV2
 {
-    public class PaymentAmountRequestV2
-    {
-        public double Value { get; set; }
-        public string Currency { get; set; }
-    }
+    public double Value { get; set; }
+    public string Currency { get; set; }
 }

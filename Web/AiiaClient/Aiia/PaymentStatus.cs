@@ -1,8 +1,7 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class PaymentStatus
 {
-    public class PaymentStatus
-    {
-        public string PaymentStatusCode { get; set; }
-        public bool Terminal { get; set; }
-    }
+    public string PaymentStatusCode { get; set; }
+    public bool Terminal { get; set; }
 }

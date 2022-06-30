@@ -1,8 +1,7 @@
-namespace Aiia.Sample.Models.Aiia
+namespace Aiia.Sample.Models.Aiia;
+
+public class PaymentInpaymentFormRequest
 {
-    public class PaymentInpaymentFormRequest
-    {
-        public string Type { get; set; }
-        public string CreditorNumber { get; set; }
-    }
+    public string Type { get; set; }
+    public string CreditorNumber { get; set; }
 }

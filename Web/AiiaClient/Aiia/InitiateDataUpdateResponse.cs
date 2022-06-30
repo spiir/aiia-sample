@@ -1,14 +1,13 @@
-namespace Aiia.Sample.Models.Aiia
-{
-    public class InitiateDataUpdateResponse
-    {
-        public enum UpdateStatus
-        {
-            AllQueued,
-            SupervisedLoginRequired
-        }
+namespace Aiia.Sample.Models.Aiia;
 
-        public string AuthUrl { get; set; }
-        public UpdateStatus Status { get; set; }
+public class InitiateDataUpdateResponse
+{
+    public enum UpdateStatus
+    {
+        AllQueued,
+        SupervisedLoginRequired
     }
+
+    public string AuthUrl { get; set; }
+    public UpdateStatus Status { get; set; }
 }
