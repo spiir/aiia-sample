@@ -73,8 +73,7 @@ namespace Aiia.Sample.Extensions
                     });
 
                 if (context.HostingEnvironment.IsDevelopment())
-                    configuration.WriteTo.Console(outputTemplate:
-                        "[{Timestamp:HH:mm:ss} {Level:u3}] {Properties:j} {Message:lj}{NewLine}{Exception}");
+                    configuration.WriteTo.Console();
             });
         }
     }

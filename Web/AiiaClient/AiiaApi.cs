@@ -5,9 +5,14 @@ using Aiia.Sample.Models.Aiia;
 
 namespace Aiia.Sample.Services
 {
-    public partial class AiiaApi
+    public class AiiaApi // TODO: Add an interface here and change DI injections everywhere + startup
     {
         private IAiiaHttpClient _aiiaHttpClient;
+
+        public AiiaApi(IAiiaHttpClient aiiaHttpClient)
+        {
+            _aiiaHttpClient = aiiaHttpClient;
+        }
 
         public async Task<AllAccountSelectedResponse> AllAccountsSelected(AiiaAccessTokens accessTokens, string consentId)
         {

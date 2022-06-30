@@ -13,12 +13,10 @@ namespace Aiia.Sample.Services
     {
         private readonly HttpClient _httpClient;
 
-        public AiiaHttpClient(IOptionsMonitor<SiteOptions> options)
+        public AiiaHttpClient(IOptionsMonitor<SiteOptions> options, HttpClient client)
         {
-            _httpClient = new HttpClient
-            {
-                BaseAddress = new Uri(options.CurrentValue.Aiia.BaseApiUrl)
-            };
+            _httpClient = client;
+            _httpClient.BaseAddress = new Uri(options.CurrentValue.Aiia.BaseApiUrl);
         }
 
         public async Task<TResponse> CallApi<TRequest, TResponse>(string url,
