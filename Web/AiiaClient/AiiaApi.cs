@@ -94,7 +94,7 @@ namespace Aiia.Sample.Services
             string paymentId)
         {
             return await _aiiaHttpClient.HttpPost<object, PayerTokenModel>(
-                $"v1/accounts/{accountId}/payments/inbound/{paymentId}/payer-token", new object(), accessToken);
+                $"v1/accounts/{accountId}/payments/inbound/{paymentId}/payer-token", null, accessToken);
 
         }
 
