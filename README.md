@@ -16,20 +16,8 @@ You can find Aiia documentation at <https://docs.aiia.eu/>
 
 For starters, you'll need to create an account at <https://portal.aiia.eu/> and generate a `ClientId` and `ClientSecret`.
 
-Then update `Aiia` configuration section in `appsettings.json`:
-
-```
-...
-  "Aiia": {
-    ...
-    "ClientId": "your-client-id",
-    "ClientSecret": "your-client-secret",
-    "WebHookSecret": "your-webhook-secret-if-configured"
-  }
-...
-```
-
-Other sections are unnecessary to modify to run the project locally.
+Then run the `initialize.sh` or `initialize.ps1` scripts to setup the project. The script will ask you the `ClientId` and `ClientSecret` you previously configured.
+The webhook secret is optional and can be left empty.
 
 At this point you should be good to go as long as you have [.NET Core](https://dotnet.microsoft.com/download) installed.
 
