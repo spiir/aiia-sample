@@ -33,7 +33,7 @@ public class PaymentV2Controller : Controller
         IImmutableList<Account> accounts = ImmutableList.Create<Account>();
         try
         {
-            accounts = await _aiiaService.GetUserAccounts(User);
+            accounts = await _aiiaService.GetAccounts(User);
         }
         catch (AiiaClientException e)
         {
@@ -76,7 +76,7 @@ public class PaymentV2Controller : Controller
         try
         {
             var payments = await _aiiaService.GetPayments(User);
-            var accounts = await _aiiaService.GetUserAccounts(User);
+            var accounts = await _aiiaService.GetAccounts(User);
             foreach (var account in accounts)
             {
                 var accountPayments = payments.Payments?.Where(payment =>
@@ -120,11 +120,11 @@ public class PaymentV2Controller : Controller
         try
         {
             var authorization = await _aiiaService.GetPaymentAuthorization(User, accountId, paymentAuthorizationId);
-            return View("PaymentAuthorizationDetails", authorization);
+            return View("ObjectDetailsView",  new ObjectDetailsViewModel("Payment Authorization", authorization, authorization.Id));
         }
         catch (AiiaClientException)
         {
-            return View("PaymentAuthorizationDetails");
+            return View("ObjectDetailsView");
         }
     }
 
@@ -154,18 +154,18 @@ public class PaymentV2Controller : Controller
         try
         {
             var payment = await _aiiaService.GetOutboundPayment(User, accountId, paymentId);
-            return View("PaymentDetails", payment);
+            return View("ObjectDetailsView", new ObjectDetailsViewModel("Outbound payment V2", payment, payment.Id));
         }
         catch (AiiaClientException)
         {
             try
             {
                 var payment = await _aiiaService.GetInboundPayment(User, accountId, paymentId);
-                return View("PaymentDetails", payment);
+                return View("ObjectDetailsView",  new ObjectDetailsViewModel("Inbound payment V2", payment, payment.Id));
             }
             catch (AiiaClientException)
             {
-                return View("PaymentDetails");
+                return View("ObjectDetailsView");
             }
         }
     }

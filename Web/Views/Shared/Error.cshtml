@@ -3,8 +3,7 @@
     ViewData["Title"] = "Error";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<h1 class="text-danger">An error occurred while processing your request.</h1>
 
 @if (Model.ShowRequestId)
 {
@@ -13,14 +12,31 @@
     </p>
 }
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the
-    <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+This is a demo application that for simplicity reasons forgoes some validation of the user input and doesn't handle all the errors and special cases of a real application.
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div><strong>Error:</strong>
+        <div><pre>@Model.ErrorMessage</pre></div>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.ErrorStackTrace))
+{
+    <div><strong>Stack trace:</strong>
+        <div><pre>@Model.ErrorStackTrace</pre></div>
+    </div>
+}
+
+
+<strong>Tips:</strong>
+<ul>
+    <li>Check that the vaules you have entered are correct. Usually errors happen because of an invalid value being entered.</li>
+    <li>Check the documentation on whether the operation you are trying to do is valid and has been enabled for your clientId</li>
+    <li>If problems persist then <a href="mailto:support@aiia.eu?subject=Aiia%20sample%20app%20error&body=Describe%20your%20problem%20here">contact our support</a></li>
+</ul>
+
+<strong>What do you want to do next?</strong>
+<ul>
+    <li><a onclick="history.back()" href="#">Go back</a> to the previous page</li>
+    <li><a href="/">Go to the homepage</a></li>
+</ul>

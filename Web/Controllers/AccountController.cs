@@ -49,7 +49,7 @@ public class AccountController : Controller
                 ConsentId = user?.AiiaConsentId
             });
 
-        var accounts = await _aiiaService.GetUserAccounts(User);
+        var accounts = await _aiiaService.GetAccounts(User);
         var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
         var allAccountsSelected = await _aiiaService.AllAccountsSelected(User);
         var model = new AccountsViewModel

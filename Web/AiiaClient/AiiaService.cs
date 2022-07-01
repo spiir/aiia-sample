@@ -71,9 +71,19 @@ public class AiiaService : IAiiaService
     }
 
 
-    public async Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code)
+    public async Task ExchangeCodeForAccessToken(ClaimsPrincipal principal, string code, string consentId)
     {
-        return await _api.AuthenticationCodeExchange(ClientSecret, code, GetRedirectUrl());
+        var user = GetCurrentUser(principal);
+        var tokenResponse = await _api.AuthenticationCodeExchange(ClientSecret, code, GetRedirectUrl());
+        
+        user.AiiaAccessToken = tokenResponse.AccessToken;
+        user.AiiaTokenType = tokenResponse.TokenType;
+        user.AiiaRefreshToken = tokenResponse.RefreshToken;
+        user.AiiaAccessTokenExpires = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
+        user.AiiaConsentId = consentId;
+
+        _dbContext.Users.Update(user);
+        await _dbContext.SaveChangesAsync();
     }
 
 
@@ -315,12 +325,12 @@ public class AiiaService : IAiiaService
         return _api.GetProviders();
     }
 
-    public async Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal)
+    public async Task<IImmutableList<Account>> GetAccounts(ClaimsPrincipal principal)
     {
         var user = GetCurrentUser(principal);
         await RefreshAccessTokenIfNeeded(user);
 
-        var result = await _api.GetUserAccounts(user.GetAiiaAccessTokens());
+        var result = await _api.GetAccounts(user.GetAiiaAccessTokens());
 
         return result?.Accounts.ToImmutableList();
     }
