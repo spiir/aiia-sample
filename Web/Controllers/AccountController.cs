@@ -38,9 +38,7 @@ public class AccountController : Controller
             .ThenBy(y => y.Name)
             .ToImmutableList();
 
-        
-        
-        // If user hasn't connected to Aiia or his access token is expired, show empty accounts page
+        // If user hasn't connected to Aiia then show an empty accounts page
         if (user?.AiiaAccessToken == null)
             return View(new AccountsViewModel
             {
@@ -74,7 +72,7 @@ public class AccountController : Controller
         var transactions = await _aiiaService.GetAccountTransactions(User, accountId, body);
         return Ok(new TransactionsViewModel(transactions.Transactions,
             transactions.PagingToken,
-            body?.IncludeDeleted??false));
+            body?.IncludeDeleted ?? false));
     }
 
 
