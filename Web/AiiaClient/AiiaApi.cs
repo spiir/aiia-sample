@@ -129,7 +129,7 @@ public class AiiaApi // TODO: Add an interface here and change DI injections eve
         return _aiiaHttpClient.HttpGet<ImmutableList<BankProvider>>("/v1/providers");
     }
 
-    public async Task<AccountsResponse> GetUserAccounts(AiiaAccessToken accessToken)
+    public async Task<AccountsResponse> GetAccounts(AiiaAccessToken accessToken)
     {
         return await _aiiaHttpClient.HttpGet<AccountsResponse>("/v1/accounts", accessToken);
     }

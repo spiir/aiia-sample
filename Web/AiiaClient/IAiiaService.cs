@@ -22,7 +22,7 @@ public interface IAiiaService
     Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,
         CreatePaymentAuthorizationRequestViewModel requestViewModel);
 
-    Task<CodeExchangeResponse> ExchangeCodeForAccessToken(string code);
+    Task ExchangeCodeForAccessToken(ClaimsPrincipal principal, string code, string consentId);
 
     Task<TransactionsResponse> GetAccountTransactions(ClaimsPrincipal principal,
         string accountId,
@@ -37,7 +37,7 @@ public interface IAiiaService
 
     Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal);
     Task<ImmutableList<BankProvider>> GetProviders();
-    Task<IImmutableList<Account>> GetUserAccounts(ClaimsPrincipal principal);
+    Task<IImmutableList<Account>> GetAccounts(ClaimsPrincipal principal);
     Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
 
     Task ProcessWebHookPayload(HttpRequest request);

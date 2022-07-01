@@ -57,19 +57,7 @@ public class AiiaController : Controller
             return View("GenericViewWithPostMessageOnLoad", new CallbackViewModel { IsError = true });
 
         // Immediately exchange received code for an access token, since code has a short lifespan
-        var tokenResponse = await _aiiaService.ExchangeCodeForAccessToken(code);
-        var currentUserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-        if (user == null) return Unauthorized();
-
-        user.AiiaAccessToken = tokenResponse.AccessToken;
-        user.AiiaTokenType = tokenResponse.TokenType;
-        user.AiiaRefreshToken = tokenResponse.RefreshToken;
-        user.AiiaAccessTokenExpires = DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn);
-        user.AiiaConsentId = consentId;
-
-        _dbContext.Users.Update(user);
-        await _dbContext.SaveChangesAsync();
+        await _aiiaService.ExchangeCodeForAccessToken(User, code, consentId);
 
         return View("GenericViewWithPostMessageOnLoad",
             new CallbackViewModel
