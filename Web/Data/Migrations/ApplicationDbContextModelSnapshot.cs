@@ -144,8 +144,6 @@ namespace Aiia.Sample.Data.Migrations
 
                                     b.Property<bool>("EmailConfirmed");
 
-                                    b.Property<bool>("EmailEnabled");
-
                                     b.Property<bool>("LockoutEnabled");
 
                                     b.Property<DateTimeOffset?>("LockoutEnd");

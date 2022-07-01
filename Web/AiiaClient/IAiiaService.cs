@@ -41,5 +41,4 @@ public interface IAiiaService
     Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
 
     Task ProcessWebHookPayload(HttpRequest request);
-    Task<CodeExchangeResponse> RefreshAccessToken(string refreshToken);
 }

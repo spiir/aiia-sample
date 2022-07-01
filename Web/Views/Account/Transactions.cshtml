@@ -23,7 +23,6 @@
         <div class="container">
             <div id="filter-container">
                 <div class="row justify-content-md-center">
-                    <button class="col btn btn-outline-info mr-1" onclick="addFilter()">Add filter</button>
                     <button class="col btn btn-outline-info mr-1" onclick="addNumberBetweenFilter('amount')">Add transaction amount filter</button>
                     <button class="col btn btn-outline-info mr-1" onclick="addNumberBetweenFilter('balance')">Add account balance filter</button>
                 </div>
@@ -154,17 +153,7 @@
             const result = {
                 pagingToken: $('#pagingTokenInput').val(),
                 includeDeleted: $('#includeDeletedInput').val() === '1',
-                filters: []
             };
-            const transactionFilters = $('.transaction-filter');
-            if (transactionFilters.length) {
-                transactionFilters.each(function(index, element) {
-                    const propertyValue = $(element).find('.filter-select').val();
-                    const filterValue = $(element).find('.filter-value').val();
-                    const operatorValue = $(element).find('.operator-select').val();
-                    result.filters.push({ property: propertyValue, value: filterValue, operator: operatorValue });
-                });
-            }
             const amountFilter = $('.amount-filter');
             if (amountFilter.length) {
                 const minValue = amountFilter.find('.min-amount-value').val();
@@ -198,51 +187,6 @@
             $('#transaction-container').empty();
             $('#pagingTokenInput').val('');
             loadMore();
-        }
-
-        function addFilter() {
-            $("#apply-filters-btn").attr("disabled", false);
-            const propertySelect = $(`
-                <div class="input-group" style="width:auto;">
-                    <div class="input-group-prepend">
-                        <label class="input-group-text">Property</label>
-                    </div>
-                    <select class="custom-select filter-select">
-                        <option value="originalText">Original Text</option>
-                        <option value="text">Text</option>
-                        <option value="state">State</option>
-                        <option value="type">Type</option>
-                        <option value="date">Date</option>
-                    </select>
-                </div>`);
-
-            const valueInput = $(`
-                <div class="input-group" style="width:auto;">
-                    <div class="input-group-prepend">
-                        <label class="input-group-text" for="custom-locale">Value</label>
-                    </div>
-                    <input type="text" class="filter-value pl-1">
-                </div>`);
-
-            const operatorSelect = $(`
-                <div class="input-group" style="width:auto;">
-                    <div class="input-group-prepend">
-                        <label class="input-group-text">Operator</label>
-                    </div>
-                    <select class="custom-select operator-select">
-                        <option value="AND">AND</option>
-                        <option value="OR">OR</option>
-                    </select>
-                </div>`);
-
-            const filter = $(`<div class="row d-flex my-2 justify-content-between transaction-filter"></div>`)
-                .append(propertySelect)
-                .append($(`<span>Contains</span>`))
-                .append(valueInput)
-                .append(operatorSelect);
-
-            $(`#filter-container`)
-                .append(filter);
         }
 
         function addNumberBetweenFilter(propertyName) {
@@ -291,7 +235,8 @@
 
         function clearFilters() {
             $("#apply-filters-btn").attr("disabled", false);
-            $(`.transaction-filter`).remove();
+            $(`.balance-filter`).remove();
+            $(`.amount-filter`).remove();
             reloadTransactions();
         }
 

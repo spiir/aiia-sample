@@ -7,32 +7,24 @@ namespace Aiia.Sample.Data.Migrations
     {
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                                       "AspNetRoleClaims");
+            migrationBuilder.DropTable("AspNetRoleClaims");
 
-            migrationBuilder.DropTable(
-                                       "AspNetUserClaims");
+            migrationBuilder.DropTable("AspNetUserClaims");
 
-            migrationBuilder.DropTable(
-                                       "AspNetUserLogins");
+            migrationBuilder.DropTable("AspNetUserLogins");
 
-            migrationBuilder.DropTable(
-                                       "AspNetUserRoles");
+            migrationBuilder.DropTable("AspNetUserRoles");
 
-            migrationBuilder.DropTable(
-                                       "AspNetUserTokens");
+            migrationBuilder.DropTable("AspNetUserTokens");
 
-            migrationBuilder.DropTable(
-                                       "AspNetRoles");
+            migrationBuilder.DropTable("AspNetRoles");
 
-            migrationBuilder.DropTable(
-                                       "AspNetUsers");
+            migrationBuilder.DropTable("AspNetUsers");
         }
 
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                                         "AspNetRoles",
+            migrationBuilder.CreateTable("AspNetRoles",
                                          table => new
                                                   {
                                                       Id = table.Column<string>(nullable: false),
@@ -42,8 +34,7 @@ namespace Aiia.Sample.Data.Migrations
                                                   },
                                          constraints: table => { table.PrimaryKey("PK_AspNetRoles", x => x.Id); });
 
-            migrationBuilder.CreateTable(
-                                         "AspNetUsers",
+            migrationBuilder.CreateTable("AspNetUsers",
                                          table => new
                                                   {
                                                       Id = table.Column<string>(nullable: false),
@@ -68,8 +59,7 @@ namespace Aiia.Sample.Data.Migrations
                                                   },
                                          constraints: table => { table.PrimaryKey("PK_AspNetUsers", x => x.Id); });
 
-            migrationBuilder.CreateTable(
-                                         "AspNetRoleClaims",
+            migrationBuilder.CreateTable("AspNetRoleClaims",
                                          table => new
                                                   {
                                                       Id = table.Column<int>(nullable: false)
@@ -89,8 +79,7 @@ namespace Aiia.Sample.Data.Migrations
                                                                            onDelete: ReferentialAction.Cascade);
                                                       });
 
-            migrationBuilder.CreateTable(
-                                         "AspNetUserClaims",
+            migrationBuilder.CreateTable("AspNetUserClaims",
                                          table => new
                                                   {
                                                       Id = table.Column<int>(nullable: false)
@@ -110,8 +99,7 @@ namespace Aiia.Sample.Data.Migrations
                                                                            onDelete: ReferentialAction.Cascade);
                                                       });
 
-            migrationBuilder.CreateTable(
-                                         "AspNetUserLogins",
+            migrationBuilder.CreateTable("AspNetUserLogins",
                                          table => new
                                                   {
                                                       LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
@@ -130,8 +118,7 @@ namespace Aiia.Sample.Data.Migrations
                                                                            onDelete: ReferentialAction.Cascade);
                                                       });
 
-            migrationBuilder.CreateTable(
-                                         "AspNetUserRoles",
+            migrationBuilder.CreateTable("AspNetUserRoles",
                                          table => new
                                                   {
                                                       UserId = table.Column<string>(nullable: false),
@@ -154,8 +141,7 @@ namespace Aiia.Sample.Data.Migrations
                                                                            onDelete: ReferentialAction.Cascade);
                                                       });
 
-            migrationBuilder.CreateTable(
-                                         "AspNetUserTokens",
+            migrationBuilder.CreateTable("AspNetUserTokens",
                                          table => new
                                                   {
                                                       UserId = table.Column<string>(nullable: false),
@@ -174,39 +160,32 @@ namespace Aiia.Sample.Data.Migrations
                                                                            onDelete: ReferentialAction.Cascade);
                                                       });
 
-            migrationBuilder.CreateIndex(
-                                         "IX_AspNetRoleClaims_RoleId",
+            migrationBuilder.CreateIndex("IX_AspNetRoleClaims_RoleId",
                                          "AspNetRoleClaims",
                                          "RoleId");
 
-            migrationBuilder.CreateIndex(
-                                         "RoleNameIndex",
+            migrationBuilder.CreateIndex("RoleNameIndex",
                                          "AspNetRoles",
                                          "NormalizedName",
                                          unique: true);
 
-            migrationBuilder.CreateIndex(
-                                         "IX_AspNetUserClaims_UserId",
+            migrationBuilder.CreateIndex("IX_AspNetUserClaims_UserId",
                                          "AspNetUserClaims",
                                          "UserId");
 
-            migrationBuilder.CreateIndex(
-                                         "IX_AspNetUserLogins_UserId",
+            migrationBuilder.CreateIndex("IX_AspNetUserLogins_UserId",
                                          "AspNetUserLogins",
                                          "UserId");
 
-            migrationBuilder.CreateIndex(
-                                         "IX_AspNetUserRoles_RoleId",
+            migrationBuilder.CreateIndex("IX_AspNetUserRoles_RoleId",
                                          "AspNetUserRoles",
                                          "RoleId");
 
-            migrationBuilder.CreateIndex(
-                                         "EmailIndex",
+            migrationBuilder.CreateIndex("EmailIndex",
                                          "AspNetUsers",
                                          "NormalizedEmail");
 
-            migrationBuilder.CreateIndex(
-                                         "UserNameIndex",
+            migrationBuilder.CreateIndex("UserNameIndex",
                                          "AspNetUsers",
                                          "NormalizedUserName",
                                          unique: true);

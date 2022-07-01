@@ -6,8 +6,6 @@
     Layout = "_Layout";
 }
 
-@Html.Hidden("EmailEnabled", Model.EmailEnabled)
-
 
 <h1 class="text-center">
 
@@ -51,16 +49,6 @@
                     </div>
                 </li>
             }
-            <li class="nav-item">
-                <a class="nav-link"
-                   role="button"
-                   href="#"
-                   id="email-button"
-                   style="cursor: pointer;"
-                   onclick="toggleEmail()">
-                    @(Model.EmailEnabled ? "Disable email notifications" : "Enable email notifications")
-                </a>
-            </li>
             @if (Model?.JwtToken != null)
             {
                 <li class="nav-item">
@@ -332,12 +320,6 @@
             return url;
         }
 
-        function updateEmailTexts() {
-            const emailEnabled = $("#EmailEnabled").val() === 'true';
-            const buttonText = emailEnabled ? "Disable Email Notifications" : "Enable Email Notifications";
-            $("#email-button").text(buttonText);
-        }
-
         function toggleModal(id) {
             $("#" + id).modal('toggle');
         }
@@ -378,16 +360,5 @@
             });
         }
 
-        function toggleEmail() {
-            $.ajax({
-                url: '/aiia/toggle-email',
-                type: 'POST',
-                dataType: "json",
-                success: function(data) {
-                    $("#EmailEnabled").val(data.updatedStatus);
-                    updateEmailTexts();
-                }
-            });
-        }
     </script>
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -37,13 +38,12 @@ public class AccountController : Controller
             .ThenBy(y => y.Name)
             .ToImmutableList();
 
-        // If user hasn't connected to Aiia or his access token is expired, show empty accounts page
-        if (user?.AiiaAccessToken == null || user.AiiaAccessTokenExpires < DateTimeOffset.UtcNow)
+        // If user hasn't connected to Aiia then show an empty accounts page
+        if (user?.AiiaAccessToken == null)
             return View(new AccountsViewModel
             {
                 AccountsGroupedByProvider = null,
                 AiiaConnectUrl = _aiiaService.GetAuthUri(user?.Email).ToString(),
-                EmailEnabled = user?.EmailEnabled ?? false,
                 Providers = providers,
                 Email = user?.Email,
                 ConsentId = user?.AiiaConsentId
@@ -58,7 +58,6 @@ public class AccountController : Controller
             AiiaConnectUrl = _aiiaService.GetAuthUri(user.Email).ToString(),
             JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaAccessToken),
             RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaRefreshToken),
-            EmailEnabled = user.EmailEnabled,
             Providers = providers,
             ConsentId = user.AiiaConsentId,
             Email = user.Email,
@@ -68,13 +67,12 @@ public class AccountController : Controller
     }
 
     [HttpPost("{accountId}/transactions/query")]
-    public async Task<IActionResult> FetchTransactions(string accountId,
-        [FromBody] TransactionQueryRequestViewModel body)
+    public async Task<IActionResult> FetchTransactions([FromRoute]string accountId, [FromBody] TransactionQueryRequestViewModel body)
     {
         var transactions = await _aiiaService.GetAccountTransactions(User, accountId, body);
         return Ok(new TransactionsViewModel(transactions.Transactions,
             transactions.PagingToken,
-            body.IncludeDeleted));
+            body?.IncludeDeleted ?? false));
     }
 
 
