@@ -299,6 +299,16 @@ public class AiiaService : IAiiaService
         return await _api.GetOutboundPayment(user.GetAiiaAccessTokens(), accountId, paymentId);
     }
 
+    public async Task<OutboundPaymentV2Response> GetOutboundPaymentV2(ClaimsPrincipal principal,
+        string accountId,
+        string paymentId)
+    {
+        var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
+        
+        return await _api.GetOutboundPaymentV2(user.GetAiiaAccessTokens(), accountId, paymentId);
+    }
+
     public async Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId,
         string authorizationId)
     {
@@ -477,6 +487,14 @@ public class AiiaService : IAiiaService
         return await _api.GetTransaction(user.GetAiiaAccessTokens(), accountId, transactionId);
     }
 
+    public async Task<PaymentReconciliationV1Response> GetPaymentReconciliationV1(ClaimsPrincipal principal,
+        string accountId, string paymentId)
+    {
+        var user = GetCurrentUser(principal);
+        await RefreshAccessTokenIfNeeded(user);
+        
+        return await _api.GetPaymentReconciliationV1(user.GetAiiaAccessTokens(), accountId, paymentId);
+    }
 
     private async Task<string> ReadRequestBody(Stream bodyStream)
     {

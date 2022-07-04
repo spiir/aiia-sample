@@ -1,0 +1,28 @@
+﻿
+@using Aiia.Sample.ViewComponents
+@using Aiia.Sample.AiiaClient.Models
+@model Aiia.Sample.Models.ViewPaymentV1ViewModel
+@{
+    ViewBag.Title = $"{Model.PaymentType} Payment";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col">
+
+        <h1>Payment V1 - @Model.PaymentType</h1>
+        @if (Model.PayerToken?.PayerToken != null)
+        {
+            <button class="btn btn-primary" style="margin: 1rem 0;"
+                    onclick="location.href='@Url.Action("CreateInboundPayment", "Payment", new { payerToken = Model.PayerToken.PayerToken })'">
+                Create new payment with payer token
+            </button>
+        }
+        @await Component.InvokeAsync("ObjectDetails",Model.Payment)
+        @if (Model.Reconciliation != null)
+        {
+            <h2>Reconciliation Information</h2>
+            @await Component.InvokeAsync("ObjectDetails", Model.Reconciliation)
+        }
+    </div>
+</div>

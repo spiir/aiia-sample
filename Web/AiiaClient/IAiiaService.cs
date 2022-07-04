@@ -33,9 +33,13 @@ public interface IAiiaService
     Uri GetAuthUri(string userEmail);
     Task<InboundPayment> GetInboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
     Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
+    Task<OutboundPaymentV2Response> GetOutboundPaymentV2(ClaimsPrincipal user, string accountId, string paymentId);
 
     Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId,
         string authorizationId);
+
+    Task<PaymentReconciliationV1Response> GetPaymentReconciliationV1(ClaimsPrincipal principal,
+        string accountId, string paymentId);
 
     Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal);
     Task<ImmutableList<BankProvider>> GetProviders();

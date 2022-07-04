@@ -119,6 +119,10 @@ public class PaymentV2Controller : Controller
         [FromRoute] string paymentAuthorizationId)
     {
         if (_environment.IsProduction()) return NotFound();
+
+        return NotFound();
+        
+        /*
         try
         {
             var authorization = await _aiiaService.GetPaymentAuthorization(User, accountId, paymentAuthorizationId);
@@ -128,6 +132,7 @@ public class PaymentV2Controller : Controller
         {
             return View("ObjectDetailsView");
         }
+        */
     }
 
     [HttpGet("payment-authorizations/callback")]
@@ -152,23 +157,7 @@ public class PaymentV2Controller : Controller
     [HttpGet("accounts/{accountId}/payments/{paymentId}")]
     public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
     {
-        if (_environment.IsProduction()) return NotFound();
-        try
-        {
-            var payment = await _aiiaService.GetOutboundPayment(User, accountId, paymentId);
-            return View("ObjectDetailsView", new ObjectDetailsViewModel("Outbound payment V2", payment, payment.Id));
-        }
-        catch (AiiaClientException)
-        {
-            try
-            {
-                var payment = await _aiiaService.GetInboundPayment(User, accountId, paymentId);
-                return View("ObjectDetailsView",  new ObjectDetailsViewModel("Inbound payment V2", payment, payment.Id));
-            }
-            catch (AiiaClientException)
-            {
-                return View("ObjectDetailsView");
-            }
-        }
+        var payment = await _aiiaService.GetOutboundPaymentV2(User, accountId, paymentId);
+        return View("ViewPaymentV2", new ViewPaymentV2ViewModel(payment));
     }
 }
