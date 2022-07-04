@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.AiiaClient.Models;
 using Aiia.Sample.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.AiiaClient.Models;
 
 namespace Aiia.Sample.Models;
 

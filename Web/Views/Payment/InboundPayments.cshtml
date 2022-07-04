@@ -45,9 +45,8 @@
 
                                 <div class="media-body ml-3" style="cursor: pointer">
                                     <p class="mt-3">@payment.Id</p>
-
-
                                     <p>@(payment.Status?.PaymentStatusCode ?? "Unknown Status")</p>
+                                    
                                     @if (payment?.Execution?.Amount != null)
                                     {
                                         <p>

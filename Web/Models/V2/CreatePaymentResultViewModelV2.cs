@@ -1,4 +1,4 @@
-namespace Aiia.Sample.Models;
+namespace Aiia.Sample.Models.V2;
 
 public class CreatePaymentResultViewModelV2
 {

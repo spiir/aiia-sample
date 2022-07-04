@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Aiia.Sample.Services;
+namespace Aiia.Sample.AiiaClient;
 
 public interface IAiiaHttpClient
 {

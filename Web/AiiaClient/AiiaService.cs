@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -8,16 +7,19 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Aiia.Sample.AiiaClient.Models;
+using Aiia.Sample.AiiaClient.Models.V2;
 using Aiia.Sample.Data;
 using Aiia.Sample.Exceptions;
 using Aiia.Sample.Models;
-using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.Models.V2;
+using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
-namespace Aiia.Sample.Services;
+namespace Aiia.Sample.AiiaClient;
 
 public class AiiaService : IAiiaService
 {

@@ -1,4 +1,5 @@
-﻿using Aiia.Sample.Data;
+﻿using Aiia.Sample.AiiaClient;
+using Aiia.Sample.Data;
 using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

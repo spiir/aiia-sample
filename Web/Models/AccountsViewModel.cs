@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.AiiaClient.Models;
 
 namespace Aiia.Sample.Models;
 

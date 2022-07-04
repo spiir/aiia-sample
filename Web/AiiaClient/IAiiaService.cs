@@ -2,11 +2,13 @@
 using System.Collections.Immutable;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Aiia.Sample.AiiaClient.Models;
+using Aiia.Sample.AiiaClient.Models.V2;
 using Aiia.Sample.Models;
-using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.Models.V2;
 using Microsoft.AspNetCore.Http;
 
-namespace Aiia.Sample.Services;
+namespace Aiia.Sample.AiiaClient;
 
 public interface IAiiaService
 {
