@@ -1,4 +1,4 @@
-﻿namespace Aiia.Sample.Services;
+﻿namespace Aiia.Sample.AiiaClient;
 
 public struct AiiaClientSecret
 {

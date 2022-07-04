@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace Aiia.Sample.Services;
+namespace Aiia.Sample.AiiaClient;
 
 public class AiiaHttpClient : IAiiaHttpClient
 {

@@ -1,8 +1,9 @@
 ﻿using System.Collections.Immutable;
 using System.Threading.Tasks;
-using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.AiiaClient.Models;
+using Aiia.Sample.AiiaClient.Models.V2;
 
-namespace Aiia.Sample.Services;
+namespace Aiia.Sample.AiiaClient;
 
 public class AiiaApi // TODO: Add an interface here and change DI injections everywhere + startup
 {

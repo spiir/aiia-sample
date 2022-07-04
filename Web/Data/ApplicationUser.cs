@@ -1,4 +1,5 @@
 using System;
+using Aiia.Sample.AiiaClient;
 using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Identity;
 

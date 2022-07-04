@@ -40,18 +40,17 @@
                     <div class="card-body" id="payments-@group.Key.Id">
                         @foreach (var payment in Model.PaymentsGroupedByAccountDisplayName[group.Key])
                         {
-                            <div>
+                            <div class="media bg-light mb-2 w-100" >
                                 @if (payment.Status.PaymentStatusCode == "Created")
                                 {
                                     <input type="checkbox" value="@payment.Id" onchange="toggleSubmitEnabled('@group.Key.Id')"/>
                                 }
 
-                                <span class="mt-3">@payment.Id</span>
-                                <span class="bg-light mb-2 w-100"
-                                      onclick="window.location.href = '@Url.Action("PaymentDetails", "PaymentV2", new { accountId = group.Key.Id, paymentId = payment.Id })'">
-
-                                    <span id="payments" class="media-body ml-3" style="cursor: pointer">
-
+                                <div class="media-body ml-3"
+                                     onclick="window.location.href = '@Url.Action("PaymentDetails", "PaymentV2", new { accountId = group.Key.Id, paymentId = payment.Id })'" style="cursor: pointer">
+                                    <p class="mt-3">@payment.Id</p>
+                                    
+                                    <p id="payments">
                                         <span>@(payment.Status?.PaymentStatusCode ?? "Unknown Status")</span>
                                         @if (payment?.Execution?.Amount != null)
                                         {
@@ -59,8 +58,8 @@
                                                 <small>@payment.Execution.Amount.Value @group.Key.Booked.Currency</small>
                                             </span>
                                         }
-                                    </span>
-                                </span>
+                                    </p>
+                                </div>
                             </div>
                         }
                         @if (Model.PaymentsGroupedByAccountDisplayName[group.Key].Count > 0)
