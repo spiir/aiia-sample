@@ -19,10 +19,14 @@
             </button>
         }
         @await Component.InvokeAsync("ObjectDetails",Model.Payment)
+        <h2>Reconciliation Information</h2>
         @if (Model.Reconciliation != null)
         {
-            <h2>Reconciliation Information</h2>
             @await Component.InvokeAsync("ObjectDetails", Model.Reconciliation)
+        }
+        else
+        {
+            <p>No reconciliation information available</p>
         }
     </div>
 </div>

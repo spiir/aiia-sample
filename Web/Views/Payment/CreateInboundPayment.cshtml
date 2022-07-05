@@ -49,6 +49,14 @@
             </div>
             <input class="form-control" type="text" id="provider-id">
         </div>
+        
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="order-id">(Optional) Order id (used for reconciliation)</label>
+            </div>
+            <input class="form-control" type="text" id="order-id">
+        </div>
+
 
         <button class="btn btn-primary" style="margin-top: 1rem; white-space: normal; width: 100%;" onclick="sendRequestToCreatePayment()">Create payment</button>
     </div>
@@ -75,7 +83,8 @@ else
                 transactionText: $('#payment-transaction-text').val(),
                 IssuePayerToken: $('#issue-payer-token').is(':checked'),
                 PayerToken: $('#payer-token').val(),
-                ProviderId: $('#provider-id').val()
+                ProviderId: $('#provider-id').val(),
+                OrderId: $('#order-id').val()
             };
             $.ajax({
                 url: '/aiia/payments/create/inbound',

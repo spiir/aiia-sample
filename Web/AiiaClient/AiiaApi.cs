@@ -156,7 +156,7 @@ public class AiiaApi // TODO: Add an interface here and change DI injections eve
     }
     public async Task<PaymentReconciliationV1Response> GetPaymentReconciliationV1(AiiaAccessToken accessToken, string accountId, string paymentId)
     {
-        return await _aiiaHttpClient.HttpGet<PaymentReconciliationV1Response>($"accounts/{accountId}/payments/inbound/{paymentId}/reconciliation",
+        return await _aiiaHttpClient.HttpGet<PaymentReconciliationV1Response>($"/v1/accounts/{accountId}/payments/inbound/{paymentId}/reconciliation",
             accessToken);
     }
 

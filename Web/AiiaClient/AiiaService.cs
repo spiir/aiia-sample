@@ -108,7 +108,8 @@ public class AiiaService : IAiiaService
                 Amount = new PaymentAmountRequest
                 {
                     Value = request.Amount
-                }
+                },
+                OrderId = request.OrderId
             }
         };
 
