@@ -116,23 +116,13 @@ public class PaymentV2Controller : Controller
 
     [HttpGet("payment-authorizations/{accountId}/{authorizationId}")]
     public async Task<IActionResult> PaymentAuthorizations([FromRoute] string accountId,
-        [FromRoute] string paymentAuthorizationId)
+        [FromRoute] string authorizationId)
     {
         if (_environment.IsProduction()) return NotFound();
 
-        return NotFound();
+        var authorization = await _aiiaService.GetPaymentAuthorization(User, accountId, authorizationId);
+        return View("ViewAuthorization",  new ViewAuthorizationViewModel(authorization));
         
-        /*
-        try
-        {
-            var authorization = await _aiiaService.GetPaymentAuthorization(User, accountId, paymentAuthorizationId);
-            return View("ObjectDetailsView",  new ObjectDetailsViewModel("Payment Authorization", authorization, authorization.Id));
-        }
-        catch (AiiaClientException)
-        {
-            return View("ObjectDetailsView");
-        }
-        */
     }
 
     [HttpGet("payment-authorizations/callback")]
