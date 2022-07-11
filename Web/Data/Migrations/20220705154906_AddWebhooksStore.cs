@@ -11,8 +11,13 @@ namespace Aiia.Sample.Data.Migrations
                 new
                 {
                     Id = columns.Column<ulong>(),
-                    Received = columns.Column<DateTime>(),
                     UserId = columns.Column<Guid>(),
+                    ReceivedAt = columns.Column<DateTime>(),
+                    
+                    EventId = columns.Column<Guid>(),
+                    Timestamp = columns.Column<ulong>(),
+                    EventType = columns.Column<string>(),
+                    Signature = columns.Column<string>(),
                     DataAsJson = columns.Column<string>()
                 }, constraints: constraints =>
             {

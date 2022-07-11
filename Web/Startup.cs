@@ -1,6 +1,5 @@
 ﻿using Aiia.Sample.AiiaClient;
 using Aiia.Sample.Data;
-using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -108,7 +107,7 @@ public class Startup
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
         services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddSingleton<IEmailService, EmailService>();
+        services.AddScoped<IWebhookService, WebhookService>();
         services.AddScoped<IAiiaService, AiiaService>();
         services.AddHttpClient<IAiiaHttpClient, AiiaHttpClient>();
         services.AddSingleton<AiiaApi, AiiaApi>();

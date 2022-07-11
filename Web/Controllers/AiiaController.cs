@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -6,7 +5,6 @@ using Aiia.Sample.AiiaClient;
 using Aiia.Sample.AiiaClient.Models;
 using Aiia.Sample.Data;
 using Aiia.Sample.Models;
-using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,15 +21,6 @@ public class AiiaController : Controller
     {
         _aiiaService = aiiaService;
         _dbContext = dbContext;
-    }
-
-    // Web hook for Aiia to push data to
-    [HttpPost("webhook")]
-    [AllowAnonymous]
-    public async Task<IActionResult> DataCallback()
-    {
-        await _aiiaService.ProcessWebHookPayload(Request);
-        return Ok();
     }
 
     [HttpGet("data/{consentId}")]

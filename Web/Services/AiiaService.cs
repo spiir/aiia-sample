@@ -1,23 +1,18 @@
 using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using Aiia.Sample.AiiaClient.Models;
 using Aiia.Sample.AiiaClient.Models.V2;
 using Aiia.Sample.Data;
 using Aiia.Sample.Exceptions;
+using Aiia.Sample.Extensions;
 using Aiia.Sample.Models;
 using Aiia.Sample.Models.V2;
-using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
 
 namespace Aiia.Sample.AiiaClient;
 
@@ -26,23 +21,17 @@ public class AiiaService : IAiiaService
     private readonly AiiaHttpClient _aiiaHttpClient;
     private readonly AiiaApi _api;
     public readonly ApplicationDbContext _dbContext;
-    private readonly IEmailService _emailService;
     public readonly IHttpContextAccessor _httpContextAccessor;
-    public readonly ILogger<AiiaService> _logger;
     private readonly IOptionsMonitor<SiteOptions> _options;
 
     public AiiaService(IOptionsMonitor<SiteOptions> options,
-        ILogger<AiiaService> logger,
         ApplicationDbContext dbContext,
         IHttpContextAccessor httpContextAccessor,
-        IEmailService emailService,
         AiiaApi api)
     {
         _options = options;
-        _logger = logger;
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
-        _emailService = emailService;
         _api = api;
     }
 
@@ -55,7 +44,7 @@ public class AiiaService : IAiiaService
 
     public async Task<bool?> AllAccountsSelected(ClaimsPrincipal principal)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
         
         try
@@ -75,7 +64,7 @@ public class AiiaService : IAiiaService
 
     public async Task ExchangeCodeForAccessToken(ClaimsPrincipal principal, string code, string consentId)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         var tokenResponse = await _api.AuthenticationCodeExchange(ClientSecret, code, GetRedirectUrl());
         
         user.AiiaAccessToken = tokenResponse.AccessToken;
@@ -93,7 +82,7 @@ public class AiiaService : IAiiaService
     public async Task<CreatePaymentResponse> CreateInboundPayment(ClaimsPrincipal principal,
         CreatePaymentRequestViewModel request)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var paymentRequest = new CreateInboundPaymentRequest
@@ -119,7 +108,7 @@ public class AiiaService : IAiiaService
     public async Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
         CreatePaymentRequestViewModel request)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var paymentRequest = new CreateOutboundPaymentRequest
@@ -176,7 +165,7 @@ public class AiiaService : IAiiaService
     public async Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal,
         CreatePaymentRequestViewModelV2 request)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var paymentRequest = new CreateOutboundPaymentRequestV2
@@ -231,7 +220,7 @@ public class AiiaService : IAiiaService
     public async Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,
         CreatePaymentAuthorizationRequestViewModel request)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var paymentAuthorizationRequest = new CreatePaymentAuthorizationRequest
@@ -250,7 +239,7 @@ public class AiiaService : IAiiaService
         string accountId,
         TransactionQueryRequestViewModel queryRequest = null)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var request = new TransactionQueryRequest
@@ -270,7 +259,7 @@ public class AiiaService : IAiiaService
         string accountId,
         string paymentId)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var payment = await _api.GetInboundPayment(user.GetAiiaAccessTokens(), accountId, paymentId);
@@ -294,7 +283,7 @@ public class AiiaService : IAiiaService
         string accountId,
         string paymentId)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
         
         return await _api.GetOutboundPayment(user.GetAiiaAccessTokens(), accountId, paymentId);
@@ -304,7 +293,7 @@ public class AiiaService : IAiiaService
         string accountId,
         string paymentId)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
         
         return await _api.GetOutboundPaymentV2(user.GetAiiaAccessTokens(), accountId, paymentId);
@@ -313,7 +302,7 @@ public class AiiaService : IAiiaService
     public async Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId,
         string authorizationId)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
         
         return await _api.GetPaymentAuthorization(user.GetAiiaAccessTokens(), accountId, authorizationId);
@@ -321,7 +310,7 @@ public class AiiaService : IAiiaService
 
     public async Task<PaymentsResponse> GetPayments(ClaimsPrincipal principal)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var request = new PaymentsQueryRequest
@@ -340,7 +329,7 @@ public class AiiaService : IAiiaService
 
     public async Task<IImmutableList<Account>> GetAccounts(ClaimsPrincipal principal)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var result = await _api.GetAccounts(user.GetAiiaAccessTokens());
@@ -350,52 +339,13 @@ public class AiiaService : IAiiaService
 
     public async Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         var redirectUrl = $"{GetBaseUrl()}/aiia/data/{user.Id}/";
         var requestBody = new InitiateDataUpdateRequest { RedirectUrl = redirectUrl };
 
         return await _api.InitiateDataUpdate(user.GetAiiaAccessTokens(), requestBody);
-    }
-
-    public async Task ProcessWebHookPayload(HttpRequest request)
-    {
-        var payloadString = await ReadRequestBody(request.Body);
-
-        _logger.LogInformation($"Received webhook: {payloadString}");
-        // `X-Aiia-Signature` is provided optionally if client has configured `WebhookSecret` and is used to verify that webhook was sent by Aiia
-        var aiiaSignature = request.Headers["X-Aiia-Signature"];
-        if (!VerifySignature(aiiaSignature, payloadString))
-        {
-            _logger.LogWarning("Failed to verify webhook signature");
-            return;
-        }
-
-        var payload = JObject.Parse(payloadString);
-
-        _logger.LogInformation($"Received webhook payload:\n{payloadString}");
-        var data = payload[payload.Properties().First().Name];
-
-        if (data == null)
-        {
-            _logger.LogInformation("Webhook data not parsed");
-            return;
-        }
-
-        var consentId = string.IsNullOrEmpty(data["consentId"].Value<string>())
-            ? string.Empty
-            : data["consentId"].Value<string>();
-
-        var user = _dbContext.Users.FirstOrDefault(x => x.AiiaConsentId == consentId);
-        if (user == null)
-        {
-            _logger.LogInformation($"No user found with consent {consentId}");
-            // User probably revoked consent
-            return;
-        }
-
-        await _emailService.SendWebhookEmail(user.Email, payloadString);
     }
 
 
@@ -408,14 +358,6 @@ public class AiiaService : IAiiaService
             $"&redirect_uri={GetRedirectUrl()}";
 
         return new Uri(connectUrl);
-    }
-
-    private ApplicationUser GetCurrentUser(ClaimsPrincipal principal)
-    {
-        var currentUserId = principal.FindFirst(ClaimTypes.NameIdentifier).Value;
-        var user = _dbContext.Users.FirstOrDefault(x => x.Id == currentUserId);
-        if (user == null) throw new UserNotFoundException();
-        return user;
     }
 
     private async Task RefreshAccessTokenIfNeeded(ApplicationUser user)
@@ -482,7 +424,7 @@ public class AiiaService : IAiiaService
         string accountId,
         string transactionId)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
         return await _api.GetTransaction(user.GetAiiaAccessTokens(), accountId, transactionId);
@@ -491,65 +433,10 @@ public class AiiaService : IAiiaService
     public async Task<PaymentReconciliationV1Response> GetPaymentReconciliationV1(ClaimsPrincipal principal,
         string accountId, string paymentId)
     {
-        var user = GetCurrentUser(principal);
+        var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
         
         return await _api.GetPaymentReconciliationV1(user.GetAiiaAccessTokens(), accountId, paymentId);
-    }
-
-    private async Task<string> ReadRequestBody(Stream bodyStream)
-    {
-        string documentContents;
-        using (bodyStream)
-        {
-            using (var readStream = new StreamReader(bodyStream, Encoding.UTF8))
-            {
-                documentContents = await readStream.ReadToEndAsync();
-            }
-        }
-
-        return documentContents;
-    }
-
-    // Aiia calculates same HMAC hash using the secret only known by the client and Aiia
-    // If HMAC hashes doesn't mach, it means that the webhook was not sent by Aiia
-
-    public bool VerifySignature(string aiiaSignature, string payload)
-    {
-        if (string.IsNullOrWhiteSpace(aiiaSignature))
-            return true;
-
-        if (string.IsNullOrWhiteSpace(_options.CurrentValue.Aiia.WebHookSecret))
-            return true;
-
-        var generatedSignature = GenerateHmacSignature(payload, _options.CurrentValue.Aiia.WebHookSecret);
-
-        if (generatedSignature != aiiaSignature)
-        {
-            _logger.LogWarning(
-                $"Webhook signatures didn't match. Received:\n{aiiaSignature}\nGenerated: {generatedSignature}");
-            return false;
-        }
-
-        return true;
-    }
-
-
-    private string GenerateHmacSignature(string payload, string secret)
-    {
-        var encoding = new UTF8Encoding();
-
-        var textBytes = encoding.GetBytes(payload);
-        var keyBytes = encoding.GetBytes(secret);
-
-        byte[] hashBytes;
-
-        using (var hash = new HMACSHA256(keyBytes))
-        {
-            hashBytes = hash.ComputeHash(textBytes);
-        }
-
-        return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
     }
 
     public string GetRedirectUrl()

@@ -1,14 +1,11 @@
-using System;
 using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Aiia.Sample.AiiaClient;
 using Aiia.Sample.Data;
 using Aiia.Sample.Models;
-using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
