@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Aiia.Sample.AiiaClient;
@@ -47,21 +48,47 @@ public class AccountController : Controller
                 ConsentId = user?.AiiaConsentId
             });
 
-        var accounts = await _aiiaService.GetAccounts(User);
-        var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
-        var allAccountsSelected = await _aiiaService.AllAccountsSelected(User);
-        var model = new AccountsViewModel
+        try
         {
-            AccountsGroupedByProvider = groupedAccounts,
-            AiiaConnectUrl = _aiiaService.GetAuthUri(user.Email).ToString(),
-            JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaAccessToken),
-            RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaRefreshToken),
-            Providers = providers,
-            ConsentId = user.AiiaConsentId,
-            Email = user.Email,
-            AllAccountsSelected = allAccountsSelected
-        };
-        return View(model);
+            var accounts = await _aiiaService.GetAccounts(User);
+            var groupedAccounts = accounts.ToLookup(x => x.AccountProvider?.Id, x => x);
+            var allAccountsSelected = await _aiiaService.AllAccountsSelected(User);
+
+            var model = new AccountsViewModel
+            {
+                AccountsGroupedByProvider = groupedAccounts,
+                AiiaConnectUrl = _aiiaService.GetAuthUri(user.Email).ToString(),
+                JwtToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaAccessToken),
+                RefreshToken = new JwtSecurityTokenHandler().ReadJwtToken(user.AiiaRefreshToken),
+                Providers = providers,
+                ConsentId = user.AiiaConsentId,
+                Email = user.Email,
+                AllAccountsSelected = allAccountsSelected
+            };
+
+            return View(model);
+        }
+        catch (AiiaClientException ex)
+        {
+            if (ex.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                // Probably the refresh code expired. Note here we should show a message that the token expired and
+                // that we should reconnect the accounts, but to keep it simple we just show an empty page to allow the
+                // user to reconnect.
+
+                return View(new AccountsViewModel
+                {
+                    AccountsGroupedByProvider = null,
+                    AiiaConnectUrl = _aiiaService.GetAuthUri(user?.Email).ToString(),
+                    Providers = providers,
+                    Email = user?.Email,
+                    ConsentId = user?.AiiaConsentId
+                });
+            }
+
+            throw;
+        }
+
     }
 
     [HttpPost("{accountId}/transactions/query")]

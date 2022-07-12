@@ -375,16 +375,29 @@ public class AiiaService : IAiiaService
     {
         // refresh token
         var startTime = DateTimeOffset.Now;
-        var result = await _api.AuthenticationRefreshToken(ClientSecret, user.AiiaRefreshToken, GetRedirectUrl());
+        try
+        {
+            var result = await _api.AuthenticationRefreshToken(ClientSecret, user.AiiaRefreshToken, GetRedirectUrl());
+            
+            // update the database (and the passed object by reference)
+            user.AiiaAccessToken = result.AccessToken;
+            user.AiiaRefreshToken = result.RefreshToken;
+            user.AiiaTokenType = result.TokenType;
+            user.AiiaAccessTokenExpires = startTime.AddSeconds(result.ExpiresIn);
         
-        // update the database (and the passed object by reference)
-        user.AiiaAccessToken = result.AccessToken;
-        user.AiiaRefreshToken = result.RefreshToken;
-        user.AiiaTokenType = result.TokenType;
-        user.AiiaAccessTokenExpires = startTime.AddSeconds(result.ExpiresIn);
-        
-        _dbContext.Users.Update(user);
-        await _dbContext.SaveChangesAsync();
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+        }
+        catch(AiiaClientException ex)
+        {
+            if (ex.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                // The refresh token expired too.
+                return;
+            }
+
+            throw;
+        }
     }
 
 

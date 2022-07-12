@@ -10,12 +10,12 @@ namespace Aiia.Sample.Data.Migrations
             migrationBuilder.CreateTable("Webhooks", columns =>
                 new
                 {
-                    Id = columns.Column<ulong>(),
+                    Id = columns.Column<long>(),
                     UserId = columns.Column<Guid>(),
-                    ReceivedAt = columns.Column<DateTime>(),
+                    ReceivedAtTimestamp = columns.Column<long>(),
                     
                     EventId = columns.Column<Guid>(),
-                    Timestamp = columns.Column<ulong>(),
+                    Timestamp = columns.Column<long>(),
                     EventType = columns.Column<string>(),
                     Signature = columns.Column<string>(),
                     DataAsJson = columns.Column<string>()

@@ -65,7 +65,7 @@ class WebhookService : IWebhookService
         }
 
         // we store native types in the database if possible
-        ulong.TryParse(timestamp, out var timestampAsInt);
+        long.TryParse(timestamp, out var timestampAsInt);
         Guid.TryParse(eventId, out var eventIdAsGuid);
         
         await SaveWebhookToDatabase(user, timestampAsInt, eventIdAsGuid, eventType, aiiaSignature, payload);
@@ -73,28 +73,30 @@ class WebhookService : IWebhookService
 
     public Task<List<Webhook>> GetAllWebhooks(ApplicationUser applicationUser)
     {
-        return _dbContext.Webhooks.Where(w => w.User == applicationUser).ToListAsync();
+        return _dbContext.Webhooks.Where(w => w.User == applicationUser).OrderByDescending(w=>w.Id).ToListAsync();
     }
 
-    private async Task SaveWebhookToDatabase(ApplicationUser user, ulong timestamp, Guid eventId, string eventType, string aiiaSignature, JObject payload)
+    private async Task SaveWebhookToDatabase(ApplicationUser user, long timestamp, Guid eventId, string eventType, string aiiaSignature, JObject payload)
     {
-        var yesterday = DateTimeOffset.UtcNow.AddDays(-1);
         
         // 1. Clenup old webhooks
-        // SQLite+EF doesn't support the ordering by id (ulong), so we fetch all the webhooks of an user.
-        var allStoredWebhooks = await _dbContext.Webhooks.Where(w => w.User == user).ToListAsync();
+        //    - keep only the latest 100 webhooks for the user (limit the storage used by each user)
+        var webhooksToRemove = (await _dbContext.Webhooks.Where(w => w.User == user)
+            .OrderByDescending(w=>w.Id)
+            .Skip(100)
+            .ToListAsync())
+            .ToHashSet(); 
         
-        // keep only the latest 100 webhooks (limit the storage used by each user)
-        var oldWebhooks = allStoredWebhooks.OrderBy(w=>w.Id).Skip(100).ToHashSet(); 
+        //    - remove webhooks older than 1 day for all users to keep the db size small and fast.
+        var yesterday = DateTimeOffset.UtcNow.AddDays(-1).Ticks;
+        var oldWebhooks = await _dbContext.Webhooks.Where(w => w.ReceivedAtTimestamp < yesterday).ToListAsync();
+        webhooksToRemove.UnionWith(oldWebhooks);
         
-        // remove webhooks older than 1 day to keep the view clean
-        oldWebhooks.UnionWith(allStoredWebhooks.Where(w => w.ReceivedAt < yesterday));
-        
-        _dbContext.Webhooks.RemoveRange(oldWebhooks);
+        _dbContext.Webhooks.RemoveRange(webhooksToRemove);
         
         // 2. Add the new webhook
         _dbContext.Webhooks.Add(new Webhook()
-            { DataAsJson = payload.ToString(Formatting.None), ReceivedAt = DateTime.UtcNow, User = user , EventType = eventType, Timestamp = timestamp, EventId = eventId, Signature = aiiaSignature});
+            { DataAsJson = payload.ToString(Formatting.None), ReceivedAtTimestamp = DateTime.UtcNow.Ticks, User = user , EventType = eventType, Timestamp = timestamp, EventId = eventId, Signature = aiiaSignature});
 
         // 3. Save
         await _dbContext.SaveChangesAsync();

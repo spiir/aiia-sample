@@ -18,16 +18,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 public class Webhook
 {
     // internal (progressive) integer id.
-    public ulong Id { get; set; }
+    public long Id { get; set; }
     // Internal user
     public ApplicationUser User { get; set; }
-    // Internal: Date when we received the webhook in UTC
-    public DateTime ReceivedAt { get; set; }
+    // Internal: Timestamp of when we received the webhook.
+    public long ReceivedAtTimestamp { get; set; }
     
     // Guid id provided by Aiia.
     public Guid EventId { get; set; }
     // Timestamp of when the webhook originated.
-    public ulong Timestamp { get; set; }
+    public long Timestamp { get; set; }
     public string EventType { get; set; }
     public string Signature { get; set; }
     public string DataAsJson { get; set; }
