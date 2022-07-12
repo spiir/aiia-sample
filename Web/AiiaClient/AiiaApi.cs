@@ -110,6 +110,12 @@ public class AiiaApi // TODO: Add an interface here and change DI injections eve
         return await _aiiaHttpClient.HttpGet<OutboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
             accessToken);
     }
+    
+    public async Task<OutboundPaymentV2Response> GetOutboundPaymentV2(AiiaAccessToken accessToken, string accountId, string paymentId)
+    {
+        return await _aiiaHttpClient.HttpGet<OutboundPaymentV2Response>($"v2/accounts/{accountId}/payments/{paymentId}",
+            accessToken);
+    }
 
     public async Task<PaymentAuthorization> GetPaymentAuthorization(AiiaAccessToken accessToken, string accountId,
         string authorizationId)
@@ -148,4 +154,10 @@ public class AiiaApi // TODO: Add an interface here and change DI injections eve
         return await _aiiaHttpClient.HttpGet<Transaction>($"/v1/accounts/{accountId}/transactions/{transactionId}",
             accessToken);
     }
+    public async Task<PaymentReconciliationV1Response> GetPaymentReconciliationV1(AiiaAccessToken accessToken, string accountId, string paymentId)
+    {
+        return await _aiiaHttpClient.HttpGet<PaymentReconciliationV1Response>($"/v1/accounts/{accountId}/payments/inbound/{paymentId}/reconciliation",
+            accessToken);
+    }
+
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -183,22 +184,38 @@ public class PaymentController : Controller
     public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
     {
         if (_environment.IsProduction()) return NotFound();
+        
+        // try fetching reconciliation information. This will fail for payments that are not inbound to an Aiia-managed account.
+        PaymentReconciliationV1Response reconciliation = null;
+        try
+        {
+            reconciliation = await _aiiaService.GetPaymentReconciliationV1(User, accountId, paymentId);
+        }
+        catch (Exception e)
+        {
+            // ignore if we fail to fetch the reconciliation information.
+        }
+
+        // fetch the payment
         try
         {
             var payment = await _aiiaService.GetOutboundPayment(User, accountId, paymentId);
-            return View("ObjectDetailsView", new ObjectDetailsViewModel("Outbound payment", payment, payment.Id));
+            return View("ViewPaymentV1", new ViewPaymentV1ViewModel(payment, PaymentType.Outbound, reconciliation));
         }
         catch (AiiaClientException)
         {
             try
             {
                 var payment = await _aiiaService.GetInboundPayment(User, accountId, paymentId);
-                return View("ObjectDetailsView", new ObjectDetailsViewModel("Inbound payment", payment, payment.Id));
+                var viewModel = new ViewPaymentV1ViewModel(payment, PaymentType.Inbound, reconciliation);
+                viewModel.PayerToken = payment.PayerToken;
+                return View("ViewPaymentV1", viewModel);
             }
             catch (AiiaClientException)
             {
-                return View("ObjectDetailsView");
             }
         }
+
+        return View("ViewPaymentV1");
     }
 }

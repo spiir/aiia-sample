@@ -1,0 +1,15 @@
+﻿@using Aiia.Sample.ViewComponents
+@using Aiia.Sample.AiiaClient.Models
+
+@model Aiia.Sample.Models.ViewPaymentV2ViewModel
+@{
+    ViewBag.Title = $"Payment V2";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col">
+        <h1>Payment V2</h1>
+        @await Component.InvokeAsync("ObjectDetails",Model.Payment)
+    </div>
+</div>

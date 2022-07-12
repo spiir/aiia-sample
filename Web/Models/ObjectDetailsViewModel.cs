@@ -13,20 +13,12 @@ namespace Aiia.Sample.Models;
 
 public class ObjectDetailsViewModel
 {
-    public ObjectDetailsViewModel(string objectTypeName, object item, string id)
+    public ObjectDetailsViewModel(object item)
     {
-        ObjectTypeName = objectTypeName;
         Item = item;
-        Id = id;
-    }
-
-    public ObjectDetailsViewModel()
-    {
     }
 
     public object Item { get; set; }
-    public string Id { get; set; }
-    public PayerTokenModel PayerToken { get; set; }
 
     public IEnumerable<KeyValuePair<string, string>> FlattenedObjectProperties => ObjectTableBuilding.FlattenObject(JObject.FromObject(Item, SerializerSettings), "");
 
@@ -35,5 +27,4 @@ public class ObjectDetailsViewModel
             DefaultValueHandling = DefaultValueHandling.Include});
 
 
-    public string ObjectTypeName { get; set; }
 }

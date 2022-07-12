@@ -1,0 +1,12 @@
+﻿@model Aiia.Sample.Models.ObjectDetailsViewModel
+
+
+<table id="payment-details-table" class="table">
+    @foreach (var property in Model.FlattenedObjectProperties)
+    {
+        <tr>
+            <td style="width: 30%">@property.Key</td>
+            <td style="width: 70%; overflow: scroll;">@property.Value</td>
+        </tr>
+    }
+</table>
