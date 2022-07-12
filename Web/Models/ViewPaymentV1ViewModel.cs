@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Aiia.Sample.AiiaClient.Models;
+﻿using Aiia.Sample.AiiaClient.Models;
 
 namespace Aiia.Sample.Models;
 

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Aiia.Sample.Models;
 
 public class TransactionQueryRequestViewModel

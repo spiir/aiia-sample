@@ -6,7 +6,6 @@ using Aiia.Sample.AiiaClient.Models;
 using Aiia.Sample.AiiaClient.Models.V2;
 using Aiia.Sample.Models;
 using Aiia.Sample.Models.V2;
-using Microsoft.AspNetCore.Http;
 
 namespace Aiia.Sample.AiiaClient;
 
@@ -45,6 +44,4 @@ public interface IAiiaService
     Task<ImmutableList<BankProvider>> GetProviders();
     Task<IImmutableList<Account>> GetAccounts(ClaimsPrincipal principal);
     Task<InitiateDataUpdateResponse> InitiateDataUpdate(ClaimsPrincipal principal);
-
-    Task ProcessWebHookPayload(HttpRequest request);
 }

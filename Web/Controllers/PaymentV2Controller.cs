@@ -6,7 +6,6 @@ using Aiia.Sample.AiiaClient;
 using Aiia.Sample.AiiaClient.Models;
 using Aiia.Sample.Models;
 using Aiia.Sample.Models.V2;
-using Aiia.Sample.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;

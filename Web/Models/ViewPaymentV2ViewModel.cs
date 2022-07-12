@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Aiia.Sample.AiiaClient.Models;
-
-namespace Aiia.Sample.Models;
+﻿namespace Aiia.Sample.Models;
 
 public class ViewPaymentV2ViewModel
 {

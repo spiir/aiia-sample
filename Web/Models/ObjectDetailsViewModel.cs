@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using Aiia.Sample.AiiaClient.Models;
+﻿using System.Collections.Generic;
 using Aiia.Sample.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
