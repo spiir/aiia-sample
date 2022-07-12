@@ -79,7 +79,7 @@ class WebhookService : IWebhookService
     private async Task SaveWebhookToDatabase(ApplicationUser user, long timestamp, Guid eventId, string eventType, string aiiaSignature, JObject payload)
     {
         
-        // 1. Clenup old webhooks
+        // 1. Cleanup old webhooks
         //    - keep only the latest 100 webhooks for the user (limit the storage used by each user)
         var webhooksToRemove = (await _dbContext.Webhooks.Where(w => w.User == user)
             .OrderByDescending(w=>w.Id)
