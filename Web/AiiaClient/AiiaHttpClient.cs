@@ -58,8 +58,7 @@ public class AiiaHttpClient : IAiiaHttpClient
 
         if (body is not null)
             httpRequestMessage.Content = new StringContent(
-                // TODO: Serializer settings
-                JsonConvert.SerializeObject(body),
+                JsonConvert.SerializeObject(body, SerializerSettings.Settings),
                 Encoding.UTF8,
                 "application/json");
 
@@ -77,7 +76,7 @@ public class AiiaHttpClient : IAiiaHttpClient
         var responseContent = await result.Content.ReadAsStringAsync();
 
         // TODO: Serializer settings
-        return JsonConvert.DeserializeObject<TResponse>(responseContent);
+        return JsonConvert.DeserializeObject<TResponse>(responseContent, SerializerSettings.Settings);
     }
 
     private string GenerateBasicAuthorizationHeaderValue(AiiaClientSecret secret)

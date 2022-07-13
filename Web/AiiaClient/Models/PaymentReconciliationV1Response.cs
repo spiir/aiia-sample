@@ -24,7 +24,7 @@ public class PaymentReconciliationEvent
 {
     public PaymentReconciliationEventType Event { get; set; }
 
-    // TODO: Fix type. Here it should be datetime
+    // This string is a date-time. Here we use string to keep it simple, but it should be an appropriate type like NodaTime's Instant
     public string Timestamp { get; set; }
 }
 

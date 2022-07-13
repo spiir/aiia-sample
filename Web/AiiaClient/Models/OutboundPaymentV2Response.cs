@@ -4,7 +4,7 @@ public class OutboundPaymentV2Response
 {
         public PaymentAmountViewModel Amount { get; set; }
 
-        // TODO: Fix type. Here it should be datetime
+        // This string is a date. Here we use string to keep it simple, but it should be an appropriate type like NodaTime's LocalDate
         public string? CreatedAt { get; set; }
 
         public PaymentReferenceViewModel Destination { get; set; }
@@ -74,6 +74,6 @@ public class PaymentExecutionOptionsViewModel
 {
         public string Type { get; set; }
         
-        // TODO: This was a local date
+        // This string is a date. Here we use string to keep it simple, but it should be an appropriate type like NodaTime's LocalDate
         public string? Date { get; set; }
 }

@@ -4,12 +4,14 @@ public class TransactionDetails
 {
     public CurrencyConversionViewModel CurrencyConversion { get; set; }
     public TransactionPartyViewModel Destination { get; set; }
-    public string? ExecutionDate { get; set; } // TODO: This was LocalDate?
+    // This string is a date. Here we use string to keep it simple, but it should be an appropriate type like NodaTime's LocalDate
+    public string? ExecutionDate { get; set; }
     public TransactionIdentifiersViewModel Identifiers { get; set; }
     public string Message { get; set; }
     public RewardViewModel Reward { get; set; }
     public TransactionPartyViewModel Source { get; set; }
-    public string? ValueDate { get; set; } // TODO: This was LocalDate?
+    // This string is a date. Here we use string to keep it simple, but it should be an appropriate type like NodaTime's LocalDate
+    public string? ValueDate { get; set; }
 }
 
 public class CurrencyConversionViewModel

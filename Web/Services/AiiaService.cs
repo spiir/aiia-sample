@@ -244,7 +244,6 @@ public class AiiaService : IAiiaService
 
         var request = new TransactionQueryRequest
         {
-            Interval = "", // TODO: new Interval(SystemClock.Instance.GetCurrentInstant().Minus(Duration.FromDays(900)), SystemClock.Instance.GetCurrentInstant()),
             PagingToken = queryRequest?.PagingToken,
             PageSize = 20,
             AmountValueBetween = queryRequest?.AmountValueBetween,
