@@ -38,7 +38,8 @@ public class PaymentV2Controller : Controller
         }
         catch (AiiaClientException e)
         {
-            // TODO
+            // Ignored: If we fail to load accounts the drop down will be empty.
+            // If this were a real commercial application, proper error handling would be needed to inform the user.
         }
 
         return View(new CreatePaymentViewModel
@@ -74,20 +75,14 @@ public class PaymentV2Controller : Controller
         {
             PaymentsGroupedByAccountDisplayName = new Dictionary<Account, List<Payment>>()
         };
-        try
+        
+        var payments = await _aiiaService.GetPayments(User);
+        var accounts = await _aiiaService.GetAccounts(User);
+        foreach (var account in accounts)
         {
-            var payments = await _aiiaService.GetPayments(User);
-            var accounts = await _aiiaService.GetAccounts(User);
-            foreach (var account in accounts)
-            {
-                var accountPayments = payments.Payments?.Where(payment =>
-                    payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
-                result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
-            }
-        }
-        catch (AiiaClientException e)
-        {
-            // TODO
+            var accountPayments = payments.Payments?.Where(payment =>
+                payment.AccountId == account.Id && payment.Type == PaymentType.Outbound).ToList();
+            result.PaymentsGroupedByAccountDisplayName.Add(account, accountPayments);
         }
 
         return View(result);

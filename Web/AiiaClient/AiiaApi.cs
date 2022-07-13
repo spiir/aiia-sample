@@ -5,7 +5,7 @@ using Aiia.Sample.AiiaClient.Models.V2;
 
 namespace Aiia.Sample.AiiaClient;
 
-public class AiiaApi // TODO: Add an interface here and change DI injections everywhere + startup
+public class AiiaApi
 {
     private readonly IAiiaHttpClient _aiiaHttpClient;
 
