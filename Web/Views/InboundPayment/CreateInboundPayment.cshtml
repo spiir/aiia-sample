@@ -87,7 +87,7 @@ else
                 OrderId: $('#order-id').val()
             };
             $.ajax({
-                url: '/aiia/payments/create/inbound',
+                url: '/aiia/payments/inbound/create',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',

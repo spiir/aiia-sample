@@ -11,10 +11,10 @@
             <li class="nav-item">
                 <a class="nav-link"
                    role="button"
-                   href="@Url.Action("CreatePayment", "PaymentV2")"
+                   href="@Url.Action("CreatePayment", "OutboundPayment")"
                    id="create-payment-button"
                    style="cursor: pointer;">
-                    Create Payment V2
+                    Create Outbound Payment
                 </a>
             </li>
         </ul>
@@ -26,7 +26,7 @@
         @if (Model?.PaymentsGroupedByAccountDisplayName == null || !Model.PaymentsGroupedByAccountDisplayName.Any())
         {
             <p class="text-center">
-                There are no payments made through Aiia for connected accounts. Try @Html.ActionLink("creating a payment", "CreatePayment", "PaymentV2", null, null)
+                There are no payments made through Aiia for connected accounts. Try @Html.ActionLink("creating a payment", "CreatePayment", "OutboundPayment", null, null)
             </p>
         }
         else
@@ -47,7 +47,7 @@
                                     <p class="mt-3">
                                         <span><input type="checkbox" value="@payment.Id" onchange="toggleSubmitEnabled('@group.Key.Id')" disabled="@(payment.Status.PaymentStatusCode != "Created")"/></span>
                                         <span style="width: 1em">&nbsp;</span>
-                                        <a onclick="window.location.href = '@Url.Action("PaymentDetails", "PaymentV2", new { accountId = group.Key.Id, paymentId = payment.Id })'" style="cursor: pointer" href="#">
+                                        <a onclick="window.location.href = '@Url.Action("PaymentDetails", "OutboundPayment", new { accountId = group.Key.Id, paymentId = payment.Id })'" style="cursor: pointer" href="#">
                                         @payment.Id
                                         </a>
                                     </p>
@@ -101,7 +101,7 @@
             };
 
             $.ajax({
-                url: '/v2/aiia/payment-authorizations/create',
+                url: '/aiia/payments/outbound/payment-authorizations/create',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',

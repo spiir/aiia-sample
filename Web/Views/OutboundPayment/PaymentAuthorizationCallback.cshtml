@@ -30,17 +30,8 @@ else
             <p>In the success scenario, there's an 'authorizationId' query parameter provided. e.g., current query: </p>
             <pre>@Model.Query</pre>
             <p>This authorizationId can be used to retrieve the authorization later to see its details and/or status.</p>
-            <button class="btn btn-primary" onclick="backToPaymentsV2()">Back to payments V2</button>
+        <a class="btn btn-primary" asp-area="" asp-controller="OutboundPayment" asp-action="Payments">Back to inbound payments</a>
         </div>
     </div>
 }
 
-
-@section Scripts
-{
-    <script>
-        function backToPaymentsV2() {
-            window.location.href = "/v2/aiia/payments";
-        }
-    </script>
-}

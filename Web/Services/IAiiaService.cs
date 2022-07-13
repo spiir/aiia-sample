@@ -14,10 +14,7 @@ public interface IAiiaService
     Task<bool?> AllAccountsSelected(ClaimsPrincipal principal);
     Task<CreatePaymentResponse> CreateInboundPayment(ClaimsPrincipal user, CreatePaymentRequestViewModel body);
 
-    Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
-        CreatePaymentRequestViewModel request);
-
-    Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal,
+    Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal,
         CreatePaymentRequestViewModelV2 requestViewModel);
 
     Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,

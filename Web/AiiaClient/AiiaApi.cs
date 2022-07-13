@@ -60,15 +60,7 @@ public class AiiaApi
             paymentRequest, accessToken);
     }
 
-    public async Task<CreatePaymentResponse> CreateOutboundPaymentV1(AiiaAccessToken accessToken,
-        string sourceAccountId, CreateOutboundPaymentRequest paymentRequest)
-    {
-        return await _aiiaHttpClient.HttpPost<CreateOutboundPaymentRequest, CreatePaymentResponse>(
-            $"v1/accounts/{sourceAccountId}/payments/outbound",
-            paymentRequest, accessToken);
-    }
-
-    public async Task<CreatePaymentResponseV2> CreatePaymentV2(AiiaAccessToken accessToken, string accountId,
+    public async Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(AiiaAccessToken accessToken, string accountId,
         CreateOutboundPaymentRequestV2 paymentRequest)
     {
         return await _aiiaHttpClient.HttpPost<CreateOutboundPaymentRequestV2, CreatePaymentResponseV2>(
