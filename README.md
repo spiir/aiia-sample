@@ -15,8 +15,8 @@ You can find Aiia documentation at <https://docs.aiia.eu/>
 ### Running locally
 
 1) You'll need to create an account at <https://portal.aiia.eu/> and generate a `ClientId` and `ClientSecret`.
-  1) As a webhook url specify https://<hostname>/aiia/webhook if your website is publicly reachable. If this is not the case it can also be left empty, but you won't receive any webhook in that case.
-  1) As a redirect url https://<hostname>/aiia/callback. You can also use localhost for this field (remember the port number!)
+   1) As a webhook url specify https://<hostname>/aiia/webhook if your website is publicly reachable. If this is not the case it can also be left empty, but you won't receive any webhook in that case.
+   1) As a redirect url https://<hostname>/aiia/callback. You can also use localhost for this field (remember the port number!)
 
 1) Download and install [.NET Core](https://dotnet.microsoft.com/download) 6.
 
