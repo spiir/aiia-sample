@@ -40,5 +40,5 @@ You can find Aiia documentation at <https://docs.aiia.eu/>
 6. At the end you'll be redirected to sample app's callback page with some explanation of what's happening behind the scenes
 8. When you navigate back to the Accounts page will be not empty anymore
 9. Press on one of the accounts in the list
-10. You'll be shown the transactions list (if transaction page is empty, that's fine, we fetch transaction data asynchronously so it's not always there at the beginning, but we notify clients when that's done via [webhook](https://api.aiia.eu/docs/index.html#section/Webhooks)
+10. You'll be shown the transactions list (if transaction page is empty, that's fine, we fetch transaction data asynchronously so it's not always there at the beginning, but we notify clients when that's done via [webhook](https://api.aiia.eu/docs/index.html#section/Webhooks))
 11. If running the project not through our webpage you can also try out payments.
