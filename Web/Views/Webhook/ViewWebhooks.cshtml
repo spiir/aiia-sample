@@ -19,16 +19,15 @@
         {
             <div class="card mb-3">
                 <div class="card-header">
-                    <span style="color:dimgray; margin-right: 1em">@group.Id</span> 
                     @group.EventType 
                 </div>
                 <div class="card-body">
                     <textarea rows="5" disabled="disabled" style="width: 100%; height: 10em; color: black">@group.DataAsJson</textarea>
                     <div style="color:dimgray; margin-left: 2em">
-                        Signature: @group.Signature<br/>
-                        Timestamp: @group.Timestamp <br/>
-                        Event id: @group.EventId <br/>
-                        Received at: @(new DateTime(group.ReceivedAtTimestamp))
+                        Event id: @group.EventId.ToString() <br/>
+                        Generated at: @(DateTimeOffset.FromUnixTimeSeconds(group.Timestamp).UtcDateTime) <br/>
+                        Received at: @(new DateTime(group.ReceivedAtTimestamp)) <br/>
+                        Signature: @group.Signature
                     </div>
                 </div>
             </div>
