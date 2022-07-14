@@ -125,25 +125,9 @@ public class InboundPaymentController : Controller
         }
 
         // fetch the payment
-        try
-        {
-            var payment = await _aiiaService.GetOutboundPayment(User, accountId, paymentId);
-            return View("ViewInboundPayment", new ViewPaymentV1ViewModel(payment, PaymentType.Outbound, reconciliation));
-        }
-        catch (AiiaClientException)
-        {
-            try
-            {
-                var payment = await _aiiaService.GetInboundPayment(User, accountId, paymentId);
-                var viewModel = new ViewPaymentV1ViewModel(payment, PaymentType.Inbound, reconciliation);
-                viewModel.PayerToken = payment.PayerToken;
-                return View("ViewInboundPayment", viewModel);
-            }
-            catch (AiiaClientException)
-            {
-            }
-        }
-
-        return View("ViewInboundPayment");
+        var payment = await _aiiaService.GetInboundPayment(User, accountId, paymentId);
+        var viewModel = new ViewPaymentV1ViewModel(payment, PaymentType.Inbound, reconciliation);
+        viewModel.PayerToken = payment.PayerToken;
+        return View("ViewInboundPayment", viewModel);
     }
 }

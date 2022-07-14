@@ -221,16 +221,6 @@ public class AiiaService : IAiiaService
         return payment;
     }
 
-    public async Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal,
-        string accountId,
-        string paymentId)
-    {
-        var user = await principal.GetCurrentUser(_dbContext);
-        await RefreshAccessTokenIfNeeded(user);
-        
-        return await _api.GetOutboundPayment(user.GetAiiaAccessTokens(), accountId, paymentId);
-    }
-
     public async Task<OutboundPaymentV2Response> GetOutboundPaymentV2(ClaimsPrincipal principal,
         string accountId,
         string paymentId)

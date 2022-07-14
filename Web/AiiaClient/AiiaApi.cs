@@ -96,13 +96,6 @@ public class AiiaApi
             $"v1/accounts/{accountId}/payments/inbound/{paymentId}/payer-token", null, accessToken);
     }
 
-    public async Task<OutboundPayment> GetOutboundPayment(AiiaAccessToken accessToken, string accountId,
-        string paymentId)
-    {
-        return await _aiiaHttpClient.HttpGet<OutboundPayment>($"v1/accounts/{accountId}/payments/{paymentId}/outbound",
-            accessToken);
-    }
-    
     public async Task<OutboundPaymentV2Response> GetOutboundPaymentV2(AiiaAccessToken accessToken, string accountId, string paymentId)
     {
         return await _aiiaHttpClient.HttpGet<OutboundPaymentV2Response>($"v2/accounts/{accountId}/payments/{paymentId}",
