@@ -28,7 +28,6 @@ public interface IAiiaService
 
     Uri GetAuthUri(string userEmail);
     Task<InboundPayment> GetInboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
-    Task<OutboundPayment> GetOutboundPayment(ClaimsPrincipal principal, string accountId, string paymentId);
     Task<OutboundPaymentV2Response> GetOutboundPaymentV2(ClaimsPrincipal user, string accountId, string paymentId);
 
     Task<PaymentAuthorization> GetPaymentAuthorization(ClaimsPrincipal principal, string accountId,
