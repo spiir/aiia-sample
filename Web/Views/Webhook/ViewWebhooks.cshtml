@@ -1,0 +1,36 @@
+﻿@model Aiia.Sample.Controllers.ViewWebhooksViewModel
+
+@{
+    ViewBag.Title = "Webhooks list";
+    Layout = "_Layout";
+}
+
+<h1 class="text-center">Webhooks</h1>
+<p class="text-center">This page shows a list of all the webhooks that the system received. </p>
+
+<div class="row">
+
+    <div class="col">
+        @if (Model.Webhooks.Count == 0)
+        {
+            <div class="text-center">No webhooks have been received yet</div>
+        }
+        @foreach (var group in Model.Webhooks)
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    @group.EventType 
+                </div>
+                <div class="card-body">
+                    <textarea rows="5" disabled="disabled" style="width: 100%; height: 10em; color: black">@group.DataAsJson</textarea>
+                    <div style="color:dimgray; margin-left: 2em">
+                        Event id: @group.EventId.ToString() <br/>
+                        Generated at: @(DateTimeOffset.FromUnixTimeSeconds(group.Timestamp).UtcDateTime) <br/>
+                        Received at: @(new DateTime(group.ReceivedAtTimestamp)) <br/>
+                        Signature: @group.Signature
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,12 @@
+﻿@model Aiia.Sample.Models.ViewPaymentV2ViewModel
+@{
+    ViewBag.Title = $"Outbound Payment";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col">
+        <h1>Outbound Payment</h1>
+        @await Component.InvokeAsync("ObjectDetails",Model.Payment)
+    </div>
+</div>

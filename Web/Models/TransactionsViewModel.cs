@@ -1,20 +1,19 @@
 using System.Collections.Generic;
-using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.AiiaClient.Models;
 
-namespace Aiia.Sample.Models
+namespace Aiia.Sample.Models;
+
+public class TransactionsViewModel
 {
-    public class TransactionsViewModel
+    public TransactionsViewModel(List<Transaction> transactions, string pagingToken, bool includeDeleted)
     {
-        public TransactionsViewModel(List<Transaction> transactions, string pagingToken, bool includeDeleted)
-        {
-            Transactions = transactions;
-            PagingToken = pagingToken;
-            IncludeDeleted = includeDeleted;
-        }
-
-        public bool IncludeDeleted { get; }
-        public string PagingToken { get; }
-
-        public List<Transaction> Transactions { get; }
+        Transactions = transactions;
+        PagingToken = pagingToken;
+        IncludeDeleted = includeDeleted;
     }
+
+    public bool IncludeDeleted { get; }
+    public string PagingToken { get; }
+
+    public List<Transaction> Transactions { get; }
 }

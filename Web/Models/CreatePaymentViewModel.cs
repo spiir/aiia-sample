@@ -1,10 +1,9 @@
 using System.Collections.Immutable;
-using Aiia.Sample.Models.Aiia;
+using Aiia.Sample.AiiaClient.Models;
 
-namespace Aiia.Sample.Models
+namespace Aiia.Sample.Models;
+
+public class CreatePaymentViewModel
 {
-    public class CreatePaymentViewModel
-    {
-        public IImmutableList<Account> Accounts { get; set; }
-    }
+    public IImmutableList<Account> Accounts { get; set; }
 }

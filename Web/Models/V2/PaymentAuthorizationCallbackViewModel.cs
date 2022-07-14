@@ -1,9 +1,8 @@
-namespace Aiia.Sample.Models
+namespace Aiia.Sample.Models.V2;
+
+public class PaymentAuthorizationCallbackViewModel
 {
-    public class PaymentAuthorizationCallbackViewModel
-    {
-        public bool IsError { get; set; }
-        public string PaymentAuthorizationId { get; set; }
-        public string Query { get; set; }
-    }
+    public bool IsError { get; set; }
+    public string PaymentAuthorizationId { get; set; }
+    public string Query { get; set; }
 }

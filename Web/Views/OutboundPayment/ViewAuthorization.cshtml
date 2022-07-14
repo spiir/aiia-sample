@@ -1,0 +1,12 @@
+﻿@model Aiia.Sample.Models.ViewAuthorizationViewModel
+@{
+    ViewBag.Title = $"Payment Authorization";
+    Layout = "_Layout";
+}
+
+<div class="row">
+    <div class="col">
+        <h1>Payment Authorization</h1>
+        @await Component.InvokeAsync("ObjectDetails", Model.Authorization)
+    </div>
+</div>

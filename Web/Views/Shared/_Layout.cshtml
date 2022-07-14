@@ -50,41 +50,32 @@
                         </li>
                         <environment exclude="Production">
                             <li class="nav-item nav-blue dropdown">
-                                <a class="nav-link dropdown-toggle nav-blue"
-                                   data-toggle="dropdown"
-                                   href="#"
-                                   role="button"
-                                   aria-haspopup="true"
-                                   aria-expanded="false">
-                                    Payments
+                                <a class="nav-link dropdown-item nav-blue"
+                                   style="cursor: pointer;"
+                                   asp-area=""
+                                   asp-controller="InboundPayment"
+                                   asp-action="InboundPayments">
+                                    Inbound payments
                                 </a>
-                                <div class="dropdown-menu nav-blue">
-                                    <a class="nav-link dropdown-item nav-blue"
-                                       style="cursor: pointer;"
-                                       asp-area=""
-                                       asp-controller="Payment"
-                                       asp-action="outboundpayments">
-                                        Outbound
-                                    </a>
-                                    <a class="nav-link dropdown-item nav-blue"
-                                       style="cursor: pointer;"
-                                       asp-area=""
-                                       asp-controller="Payment"
-                                       asp-action="inboundpayments">
-                                        Inbound
-                                    </a>
-                                </div>
                             </li>
                             <li class="nav-item ">
                                 <a class="nav-link nav-blue"
                                    style="cursor: pointer;"
                                    asp-area=""
-                                   asp-controller="PaymentV2"
+                                   asp-controller="OutboundPayment"
                                    asp-action="Payments">
-                                    PaymentsV2
+                                    Outbound payments
                                 </a>
                             </li>
                         </environment>
+                        <li class="nav-item">
+                            <a class="nav-link nav-blue"
+                               asp-area=""
+                               asp-controller="Webhook"
+                               asp-action="ViewWebhooks">
+                                Webhooks
+                            </a>
+                        </li>
                     }
                 </ul>
             </div>
@@ -99,7 +90,7 @@
 
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2020 - Aiia Demo App
+        &copy; Aiia
     </div>
 </footer>
 
