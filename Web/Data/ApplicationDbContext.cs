@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,16 +16,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     }
 }
 
+[Index("UserId")]
 public class Webhook
 {
-    // internal (progressive) integer id.
-    public long Id { get; set; }
-    // Internal user
+    // Internal user id
     public ApplicationUser User { get; set; }
     // Internal: Timestamp of when we received the webhook.
     public long ReceivedAtTimestamp { get; set; }
     
     // Guid id provided by Aiia.
+    [Key]
     public Guid EventId { get; set; }
     // Timestamp of when the webhook originated.
     public long Timestamp { get; set; }
