@@ -13,21 +13,21 @@ using Microsoft.Extensions.Hosting;
 
 namespace Aiia.Sample.Controllers;
 
-[Route("v2/aiia/")]
+[Route("aiia/payments/outbound")]
 [Authorize]
-public class PaymentV2Controller : Controller
+public class OutboundPaymentController : Controller
 {
     private readonly IAiiaService _aiiaService;
     private readonly IWebHostEnvironment _environment;
 
-    public PaymentV2Controller(IAiiaService aiiaService, IWebHostEnvironment environment)
+    public OutboundPaymentController(IAiiaService aiiaService, IWebHostEnvironment environment)
     {
         _aiiaService = aiiaService;
         _environment = environment;
     }
 
 
-    [HttpGet("payments/create")]
+    [HttpGet("create")]
     public async Task<IActionResult> CreatePayment()
     {
         if (_environment.IsProduction()) return NotFound();
@@ -48,7 +48,7 @@ public class PaymentV2Controller : Controller
         });
     }
 
-    [HttpPost("payments/create")]
+    [HttpPost("create")]
     public async Task<ActionResult<CreatePaymentResultViewModelV2>> CreatePayment(
         [FromBody] CreatePaymentRequestViewModelV2 body)
     {
@@ -56,7 +56,7 @@ public class PaymentV2Controller : Controller
         var result = new CreatePaymentResultViewModelV2();
         try
         {
-            var createPaymentResult = await _aiiaService.CreatePaymentV2(User, body);
+            var createPaymentResult = await _aiiaService.CreateOutboundPaymentV2(User, body);
             result.PaymentId = createPaymentResult.PaymentId;
         }
         catch (AiiaClientException e)
@@ -67,7 +67,7 @@ public class PaymentV2Controller : Controller
         return Ok(result);
     }
 
-    [HttpGet("payments")]
+    [HttpGet("")]
     public async Task<IActionResult> Payments()
     {
         if (_environment.IsProduction()) return NotFound();
@@ -138,10 +138,10 @@ public class PaymentV2Controller : Controller
             });
     }
 
-    [HttpGet("accounts/{accountId}/payments/{paymentId}")]
+    [HttpGet("{accountId}/{paymentId}")]
     public async Task<IActionResult> PaymentDetails([FromRoute] string accountId, [FromRoute] string paymentId)
     {
         var payment = await _aiiaService.GetOutboundPaymentV2(User, accountId, paymentId);
-        return View("ViewPaymentV2", new ViewPaymentV2ViewModel(payment));
+        return View("ViewOutboundPayment", new ViewPaymentV2ViewModel(payment));
     }
 }

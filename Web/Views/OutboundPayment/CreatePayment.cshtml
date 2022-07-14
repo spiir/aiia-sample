@@ -1,7 +1,7 @@
 @model Aiia.Sample.Models.CreatePaymentViewModel
 
 @{
-    ViewBag.Title = "Payments";
+    ViewBag.Title = "Outbound Payments";
     Layout = "_Layout";
 }
 
@@ -101,7 +101,6 @@
             <input class="form-control" id="payment-target-name" type="text" placeholder="John Smith"/>
         </div>
 
-
         <div class="input-group" id="address-fields-container">
             <div class="input-group mb-3 mt-4">
                 <div class="input-group-prepend">
@@ -144,6 +143,13 @@
 
         <div class="input-group mb-3 mt-4">
             <div class="input-group-prepend">
+                <label class="input-group-text" for="payment-currency">Currency</label>
+            </div>
+            <input class="form-control" id="payment-currency" type="text" placeholder="EUR"/>
+        </div>
+
+        <div class="input-group mb-3 mt-4">
+            <div class="input-group-prepend">
                 <label class="input-group-text" for="payment-message">Message</label>
             </div>
             <input class="form-control" id="payment-message" type="text" placeholder=""/>
@@ -176,11 +182,11 @@ else
         $('#payment-target-type').change(function() {
             toggleCorrectDestinationInput();
         });
-        
+
         $('#payment-method').change(function() {
             toggleCorrectDestinationInput();
         });
-
+        
         $('#payment-type').change(function() {
             const paymentType = $('#payment-type').val();
             if (paymentType === 'scheduled') {
@@ -228,7 +234,7 @@ else
                 }
             }
         }
-
+        
         function sendRequestToCreatePayment() {
 
             const body = {
@@ -237,21 +243,22 @@ else
                 BbanBankCode: $('#payment-target-bban-bank').val(),
                 bbanAccountNumber: $('#payment-target-bban-account').val(),
                 Amount: parseFloat($('#payment-amount').val()),
-                PaymentMethod: $('#payment-method').val(),
+                Currency: $('#payment-currency').val(),
                 message: $('#payment-message').val(),
                 transactionText: $('#payment-transaction-text').val(),
                 RecipientFullname: $('#payment-target-name').val(),
+                PaymentMethod: $('#payment-method').val(),
                 InpaymentFormType: $('#inpayment-form-type').val(),
                 InpaymentFormCreditorNumber: $('#inpayment-form-creditor-number').val(),
-                Ocr: $('#inpayment-form-ocr').val(),
+                Ocr: $('#inpayment-form-ocr').val(),                
                 AddressStreet: $('#payment-address-street').val(),
                 AddressBuildingNumber: $('#payment-address-building').val(),
                 AddressPostalCode: $('#payment-address-postal').val(),
                 AddressCity: $('#payment-address-city').val(),
-                AddressCountry: $('#payment-address-country').val(),
+                AddressCountry: $('#payment-address-country').val(),                
             };
             $.ajax({
-                url: '/aiia/payments/create/outbound',
+                url: '/aiia/payments/outbound/create',
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',
@@ -259,10 +266,9 @@ else
                 success: function(data) {
                     if (data.errorDescription) {
                         alert(`Failed:\n${data.errorDescription}`);
-                    } else if (data.authorizationUrl) {
-                        window.location.href = data.authorizationUrl;
                     } else {
                         alert(`Success! Payment Id: ${data.paymentId}`);
+                        window.location.href = "/aiia/payments/outbound";
                     }
                 },
                 error: function(data) {

@@ -88,7 +88,7 @@ public class AiiaService : IAiiaService
         var paymentRequest = new CreateInboundPaymentRequest
         {
             Culture = request.Culture,
-            RedirectUrl = GetPaymentRedirectUrl(),
+            RedirectUrl = GetInboundPaymentRedirectUrl(),
             IssuePayerToken = request.IssuePayerToken,
             PayerToken = request.PayerToken,
             ProviderId = request.ProviderId,
@@ -105,64 +105,7 @@ public class AiiaService : IAiiaService
         return await _api.CreateInboundPaymentV1(user.GetAiiaAccessTokens(), request.SourceAccountId, paymentRequest);
     }
 
-    public async Task<CreatePaymentResponse> CreateOutboundPayment(ClaimsPrincipal principal,
-        CreatePaymentRequestViewModel request)
-    {
-        var user = await principal.GetCurrentUser(_dbContext);
-        await RefreshAccessTokenIfNeeded(user);
-
-        var paymentRequest = new CreateOutboundPaymentRequest
-        {
-            Culture = request.Culture,
-            RedirectUrl = GetPaymentRedirectUrl(),
-            Payment = new PaymentRequest
-            {
-                Message = request.message,
-                TransactionText = request.TransactionText,
-                Amount = new PaymentAmountRequest
-                {
-                    Value = request.Amount
-                },
-                Destination = new PaymentDestinationRequest(),
-                PaymentMethod = request.PaymentMethod
-            }
-        };
-
-        paymentRequest.Payment.Destination.RecipientFullname = request.RecipientFullname;
-
-        if (!string.IsNullOrWhiteSpace(request.Iban))
-            paymentRequest.Payment.Destination.IBan = request.Iban;
-
-        else if (!string.IsNullOrWhiteSpace(request.BbanAccountNumber))
-            paymentRequest.Payment.Destination.BBan = new PaymentBBanRequest
-            {
-                BankCode = request.BbanBankCode,
-                AccountNumber = request.BbanAccountNumber
-            };
-        else
-            paymentRequest.Payment.Destination.InpaymentForm = new PaymentInpaymentFormRequest
-            {
-                Type = request.InpaymentFormType,
-                CreditorNumber = request.InpaymentFormCreditorNumber
-            };
-
-        if (!string.IsNullOrEmpty(request.Ocr))
-            paymentRequest.Payment.Identifiers = new PaymentIdentifiersRequest { Ocr = request.Ocr };
-
-        if (!string.IsNullOrEmpty(request.AddressStreet))
-            paymentRequest.Payment.Destination.Address = new PaymentAddressRequest
-            {
-                Street = request.AddressStreet,
-                BuildingNumber = request.AddressBuildingNumber,
-                PostalCode = request.AddressPostalCode,
-                City = request.AddressCity,
-                Country = request.AddressCountry
-            };
-
-        return await _api.CreateOutboundPaymentV1(user.GetAiiaAccessTokens(), request.SourceAccountId, paymentRequest);
-    }
-
-    public async Task<CreatePaymentResponseV2> CreatePaymentV2(ClaimsPrincipal principal,
+    public async Task<CreatePaymentResponseV2> CreateOutboundPaymentV2(ClaimsPrincipal principal,
         CreatePaymentRequestViewModelV2 request)
     {
         var user = await principal.GetCurrentUser(_dbContext);
@@ -214,7 +157,7 @@ public class AiiaService : IAiiaService
                 Country = request.AddressCountry
             };
 
-        return await _api.CreatePaymentV2(user.GetAiiaAccessTokens(), request.SourceAccountId, paymentRequest);
+        return await _api.CreateOutboundPaymentV2(user.GetAiiaAccessTokens(), request.SourceAccountId, paymentRequest);
     }
 
     public async Task<CreatePaymentAuthorizationResponse> CreatePaymentAuthorization(ClaimsPrincipal principal,
@@ -227,7 +170,7 @@ public class AiiaService : IAiiaService
         {
             Culture = request.Culture,
             PaymentIds = request.PaymentIds.ToArray(),
-            RedirectUrl = GetPaymentAuthorizationRedirectUrl()
+            RedirectUrl = GetOutboundPaymentAuthorizationRedirectUrl()
         };
 
         return await _api.CreatePaymentAuthorization(user.GetAiiaAccessTokens(), request.SourceAccountId,
@@ -420,16 +363,16 @@ public class AiiaService : IAiiaService
         return $"{request.Scheme}://{host}{pathBase}";
     }
 
-    private string GetPaymentAuthorizationRedirectUrl()
+    private string GetOutboundPaymentAuthorizationRedirectUrl()
     {
         var request = _httpContextAccessor.HttpContext.Request;
-        return $"{request.Scheme}://{request.Host}{request.PathBase}/v2/aiia/payment-authorizations/callback";
+        return $"{request.Scheme}://{request.Host}{request.PathBase}/aiia/payments/outbound/payment-authorizations/callback";
     }
 
-    private string GetPaymentRedirectUrl()
+    private string GetInboundPaymentRedirectUrl()
     {
         var request = _httpContextAccessor.HttpContext.Request;
-        return $"{request.Scheme}://{request.Host}{request.PathBase}/aiia/payments/callback";
+        return $"{request.Scheme}://{request.Host}{request.PathBase}/aiia/payments/inbound/callback";
     }
 
     private async Task<Transaction> GetTransaction(ClaimsPrincipal principal,
