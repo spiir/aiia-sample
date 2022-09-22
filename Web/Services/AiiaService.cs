@@ -322,9 +322,14 @@ public class AiiaService : IAiiaService
         }
         catch(AiiaClientException ex)
         {
-            if (ex.StatusCode == HttpStatusCode.Unauthorized)
+            if (ex.StatusCode == HttpStatusCode.Unauthorized || ex.StatusCode == HttpStatusCode.BadRequest)
             {
-                // The refresh token expired too.
+                // AiiaRefreshToken expiring not supported. Clearing session data.
+                user.AiiaAccessToken = null;
+                user.AiiaRefreshToken = null;
+                _dbContext.Users.Update(user);
+                await _dbContext.SaveChangesAsync();
+
                 return;
             }
 
