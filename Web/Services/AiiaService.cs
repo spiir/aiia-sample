@@ -274,7 +274,7 @@ public class AiiaService : IAiiaService
         var user = await principal.GetCurrentUser(_dbContext);
         await RefreshAccessTokenIfNeeded(user);
 
-        var redirectUrl = $"{GetBaseUrl()}/aiia/data/{user.Id}/";
+        var redirectUrl = GetRedirectUrl();
         var requestBody = new InitiateDataUpdateRequest { RedirectUrl = redirectUrl };
 
         return await _api.InitiateDataUpdate(user.GetAiiaAccessTokens(), requestBody);
