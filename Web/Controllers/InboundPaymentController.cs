@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Aiia.Sample.Controllers;
 
@@ -19,11 +20,13 @@ public class InboundPaymentController : Controller
 {
     private readonly IAiiaService _aiiaService;
     private readonly IWebHostEnvironment _environment;
+    private readonly ILogger<InboundPaymentController> _logger;
 
-    public InboundPaymentController(IAiiaService aiiaService, IWebHostEnvironment environment)
+    public InboundPaymentController(IAiiaService aiiaService, IWebHostEnvironment environment, ILogger<InboundPaymentController> logger)
     {
         _aiiaService = aiiaService;
         _environment = environment;
+        _logger = logger;
     }
 
     [HttpGet("create")]
@@ -61,7 +64,9 @@ public class InboundPaymentController : Controller
         }
         catch (AiiaClientException e)
         {
-            result.ErrorDescription = e.Message;
+            _logger.LogWarning(e, "Something went wrong calling aiia-api");
+
+            result.ErrorDescription = "Something went wrong calling aiia-api";
         }
 
         return Ok(result);
