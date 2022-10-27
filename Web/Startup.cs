@@ -123,7 +123,8 @@ public class Startup
             {
                 options.Filters.Add(new ResponseCacheAttribute()
                 {
-                    NoStore = true
+                    NoStore = true,
+                    Location = ResponseCacheLocation.None
                 });
             }).AddNewtonsoftJson();
     }
