@@ -91,6 +91,11 @@ public class Startup
             options.MinimumSameSitePolicy = SameSiteMode.None;
         });
 
+        services.AddAntiforgery(options =>
+        {
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        });
+
         services.Configure<SiteOptions>(Configuration);
 
         services.AddIdentity<ApplicationUser, IdentityRole>(options =>
