@@ -17,11 +17,6 @@ public class Program
                     .UseStartup<Startup>()
                     .UseKeyVault()
                     .UseSerilogElasticSearchIngest();
-                
-                builder.ConfigureKestrel(options =>
-                {
-                    options.AddServerHeader = false;
-                });
             });
     }
 
