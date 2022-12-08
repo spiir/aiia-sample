@@ -16,6 +16,7 @@ public class Program
                     {
                         options.AddServerHeader = false;
                     })
+                    .UseIISIntegration()
                     .UseStartup<Startup>()
                     .UseKeyVault()
                     .UseSerilogElasticSearchIngest();
