@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -118,15 +117,7 @@ public class Startup
         services.AddHttpClient<IAiiaHttpClient, AiiaHttpClient>();
         services.AddSingleton<AiiaApi, AiiaApi>();
         services.AddRazorPages().AddNewtonsoftJson();
-        services.AddControllers()
-            .AddMvcOptions(options =>
-            {
-                options.Filters.Add(new ResponseCacheAttribute()
-                {
-                    NoStore = true,
-                    Location = ResponseCacheLocation.None
-                });
-            }).AddNewtonsoftJson();
+        services.AddControllers().AddNewtonsoftJson();
     }
 
     private static void UpdateDatabase(IApplicationBuilder app)
