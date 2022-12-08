@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Aiia.Sample.Extensions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -12,14 +13,15 @@ public class Program
         return Host.CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(builder =>
             {
-                builder.UseKestrel(options =>
-                    {
-                        options.AddServerHeader = false;
-                    })
-                    .UseIISIntegration()
+                builder
                     .UseStartup<Startup>()
                     .UseKeyVault()
                     .UseSerilogElasticSearchIngest();
+                
+                builder.ConfigureKestrel(options =>
+                {
+                    options.AddServerHeader = false;
+                });
             });
     }
 
