@@ -1,4 +1,5 @@
-﻿using Aiia.Sample.AiiaClient;
+﻿using System;
+using Aiia.Sample.AiiaClient;
 using Aiia.Sample.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -84,14 +85,18 @@ public class Startup
             settings.Converters.Add(new StringEnumConverter());
             return settings;
         };
-        
+
         services.Configure<CookiePolicyOptions>(options =>
         {
             // This lambda determines whether user consent for non-essential cookies is needed for a given request.
             options.CheckConsentNeeded = context => true;
             options.MinimumSameSitePolicy = SameSiteMode.None;
         });
-
+        services.ConfigureApplicationCookie(options =>
+        {
+            options.Cookie.HttpOnly = true;
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
+        });
         services.AddAntiforgery(options =>
         {
             options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
