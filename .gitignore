@@ -39,3 +39,6 @@ app\.db
 
 global.json
 *.db
+*.db-shm
+*.db-wal
+

@@ -1,4 +1,5 @@
-﻿using Aiia.Sample.AiiaClient;
+﻿using System;
+using Aiia.Sample.AiiaClient;
 using Aiia.Sample.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,10 +27,10 @@ public class Startup
     public IConfiguration Configuration { get; }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    // Middleware ordering matters: https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/#middleware-order
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         app.UseExceptionHandler("/Home/Error");
-        app.UseRouting();
 
         if (!env.IsDevelopment())
         {
@@ -39,12 +40,22 @@ public class Startup
 
         UpdateDatabase(app);
         app.UseStaticFiles();
+        app.UseRouting();
         app.UseCookiePolicy();
 
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseStaticFiles();
+        // HTTP Security headers
+        app.Use(async (context, next) =>
+        {
+            context.Response.Headers.Add("X-Frame-Options", "DENY");
+            context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+            context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
+            // Do not add `X-Xss-Protection` header, it is deprecated and dangerous in mode "1"
+            await next();
+        });
+
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllerRoute(
@@ -84,12 +95,17 @@ public class Startup
             settings.Converters.Add(new StringEnumConverter());
             return settings;
         };
-        
+
         services.Configure<CookiePolicyOptions>(options =>
         {
             // This lambda determines whether user consent for non-essential cookies is needed for a given request.
             options.CheckConsentNeeded = context => true;
             options.MinimumSameSitePolicy = SameSiteMode.None;
+        });
+
+        services.AddHsts(options =>
+        {
+            options.MaxAge = TimeSpan.FromDays(365);
         });
 
         services.AddAntiforgery(options =>
