@@ -14,7 +14,6 @@ public class Program
             .ConfigureWebHostDefaults(builder =>
             {
                 builder
-                    .UseKestrel(option => option.AddServerHeader = false)
                     .UseStartup<Startup>()
                     .UseKeyVault()
                     .UseSerilogElasticSearchIngest();
