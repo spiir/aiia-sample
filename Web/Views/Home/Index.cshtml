@@ -2,7 +2,6 @@
     ViewData["Title"] = "Home Page";
 }
 
-
 <h1 class="text-center">
     Aiia Demo App
 </h1>
@@ -11,7 +10,6 @@
 </p>
 
 <section class="jumbotron text-center">
-    <p>Start by logging in and connecting accounts.</p>
     @if (User.Identity.IsAuthenticated)
     {
         <a class="btn btn-primary btn-lg"
@@ -20,5 +18,8 @@
            asp-action="Accounts">
             Start
         </a>
+    }else
+    {
+         <p>Start by logging in and connecting accounts.</p>
     }
 </section>

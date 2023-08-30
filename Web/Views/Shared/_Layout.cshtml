@@ -36,7 +36,7 @@
             <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                 <partial name="_LoginPartial"/>
                 <ul class="navbar-nav flex-grow-1">
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Aiia Demo App</a>
+                    <a class="navbar-brand text-nowrap" asp-area="" asp-controller="Home" asp-action="Index">Aiia Demo App</a>
 
                     @if (User.Identity.IsAuthenticated)
                     {
@@ -49,8 +49,8 @@
                             </a>
                         </li>
                         <environment exclude="Production">
-                            <li class="nav-item nav-blue dropdown">
-                                <a class="nav-link dropdown-item nav-blue"
+                            <li class="nav-item">
+                                <a class="nav-link nav-blue"
                                    style="cursor: pointer;"
                                    asp-area=""
                                    asp-controller="InboundPayment"
@@ -58,7 +58,7 @@
                                     Inbound payments
                                 </a>
                             </li>
-                            <li class="nav-item ">
+                           <li class="nav-item">
                                 <a class="nav-link nav-blue"
                                    style="cursor: pointer;"
                                    asp-area=""

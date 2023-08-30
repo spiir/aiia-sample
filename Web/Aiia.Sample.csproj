@@ -12,6 +12,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.2" />
+        <PackageReference Include="Azure.Identity" Version="1.9.0" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.6" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.6" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.6" />
@@ -20,12 +22,11 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Configuration.AzureKeyVault" Version="3.1.24" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.6" />
-        <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
-        <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="8.4.1" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.21.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+        <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="9.0.3" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.31.0" />
     </ItemGroup>
 
     <ItemGroup>
